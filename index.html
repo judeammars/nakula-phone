@@ -238,6 +238,14 @@ html,body{height:100%;background:#000;}
 .photo-detail .photo-full{background-size:contain;background-repeat:no-repeat;background-color:#101014;background-position:center}
 .photo-detail .photo-label{padding:7px 11px;border-radius:12px;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
+
+/* Nakula's contact card: preserve the iPhone Contacts layout, show complete descriptions. */
+#phone.in-app #app-screen .nakula-contact-card .nakula-contact-identity{min-width:0;flex:1}
+#phone.in-app #app-screen .nakula-contact-card h2{font-size:clamp(17px,4.8vw,21px);line-height:1.15;overflow-wrap:anywhere}
+#phone.in-app #app-screen .nakula-contact-card p{font-size:11.5px;line-height:1.4}
+#phone.in-app #app-screen .nakula-contact-details .row-sub{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
+#phone.in-app #app-screen .nakula-contact-details .ios-row{align-items:flex-start;padding-top:14px;padding-bottom:14px}
+
 </style>
 <link rel="stylesheet" href="./au.css">
 </head>
@@ -435,7 +443,7 @@ if(app==='messages'){
  h=pageHeader('Home','Journal');if(state.view==='entry'){let j=defaults.journal[Number(state.note)];content=`<p class="fine-title">PERSONAL JOURNAL</p><h2 class="large-title">${esc(j.title)}</h2><p class="note-text">${esc(j.body)}</p>`}
  else content=`<div class="large-title">Journal</div><p class="smallcaps">Recent entries</p><div class="ios-list">${defaults.journal.map((j,i)=>`<button class="ios-row" data-entry="${i}"><span class="row-main"><strong>${esc(j.title)}</strong><span class="row-sub">${esc(j.body)}</span></span><span class="end">›</span></button>`).join('')}</div>`;
 }else if(app==='about'||app==='phone'){
- h=pageHeader('Home',app==='phone'?'Phone':'Contacts');content=`<div class="large-title">${app==='phone'?'Phone':'My Card'}</div><div class="profile-banner"><span class="profile-silhouette">${svg('about')}</span><div><h2>Your Name</h2><p>Personal contact card</p></div></div><div class="list-group"><div class="ios-row"><span class="row-main"><strong>About</strong><span class="row-sub">A little space for an introduction.</span></span></div><div class="ios-row"><span class="row-main"><strong>Interests</strong><span class="row-sub">Photography · Music · Books · Design</span></span></div><div class="ios-row"><span class="row-main"><strong>Currently</strong><span class="row-sub">Working on something new.</span></span></div></div><span class="pill-status">Demo contact card · no real calls</span>`;
+ h=pageHeader('Home',app==='phone'?'Phone':'Contacts');content=`<div class="large-title">${app==='phone'?'Phone':'My Card'}</div><div class="profile-banner nakula-contact-card"><span class="profile-silhouette">${svg('about')}</span><div class="nakula-contact-identity"><h2>Nakula Shankara B.</h2><p>Corporate Litigator · Litigation & Disputes</p></div></div><div class="list-group nakula-contact-details"><div class="ios-row"><span class="row-main"><strong>About</strong><span class="row-sub">Corporate litigator. Leiden & Columbia alumnus. Focused on complex disputes and corporate accountability.</span></span></div><div class="ios-row"><span class="row-main"><strong>Interests</strong><span class="row-sub">Jazz · Literature · Photography · Late-night drives · Coffee</span></span></div><div class="ios-row"><span class="row-main"><strong>Currently</strong><span class="row-sub">PBK Group litigation. Reviewing evidence, revising briefs, and preparing the next filing.</span></span></div></div>`;
 }else if(app==='mail'){
  h=pageHeader('Home','Mail');content=`<div class="large-title">Inbox</div><p class="fine-title">Leave a message here. Only you can see it in this browser.</p><form id="letter-form" class="letter-form"><label for="visitor-name">Name</label><input id="visitor-name" name="name" maxlength="40" placeholder="Your name" required><label for="visitor-message">Message</label><textarea id="visitor-message" name="message" maxlength="500" placeholder="Write a message…" required></textarea><button class="ios-btn" type="submit">Save to Inbox</button></form><div class="smallcaps">Saved messages · ${letters.length}</div>${letters.map(l=>`<div class="saved-note"><strong>${esc(l.name)}</strong><p>${esc(l.message)}</p><small>${esc(l.date)}</small></div>`).join('')}`;
 }else if(app==='calendar'||app==='clock'){
