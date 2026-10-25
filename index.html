@@ -161,6 +161,66 @@ html,body{height:100%;background:#000;}
  .world-row,.world-row .city-time,.world-row .city-offset{font-size:12px}
 }
 
+
+/* Compact widgets aligned beneath the lockscreen clock. */
+#lock-screen .lock-widgets-wrap{
+  width:100%;
+  max-width:370px;
+  margin-top:clamp(1px,.55dvh,7px);
+  padding:0 5px;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(9px,2.6vw,15px);
+}
+#lock-screen .world-widget{
+  min-width:0;
+  flex:1 1 auto;
+  padding:0;
+  gap:3px;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+#lock-screen .world-row{
+  grid-template-columns:minmax(29px,1fr) auto auto;
+  align-items:baseline;
+  column-gap:5px;
+  line-height:1.28;
+}
+#lock-screen .world-row,
+#lock-screen .world-row .city-time,
+#lock-screen .world-row .city-offset{
+  font-size:clamp(13px,3.7vw,16px);
+}
+#lock-screen .mini-widgets{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(7px,2.5vw,12px);
+  flex:none;
+  align-self:center;
+  padding:0;
+}
+#lock-screen .mini-widget{
+  width:clamp(55px,16.7vw,67px);
+  height:clamp(55px,16.7vw,67px);
+  padding:0;
+  background:rgba(48,48,51,.66);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:none;
+}
+#lock-screen .mini-icon{font-size:clamp(15px,4vw,18px);margin-bottom:3px;line-height:1}
+#lock-screen .mini-label{font-size:clamp(11px,3.3vw,13px);line-height:1.15}
+@media(max-width:350px){
+  #lock-screen .lock-widgets-wrap{gap:7px;padding:0 3px}
+  #lock-screen .world-row,
+  #lock-screen .world-row .city-time,
+  #lock-screen .world-row .city-offset{font-size:12px}
+  #lock-screen .mini-widget{width:53px;height:53px}
+  #lock-screen .mini-widgets{gap:6px}
+}
+
 </style>
 </head>
 <body>
