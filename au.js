@@ -14,6 +14,7 @@ threads=[
 let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
 let harleyUnread=true,adnanUnread=false,unknownUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
+let harleyAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan','unknown'].includes(state.thread);
 const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:timeline;
@@ -404,9 +405,26 @@ function auKeyFeedback(char,force=false){
  }
 }
 
+
+/* Harley's conversation needs only one tap. Afterwards Nakula types each reply
+   automatically, keeping the visible keyboard animation and incoming delays. */
+function scheduleHarleyReply(delay=950){
+ if(!harleyAutoplayStarted||!inHarley()||incomingThread||typing||ready||keyboardVisible||harleyNextTimer)return;
+ if(!timeline[cursor]?.me)return;
+ harleyNextTimer=setTimeout(()=>{
+   harleyNextTimer=null;
+   if(!inHarley()||incomingThread||typing||ready||!timeline[cursor]?.me)return;
+   beginAutoType();
+ },delay);
+}
+
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
+ if(!inHarley()){
+   clearTimeout(harleyNextTimer);harleyNextTimer=null;
+   clearTimeout(harleyAutoSendTimer);harleyAutoSendTimer=null;
+ }
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
@@ -436,6 +454,7 @@ render=function(){
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
+ if(inHarley())scheduleHarleyReply();
 };
 function beginAutoType(){
  if(!inScripted()||isReceiving())return;
@@ -468,6 +487,13 @@ function beginAutoType(){
   }else{
     typing=false;ready=true;
     const btn=document.querySelector('#chat-form .send-btn');if(btn)btn.disabled=false;
+    if(inHarley()&&harleyAutoplayStarted&&currentRun===typingRun){
+      clearTimeout(harleyAutoSendTimer);
+      harleyAutoSendTimer=setTimeout(()=>{
+        harleyAutoSendTimer=null;
+        if(inHarley()&&!typing&&ready&&timeline[cursor]===message)sendScripted();
+      },620);
+    }
   }
  }
  typingTimer=setTimeout(step,175);
@@ -510,7 +536,17 @@ function sendScripted(){
  if(script[current+1]&&!script[current+1].me)receive(id);
 }
 document.addEventListener('click',e=>{
- if(e.target.closest('#chat-input')&&inScripted()){e.preventDefault();e.stopImmediatePropagation();beginAutoType()}
+ if(e.target.closest('#chat-input')&&inScripted()){
+   e.preventDefault();e.stopImmediatePropagation();
+   if(inHarley()){
+     if(!harleyAutoplayStarted){
+       harleyAutoplayStarted=true;
+       beginAutoType();
+     }
+     return;
+   }
+   beginAutoType();
+ }
 },true);
 
 document.addEventListener('click',e=>{
@@ -518,6 +554,7 @@ document.addEventListener('click',e=>{
  const k=e.target.closest('[data-au-key]');
  if(k){
    e.preventDefault();e.stopImmediatePropagation();
+   if(inHarley()&&harleyAutoplayStarted)return;
    auArmKeyboardAudio();
    const c=k.dataset.auKey;
    auKeyFeedback(c,true);
@@ -527,6 +564,10 @@ document.addEventListener('click',e=>{
 },true);
 
 document.addEventListener('submit',e=>{
- if(e.target.id==='chat-form'&&inScripted()){e.preventDefault();e.stopImmediatePropagation();sendScripted()}
+ if(e.target.id==='chat-form'&&inScripted()){
+   e.preventDefault();e.stopImmediatePropagation();
+   if(inHarley()&&harleyAutoplayStarted)return;
+   sendScripted();
+ }
 },true);
 })();
