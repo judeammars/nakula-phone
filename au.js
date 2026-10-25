@@ -179,11 +179,11 @@ callScreen.addEventListener('click',e=>{
  if(!button)return;
  const action=button.dataset.nakulaCall;
  if(action==='decline'&&unknownStage==='ringing'){
-  clearUnknownTimers();callScreen.hidden=true;
-  if(unknownAttempt===1){
-    unknownStage='retrying';
-    callRetryTimer=setTimeout(showUnknownCall,2000);
-  }else unknownStage='finished';
+  // Every rejection schedules another incoming call; only answering ends the loop.
+  clearUnknownTimers();
+  callScreen.hidden=true;
+  unknownStage='retrying';
+  callRetryTimer=setTimeout(showUnknownCall,2000);
  }else if(action==='accept'&&unknownStage==='ringing'){
   clearUnknownTimers();
   unknownStage='answered';
