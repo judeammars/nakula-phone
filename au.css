@@ -152,3 +152,81 @@
  #phone.in-app.harley-au-mode .harley-au-composer{gap:7px;padding-left:9px;padding-right:9px}
  .harley-au-notification{left:8px;right:8px}
 }
+
+
+/* Interactive iPhone keyboard */
+#phone.in-app.harley-au-mode .au-visual-keyboard{
+  box-sizing:border-box;flex:none;width:100%;
+  height:clamp(218px,35dvh,290px);
+  min-height:0;display:flex;flex-direction:column;gap:6px;
+  padding:3px 4px max(12px,env(safe-area-inset-bottom,0px));
+  background:#d0d3dc;color:#17191d;
+  border-top:1px solid #c5c7ce;
+  user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+#phone.in-app.harley-au-mode .keyboard-visible .harley-au-composer{padding-bottom:7px;border-top-color:#ededf0}
+#phone.in-app.harley-au-mode .keyboard-visible .convo-scroll{padding-bottom:8px}
+#phone.in-app.harley-au-mode .keyboard-visible .au-visual-keyboard .au-key-predictive{
+  display:flex;align-items:center;height:34px;min-height:34px;
+  border-bottom:1px solid #c2c5ce
+}
+#phone.in-app.harley-au-mode .au-key-predict-word{
+  min-width:0;flex:1;text-align:center;font-size:13px;color:#50525a;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-right:1px solid #bbbfc9;line-height:22px
+}
+#phone.in-app.harley-au-mode .au-key-dismiss,
+#phone.in-app.harley-au-mode .au-key-sound{
+  flex:none;border:0;background:transparent;color:#686b73;
+  width:29px;height:30px;display:grid;place-items:center;
+  padding:0;font-size:22px
+}
+#phone.in-app.harley-au-mode .au-key-sound{font-size:19px;font-weight:700}
+#phone.in-app.harley-au-mode .au-key-row{
+  flex:1;min-height:0;display:flex;justify-content:center;gap:4px;
+  width:100%;align-items:stretch
+}
+#phone.in-app.harley-au-mode .au-middle-row{padding:0 16px}
+#phone.in-app.harley-au-mode .au-key{
+  appearance:none;-webkit-appearance:none;
+  display:grid;place-items:center;min-width:0;flex:1;
+  border:0;border-radius:5px;background:#fcfcff;color:#18191e;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+  font-size:clamp(16px,5.4vw,22px);font-weight:400;
+  line-height:1;white-space:nowrap;
+  box-shadow:0 1px 0 rgba(66,70,82,.28),0 1px 1px #adb0ba5a;
+  padding:0;transition:background-color .08s,transform .08s;
+  touch-action:manipulation
+}
+#phone.in-app.harley-au-mode .au-key.au-key-pressed,
+#phone.in-app.harley-au-mode .au-key:active{
+  background:#aeb4c1;transform:translateY(2px);
+  box-shadow:inset 0 1px 2px #6c727f60
+}
+#phone.in-app.harley-au-mode .au-key-modifier{
+  background:#adb5c1;color:#303641;font-size:15px
+}
+#phone.in-app.harley-au-mode .au-key-row-third .au-key-modifier{flex:1.25}
+#phone.in-app.harley-au-mode .au-key svg{width:21px;height:21px}
+#phone.in-app.harley-au-mode .au-key-row-bottom{gap:5px}
+#phone.in-app.harley-au-mode .au-key-row-bottom .au-key{
+  font-size:14px;font-weight:450
+}
+#phone.in-app.harley-au-mode .au-key-row-bottom .au-key-space{
+  flex:5;background:#f9faff;font-size:13px
+}
+#phone.in-app.harley-au-mode .au-key-row-bottom .au-key-globe{flex:.9;font-size:21px}
+#phone.in-app.harley-au-mode .au-key-row-bottom .au-key-numbers{flex:1.1}
+#phone.in-app.harley-au-mode .au-key-row-bottom .au-key-return{flex:1.7;color:#38404c}
+#phone.in-app.harley-au-mode .au-keyboard-footer{height:5px;flex:none}
+@media(max-height:710px){
+ #phone.in-app.harley-au-mode .au-visual-keyboard{height:clamp(190px,32dvh,225px);gap:4px}
+ #phone.in-app.harley-au-mode .au-visual-keyboard .au-key-predictive{height:28px;min-height:28px}
+ #phone.in-app.harley-au-mode .au-keyboard-footer{height:3px}
+}
+@media(max-width:350px){
+ #phone.in-app.harley-au-mode .au-middle-row{padding:0 12px}
+ #phone.in-app.harley-au-mode .au-key-row{gap:3px}
+ #phone.in-app.harley-au-mode .au-key{font-size:18px}
+}
