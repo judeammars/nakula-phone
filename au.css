@@ -592,3 +592,17 @@
  #nakula-unknown-call .nakula-call-voice i{animation:none;height:14px}
  #nakula-unknown-call .nakula-call-caption{transition:none}
 }
+
+
+/* Unknown caller becomes visibly more agitated if Nakula hangs up mid-call. */
+#nakula-unknown-call.is-angry .nakula-call-caption{
+  color:#ffe3e3;
+  font-weight:740;
+  letter-spacing:.018em;
+  font-size:clamp(17px,4.8vw,20px);
+  line-height:1.48;
+  text-transform:uppercase;
+}
+#nakula-unknown-call.is-angry .nakula-call-voice i{
+  background:#ff8a8a;
+}
