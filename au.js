@@ -67,6 +67,9 @@ function startAdnanChapter(){
  const t=threadById('adnan');
  t.messages=[{...adnanTimeline[0]}];
  t.date='23.48';
+ // The newest conversation moves to the top, matching iMessage ordering.
+ const position=threads.findIndex(x=>x.id==='adnan');
+ if(position>0)threads.unshift(...threads.splice(position,1));
  adnanUnread=true;syncHarleyBadge();
  if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
  showAdnanNotification();
