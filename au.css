@@ -427,3 +427,72 @@
   color: transparent !important;
   font-size: 0 !important;
 }
+
+
+/* Native-style unread chat row, iOS Messages. */
+#phone.in-app.harley-au-mode .thread{
+  position:relative;
+  min-height:84px;
+  padding-left:32px;
+  padding-right:14px;
+  gap:12px;
+  align-items:center;
+}
+#phone.in-app.harley-au-mode .thread::after{left:95px;right:14px}
+#phone.in-app.harley-au-mode .thread .thread-main{min-width:0;flex:1}
+#phone.in-app.harley-au-mode .thread .thread-line{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+}
+#phone.in-app.harley-au-mode .thread .thread-name{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:16px;font-weight:600;
+}
+#phone.in-app.harley-au-mode .thread .thread-date{
+  flex:none;white-space:nowrap;margin-left:auto;font-size:12px;
+  font-weight:400;color:#96969d;
+}
+#phone.in-app.harley-au-mode .thread .thread-preview{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  overflow-wrap:anywhere;
+  line-height:1.34;
+  font-size:13px;
+  color:#777982;
+  margin-top:5px;
+  font-weight:400;
+}
+#phone.in-app.harley-au-mode .thread .thread-unread{
+  position:absolute;
+  left:9px;
+  top:50%;
+  transform:translateY(-50%);
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#0a84ff;
+  box-shadow:none;
+  pointer-events:none;
+}
+#phone.in-app.harley-au-mode .thread.is-unread .thread-name{
+  color:#111114;
+  font-weight:750;
+}
+#phone.in-app.harley-au-mode .thread.is-unread .thread-preview{
+  color:#24242b;
+  font-weight:650;
+}
+#phone.in-app.harley-au-mode .thread.is-unread .thread-date{
+  color:#777982;
+  font-weight:600;
+}
+@media(max-width:350px){
+  #phone.in-app.harley-au-mode .thread{padding-left:29px;gap:9px}
+  #phone.in-app.harley-au-mode .thread .thread-name{font-size:14px}
+  #phone.in-app.harley-au-mode .thread .thread-preview{font-size:12px}
+  #phone.in-app.harley-au-mode .thread .thread-unread{left:7px}
+}
