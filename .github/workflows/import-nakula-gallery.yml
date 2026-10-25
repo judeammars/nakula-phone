@@ -1,0 +1,48 @@
+name: Import Nakula Gallery Photos
+on:
+  push:
+    paths:
+      - '.github/workflows/import-nakula-gallery.yml'
+permissions:
+  contents: write
+jobs:
+  save-gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download uploaded reference photos
+        shell: bash
+        run: |
+          python3 - <<'PY'
+            import os, pathlib, urllib.request, urllib.error, re, time
+            sources = [{"name":"workdesk","url":"https://media.canva.com/v2/image-resize/format:JPG/height:200/quality:75/uri:ifs%3A%2F%2FM%2F213b7b6c-1cb6-41dc-9a68-973c974573ba/watermark:F/width:150?csig=AAAAAAAAAAAAAAAAAAAAAKxEWw4vXzFtl2Mz34tv7xHDhvWoQD3ZLNLQ5tkEHBR5&exp=1792934664&osig=AAAAAAAAAAAAAAAAAAAAAEp0qmQOYPg2qJ-npX3Sf8_NvD3DRhbVfP3VlpZW-QKt&signer=media-rpc&token=AAIAAU0AJDIxM2I3YjZjLTFjYjYtNDFkYy05YTY4LTk3M2M5NzQ1NzNiYQAAAAABoXM710Ahtr88NLyyJ3k3IKJRRePkxPlEO-8zvVkPyQbY1-R-QQ&x-canva-quality=thumbnail"},{"name":"cat","url":"https://media.canva.com/v2/image-resize/format:JPG/height:200/quality:75/uri:ifs%3A%2F%2FM%2F9ec16919-6221-4114-8270-e353f4ccec44/watermark:F/width:165?csig=AAAAAAAAAAAAAAAAAAAAAAviAoUMsAEc8jNJhzLlXs93wFyIJRjKh6lNI1SiTVMS&exp=1792934961&osig=AAAAAAAAAAAAAAAAAAAAADoiue5LOHXuh3iB0SGxPiNRlE8gTe2vxIwuLb08TYV-&signer=media-rpc&token=AAIAAU0AJDllYzE2OTE5LTYyMjEtNDExNC04MjcwLWUzNTNmNGNjZWM0NAAAAAABoXNAX2icANfRyjFQ2Bk-PWnngsoO4yacoGPfWYchhuu6z6nnAw&x-canva-quality=thumbnail"},{"name":"nightdrive","url":"https://media.canva.com/v2/image-resize/format:JPG/height:200/quality:75/uri:ifs%3A%2F%2FM%2Ff48ea009-25c7-47c7-9d6f-9e8d17d8ee57/watermark:F/width:150?csig=AAAAAAAAAAAAAAAAAAAAAE-IsJxJhM5VCReqLks1UzQ54AvBYiERxMEtaNLjfp7j&exp=1792935865&osig=AAAAAAAAAAAAAAAAAAAAAOv8lp03DoeQcvF7sWdPTajR4s8NRCtsHicvC2t_6bsd&signer=media-rpc&token=AAIAAU0AJGY0OGVhMDA5LTI1YzctNDdjNy05ZDZmLTllOGQxN2Q4ZWU1NwAAAAABoXNOKqjLkwIP_vdf_NFx9ALaccL7ZymUePXy4Yfr9QmKL95cgw&x-canva-quality=thumbnail"},{"name":"coffee","url":"https://media.canva.com/v2/image-resize/format:JPG/height:200/quality:75/uri:ifs%3A%2F%2FM%2F3ed24d59-2973-4fee-9e83-6056576ca3ff/watermark:F/width:150?csig=AAAAAAAAAAAAAAAAAAAAAKeJCyE7vh2gp1gcxtBKnuS-Pl1iXxVyEAo4qx585_JP&exp=1792937439&osig=AAAAAAAAAAAAAAAAAAAAAIuB-Z3ej-sXdnDvgzQPbhHbc59jqvu-j6GMztEP6he-&signer=media-rpc&token=AAIAAU0AJDNlZDI0ZDU5LTI5NzMtNGZlZS05ZTgzLTYwNTY1NzZjYTNmZgAAAAABoXNmLxj8Tqh2jKGXPMww2UIN2EvsrwMIdUTI2X4fQH6HeZAknQ&x-canva-quality=thumbnail"},{"name":"portrait","url":"https://media.canva.com/v2/image-resize/format:JPG/height:200/quality:75/uri:ifs%3A%2F%2FM%2Fd64dc255-9a49-462c-b49b-e73d5c758e33/watermark:F/width:150?csig=AAAAAAAAAAAAAAAAAAAAAHXaNlvOW1Gh-yPghUntlQYSkyO87CxBqb3h70Oox2k5&exp=1792936365&osig=AAAAAAAAAAAAAAAAAAAAAO-fIinvh9ooI6YU7VOuqlw7_4aNQQzypkC9NnmV9yAX&signer=media-rpc&token=AAIAAU0AJGQ2NGRjMjU1LTlhNDktNDYyYy1iNDliLWU3M2Q1Yzc1OGUzMwAAAAABoXNVy8jN8T8304Ci2Dlj6TKJanbYIK2ZQt-Re350FqPQ_pDZ5w&x-canva-quality=thumbnail"}]
+            out = pathlib.Path("gallery")
+            out.mkdir(exist_ok=True)
+            for src in sources:
+                name, url = src["name"], src["url"]
+                full = re.sub(r"height:\\d+", "height:980", url, count=1)
+                full = re.sub(r"width:\\d+", "width:736", full, count=1)
+                full = full.replace("x-canva-quality=thumbnail", "x-canva-quality=high")
+                data = None
+                for candidate in [full,url]:
+                  try:
+                    req = urllib.request.Request(candidate, headers={"User-Agent":"Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=25) as response:
+                      payload = response.read()
+                      if len(payload)<1000 or payload[:3]!=b"\\xff\\xd8\\xff": raise ValueError("Not a JPEG image")
+                      data=payload
+                      print(name, len(payload), candidate == full)
+                      break
+                  except Exception as exc:
+                    print("Retry", name, str(exc)[:180])
+                if data is None: raise SystemExit("Could not download "+name)
+                (out / (name + ".jpg")).write_bytes(data)
+            
+          PY
+      - name: Commit image files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add gallery/*.jpg
+          git diff --cached --quiet || (git commit -m 'Add five Nakula gallery photos' && git push)
