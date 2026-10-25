@@ -11,6 +11,7 @@ threads=[
 {id:'nirmala',name:'Nirmala',role:'Junior Assoc. AHP',initials:'N',date:'',messages:[]}
 ];
 let cursor=1,typing=false,ready=false,incoming=false,pendingOpen=false,typingTimer=null,audioContext=null;
+let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
 notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon">●</span><span><small>MESSAGES · now</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
@@ -54,10 +55,69 @@ openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
  return arr.map(t=>'<button class="thread" data-thread="'+esc(t.id)+'"><span class="avatar harley-au-avatar '+esc(t.id)+'">'+esc(t.initials)+'</span><span class="thread-main"><span class="thread-line"><span class="thread-name">'+esc(t.name)+'</span><span class="thread-date">'+esc(t.date)+'</span></span><span class="thread-preview">'+esc(t.messages[t.messages.length-1]?.text||t.role)+'</span><span class="harley-au-role">'+esc(t.role)+'</span></span><span class="thread-arrow">›</span></button>').join('');
 };
+
+/* In-page iOS-inspired keyboard, animating Nakula's scripted replies.
+   This is a visual keyboard: iOS does not allow websites to control native key animations or system haptics. */
+function auKeyboardMarkup(){
+ if(!keyboardVisible)return '';
+ const key=(char,label=char,extra='')=>'<button type="button" class="au-key '+extra+'" data-au-key="'+esc(char)+'" aria-label="'+esc(label)+'">'+esc(label)+'</button>';
+ const row=(letters,extra='')=>'<div class="au-key-row '+extra+'">'+Array.from(letters).map(char=>key(char,char)).join('')+'</div>';
+ const shift='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 1.8 13h5.6v8h9.2v-8h5.6L12 2z"/></svg>';
+ const del='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H22v16H9L1 12 9 4z"/><path d="m12 9 6 6m0-6-6 6"/></svg>';
+ return '<div class="au-visual-keyboard" id="au-visual-keyboard" aria-label="iPhone style keyboard">'+
+  '<div class="au-key-predictive"><span class="au-predict-word">Saya</span><span class="au-predict-word">the</span><span class="au-predict-word">Nakula</span><button type="button" data-au-hide-keyboard class="au-key-dismiss" aria-label="Hide keyboard">⌄</button><button type="button" data-au-toggle-sound class="au-key-sound" aria-label="Toggle keyboard sound">'+(keyboardSoundEnabled?'♪':'♪̸')+'</button></div>'+
+  row('qwertyuiop')+row('asdfghjkl','au-middle-row')+
+  '<div class="au-key-row au-key-row-third">'+key('shift',shift,'au-key-modifier')+Array.from('zxcvbnm').map(char=>key(char,char)).join('')+key('delete',del,'au-key-modifier')+'</div>'+
+  '<div class="au-key-row au-key-row-bottom">'+key('123','123','au-key-modifier au-key-numbers')+key('globe','◎','au-key-modifier au-key-globe')+key('space','space','au-key-space')+key('return','return','au-key-modifier au-key-return')+'</div>'+
+  '<div class="au-keyboard-footer"><span></span></div></div>';
+}
+function auArmKeyboardAudio(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  keyboardAudioContext=keyboardAudioContext||new AC();
+  if(keyboardAudioContext.state==='suspended')keyboardAudioContext.resume().catch(()=>{});
+ }catch(e){}
+}
+function auKeySound(){
+ if(!keyboardSoundEnabled||!keyboardAudioContext||keyboardAudioContext.state!=='running')return;
+ try{
+  const t=keyboardAudioContext.currentTime;
+  const osc=keyboardAudioContext.createOscillator();
+  const gain=keyboardAudioContext.createGain();
+  osc.type='triangle';
+  osc.frequency.setValueAtTime(650,t);osc.frequency.exponentialRampToValueAtTime(370,t+.017);
+  gain.gain.setValueAtTime(.0001,t);
+  gain.gain.exponentialRampToValueAtTime(.048,t+.002);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+.022);
+  osc.connect(gain).connect(keyboardAudioContext.destination);
+  osc.start(t);osc.stop(t+.025);
+ }catch(e){}
+}
+function auKeyFeedback(char,force=false){
+ const keys=Array.from(document.querySelectorAll('#au-visual-keyboard [data-au-key]'));
+ const value=char===' '?'space':String(char).toLowerCase();
+ const preferred=/^[a-z]$/.test(value)?value:((/[0-9]/.test(value))?'123':value===' '? 'space':/[.,!?]/.test(value)?'return':'space');
+ const match=keys.find(k=>k.dataset.auKey===preferred)||keys.find(k=>k.dataset.auKey==='space');
+ if(match){
+  match.classList.remove('au-key-pressed');
+  void match.offsetWidth;
+  match.classList.add('au-key-pressed');
+  clearTimeout(match.auPressTimer);
+  match.auPressTimer=setTimeout(()=>match.classList.remove('au-key-pressed'),105);
+ }
+ const t=performance.now();
+ if(force||t-lastKeyFeedback>=72){
+  lastKeyFeedback=t;auKeySound();
+  try{if(navigator.vibrate)navigator.vibrate(4)}catch(e){}
+ }
+}
+
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
  if(!inHarley()){
+   keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
    if(state.screen==='app'&&state.app==='messages'){
      const oldCaption=document.querySelector('#app-content .convo-local');
@@ -76,24 +136,45 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar">HM</span><span class="harley-au-head-name">Harley Mahira<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today 20.20</div>'+bubbles+dots+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form></div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today 20.20</div>'+bubbles+dots+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
 };
 function beginAutoType(){
- if(!inHarley()||typing||incoming||ready)return;
+ if(!inHarley()||incoming)return;
  const message=timeline[cursor];if(!message?.me)return;
- typing=true;let index=0;const composer=$au('chat-form');if(composer)composer.classList.add('has-reply');
+ auArmKeyboardAudio();
+ if(!keyboardVisible){
+   keyboardVisible=true;
+   render();
+ }
+ if(typing||ready)return;
+ typing=true;
+ const currentRun=++typingRun;
+ const composer=$au('chat-form');if(composer)composer.classList.add('has-reply');
+ let index=0;
  function step(){
-  if(!inHarley()){typing=false;return}
+  if(currentRun!==typingRun||!inHarley()){typing=false;return}
   const field=$au('chat-input');if(!field){typing=false;return}
-  index=Math.min(message.text.length,index+Math.max(2,Math.ceil(message.text.length/80)));
+  const nextIndex=Math.min(message.text.length,index+((message.text.length>160)?2:1));
+  const typed=message.text.slice(index,nextIndex);
+  index=nextIndex;
   field.value=message.text.slice(0,index);
-  field.style.height='36px';field.style.height=Math.min(100,Math.max(36,field.scrollHeight))+'px';
-  if(index<message.text.length)typingTimer=setTimeout(step,22);
-  else{typing=false;ready=true;const btn=document.querySelector('#chat-form .send-btn');if(btn)btn.disabled=false}
- }step();
+  field.style.height='36px';
+  field.style.height=Math.min(100,Math.max(36,field.scrollHeight))+'px';
+  field.scrollTop=field.scrollHeight;
+  auKeyFeedback(typed.slice(-1)||' ');
+  if(index<message.text.length){
+    const last=typed.slice(-1);
+    const delay=/[.,?!]/.test(last)?105:last===' '?65:34;
+    typingTimer=setTimeout(step,delay);
+  }else{
+    typing=false;ready=true;
+    const btn=document.querySelector('#chat-form .send-btn');if(btn)btn.disabled=false;
+  }
+ }
+ typingTimer=setTimeout(step,175);
 }
 function receive(){
  if(incoming)return;incoming=true;if(inHarley())render();
@@ -111,12 +192,31 @@ function sendScripted(){
  if(typing){clearTimeout(typingTimer);typing=false;ready=true}
  if(!ready){beginAutoType();return}
  const m=timeline[cursor];if(!m?.me)return;
+ typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
  threads[0].messages.push({...m});cursor++;ready=false;render();
  if(timeline[cursor]&&!timeline[cursor].me)receive();
 }
 document.addEventListener('click',e=>{
  if(e.target.closest('#chat-input')&&inHarley()){e.preventDefault();e.stopImmediatePropagation();beginAutoType()}
 },true);
+
+document.addEventListener('click',e=>{
+ if(!inHarley())return;
+ const hidden=e.target.closest('[data-au-hide-keyboard]');
+ if(hidden){e.preventDefault();e.stopImmediatePropagation();typingRun++;clearTimeout(typingTimer);typing=false;ready=false;keyboardVisible=false;render();return}
+ const toggle=e.target.closest('[data-au-toggle-sound]');
+ if(toggle){e.preventDefault();e.stopImmediatePropagation();keyboardSoundEnabled=!keyboardSoundEnabled;const icon=toggle.textContent;toggle.textContent=keyboardSoundEnabled?'♪':'♪̸';toggle.setAttribute('aria-label',keyboardSoundEnabled?'Mute keyboard sound':'Enable keyboard sound');return}
+ const k=e.target.closest('[data-au-key]');
+ if(k){
+   e.preventDefault();e.stopImmediatePropagation();
+   auArmKeyboardAudio();
+   const c=k.dataset.auKey;
+   auKeyFeedback(c,true);
+   if(c==='return'&&ready){sendScripted();return}
+   if(!typing&&!ready)beginAutoType();
+ }
+},true);
+
 document.addEventListener('submit',e=>{
  if(e.target.id==='chat-form'&&inHarley()){e.preventDefault();e.stopImmediatePropagation();sendScripted()}
 },true);
