@@ -60,7 +60,7 @@ threadMarkup=function(arr){
    This is a visual keyboard: iOS does not allow websites to control native key animations or system haptics. */
 function auKeyboardMarkup(){
  if(!keyboardVisible)return '';
- const key=(char,label=char,extra='')=>'<button type="button" class="au-key '+extra+'" data-au-key="'+esc(char)+'" aria-label="'+esc(label)+'">'+esc(label)+'</button>';
+ const key=(char,label=char,extra='')=>{const iconKey=char==='shift'||char==='delete';const aria=iconKey?char:char==='globe'?'Language':char==='space'?'Space':char==='return'?'Return':label;return '<button type="button" class="au-key '+extra+'" data-au-key="'+esc(char)+'" aria-label="'+esc(aria)+'">'+(iconKey?label:esc(label))+'</button>'};
  const row=(letters,extra='')=>'<div class="au-key-row '+extra+'">'+Array.from(letters).map(char=>key(char,char)).join('')+'</div>';
  const shift='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 1.8 13h5.6v8h9.2v-8h5.6L12 2z"/></svg>';
  const del='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H22v16H9L1 12 9 4z"/><path d="m12 9 6 6m0-6-6 6"/></svg>';
@@ -97,7 +97,7 @@ function auKeySound(){
 function auKeyFeedback(char,force=false){
  const keys=Array.from(document.querySelectorAll('#au-visual-keyboard [data-au-key]'));
  const value=char===' '?'space':String(char).toLowerCase();
- const preferred=/^[a-z]$/.test(value)?value:((/[0-9]/.test(value))?'123':value===' '? 'space':/[.,!?]/.test(value)?'return':'space');
+ const preferred=['shift','delete','return','123','globe','space'].includes(value)?value:/^[a-z]$/.test(value)?value:/[0-9]/.test(value)?'123':/[.,!?]/.test(value)?'return':'space';
  const match=keys.find(k=>k.dataset.auKey===preferred)||keys.find(k=>k.dataset.auKey==='space');
  if(match){
   match.classList.remove('au-key-pressed');
