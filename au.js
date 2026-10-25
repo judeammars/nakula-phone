@@ -12,7 +12,7 @@ threads=[
 {id:'nirmala',name:'Nirmala',role:'Junior Assoc. AHP',initials:'N',date:'',messages:[]}
 ];
 let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
-let harleyUnread=true,adnanUnread=false;
+let harleyUnread=true,adnanUnread=false,unknownUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan'].includes(state.thread);
@@ -89,6 +89,12 @@ notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif
 
 /* Fictional incoming-call sequence following the final Harley message. */
 let unknownQueued=false,unknownStage='idle',unknownAttempt=0,unknownInterrupted=false;
+let unknownCursor=1,aftermathTriggered=false,adnanIncidentPending=false,phoneRecentsFilter='all',callConnectedAt=0;
+const unknownMessageText='Saya rasa kita perlu bicara lagi, Pak Nakula. Kali ini dengarkan sampai selesai.';
+const unknownTimeline=[{me:false,time:'23.57',text:unknownMessageText}];
+const adnanIncidentText='Pak, maaf menghubungi selarut ini. Saya baru menerima beberapa panggilan anonim terkait perkara PBK Group. Belum ada ancaman eksplisit, tapi saya rasa perlu saya dokumentasikan. Akan saya jelaskan besok pagi.';
+let unknownCallHistory=getSaved('nakula-unknown-call-history',[]);
+if(!Array.isArray(unknownCallHistory))unknownCallHistory=[];
 let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callLineIndex=0;
 const unknownLines=[
  'Jauh-jauh dari masalah ini, Mas Nakula. Pilih damai saja.',
@@ -147,9 +153,83 @@ function ringPulse(){
   });
  }catch(e){}
 }
+
+function recordUnknownCall(kind){
+ const duration=callConnectedAt?Math.max(1,Math.round((Date.now()-callConnectedAt)/1000)):0;
+ unknownCallHistory.unshift({id:Date.now()+'-'+unknownAttempt,kind,
+  time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),duration});
+ unknownCallHistory=unknownCallHistory.slice(0,30);
+ setSaved('nakula-unknown-call-history',unknownCallHistory);
+ if(state.screen==='app'&&state.app==='phone')render();
+}
+function finishUnknownIncident(){
+ if(aftermathTriggered)return;
+ aftermathTriggered=true;
+ if(!notes.some(n=>Number(n.id)===9901)){
+  notes.unshift({id:9901,title:'UNKNOWN CALL / incident log',date:'25 October 2026 · 23:57',body:[
+   'CALL RECORD — PRIVATE','','Caller ID: Withheld / Unknown.',
+   'Repeated incoming calls following several declines.',
+   'Caller referred to the ongoing PBK Group litigation.',
+   'Tone escalated after I ended the first connected call.',
+   '','ACTION ITEMS',
+   '• Preserve call logs and the exact statements.',
+   '• Do not speculate about the caller’s identity.',
+   '• Do not disclose client materials or engage further.',
+   '• Notify Adnan and assess protective steps if needed.',
+   '','No assumptions. Just evidence.'
+  ].join('\n')});
+  setSaved('notes',notes);
+ }
+ if(!adnanIncidentPending){
+  adnanIncidentPending=true;
+  adnanTimeline.push({me:true,time:'23.59',text:adnanIncidentText});
+ }
+ if(!threadById('unknown')){
+  threads.unshift({id:'unknown',name:'Unknown',role:'Unknown Number',initials:'?',date:'23.57',
+   messages:unknownTimeline.map(m=>({...m}))});
+ }
+ unknownUnread=true;
+ syncHarleyBadge();
+ if(state.screen==='app'&&(state.app==='phone'||(state.app==='messages'&&state.view!=='convo')))render();
+ if(state.screen!=='lock'){
+  setNotification('unknown');
+  notif.classList.add('show');
+  sound();
+ }
+}
+function renderNakulaRecents(){
+ const entries=unknownCallHistory.filter(x=>phoneRecentsFilter==='all'||x.kind==='Declined');
+ $au('app-header').innerHTML='<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> Home</button><span class="app-title">Phone</span><span style="width:58px"></span>';
+ $au('app-content').innerHTML='<div class="nakula-phone-recents"><div class="large-title">Recents</div>'+
+  '<div class="nakula-call-filter"><button data-au-recents="all" class="'+(phoneRecentsFilter==='all'?'selected':'')+'">All</button><button data-au-recents="missed" class="'+(phoneRecentsFilter==='missed'?'selected':'')+'">Missed</button></div>'+
+  (entries.length?'<div class="nakula-call-history">'+entries.map(x=>
+   '<div class="nakula-call-history-row"><span class="nakula-recents-avatar">?</span><span class="nakula-recents-main"><strong class="'+(x.kind==='Declined'?'missed':'')+'">Unknown</strong><small>'+(x.kind==='Declined'?'Declined call':'Incoming · '+x.duration+'s')+'</small></span><span class="nakula-recents-time">'+esc(x.time)+'</span></div>'
+  ).join('')+'</div>':'<p class="nakula-recents-empty">No recent calls yet.</p>')+
+  '<button type="button" class="nakula-recents-contacts" data-au-phone-contact>View Nakula’s contact card</button></div>';
+ $au('app-content').style.padding='14px 18px 38px';
+ $au('app-content').style.overflowY='auto';
+}
+document.addEventListener('click',e=>{
+ const filter=e.target.closest('[data-au-recents]');
+ if(filter&&state.screen==='app'&&state.app==='phone'){
+  e.preventDefault();e.stopImmediatePropagation();
+  phoneRecentsFilter=filter.dataset.auRecents==='missed'?'missed':'all';
+  renderNakulaRecents();return;
+ }
+ const contact=e.target.closest('[data-au-phone-contact]');
+ if(contact&&state.screen==='app'&&state.app==='phone'){
+  e.preventDefault();e.stopImmediatePropagation();openApp('about');return;
+ }
+ const forward=e.target.closest('[data-au-open-adnan]');
+ if(forward&&aftermathTriggered){
+  e.preventDefault();e.stopImmediatePropagation();openStoryThread('adnan');
+ }
+},true);
+
 function showUnknownCall(){
  if(unknownStage==='answered'||unknownStage==='finished')return;
  unknownAttempt++;
+ callConnectedAt=0;
  unknownStage='ringing';
  callScreen.hidden=false;
  callScreen.classList.remove('is-connected','is-angry');
@@ -167,14 +247,17 @@ function queueUnknownCall(){
  callRetryTimer=setTimeout(showUnknownCall,1450);
 }
 function closeUnknownCall(){
+ recordUnknownCall('Answered');
  clearUnknownTimers();
  callScreen.hidden=true;
  callScreen.classList.remove('is-connected','is-angry');
  callCaption.classList.remove('is-visible');
  unknownStage='finished';
+ if(unknownInterrupted)setTimeout(finishUnknownIncident,2300);
 }
 function retryUnknownAfterHangup(){
  // Hanging up while connected makes this same caller redial with an angrier script.
+ recordUnknownCall('Answered');
  clearUnknownTimers();
  unknownInterrupted=true;
  callScreen.hidden=true;
@@ -201,6 +284,7 @@ callScreen.addEventListener('click',e=>{
  const action=button.dataset.nakulaCall;
  if(action==='decline'&&unknownStage==='ringing'){
   // Every rejection schedules another incoming call; only answering ends the loop.
+  recordUnknownCall('Declined');
   clearUnknownTimers();
   callScreen.hidden=true;
   unknownStage='retrying';
@@ -208,6 +292,7 @@ callScreen.addEventListener('click',e=>{
  }else if(action==='accept'&&unknownStage==='ringing'){
   clearUnknownTimers();
   unknownStage='answered';
+  callConnectedAt=Date.now();
   callLineIndex=0;
   callScreen.classList.add('is-connected');
   callScreen.classList.toggle('is-angry',unknownInterrupted);
