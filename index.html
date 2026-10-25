@@ -222,6 +222,7 @@ html,body{height:100%;background:#000;}
 }
 
 </style>
+<link rel="stylesheet" href="./au.css">
 </head>
 <body>
 <main class="site">
@@ -451,5 +452,6 @@ document.addEventListener('submit',e=>{if(e.target.id==='chat-form'){e.preventDe
 document.addEventListener('input',e=>{if(e.target.id==='message-search'){let query=e.target.value.trim().toLowerCase();$('thread-list').innerHTML=threadMarkup(threads.filter(t=>t.name.toLowerCase().includes(query)||t.messages.some(m=>m.text.toLowerCase().includes(query))))}});
 document.addEventListener('keydown',e=>{if($('passcode-layer')?.classList.contains('show')){if(/^\d$/.test(e.key)){enterPasscodeDigit(e.key);return;} if(e.key==='Backspace'){deletePasscodeDigit(); return;} if(e.key==='Escape'){hidePasscode(); return;}} if(e.key==='Escape'){if(state.screen==='app')back();else if(state.screen==='home')lock()}if(e.key==='Enter'&&e.target.id==='chat-input'&&!e.shiftKey){e.preventDefault();$('chat-form')?.requestSubmit()}});
 </script>
+<script src="./au.js" defer></script>
 </body>
 </html>
