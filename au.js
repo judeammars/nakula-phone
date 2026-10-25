@@ -10,12 +10,28 @@ threads=[
 {id:'damar',name:'Mas Damar',role:'HHP',initials:'MD',date:'',messages:[]},
 {id:'nirmala',name:'Nirmala',role:'Junior Assoc. AHP',initials:'N',date:'',messages:[]}
 ];
-let cursor=1,typing=false,ready=false,incoming=false,pendingOpen=false,typingTimer=null,audioContext=null;
+let cursor=1,typing=false,ready=false,incoming=false,typingTimer=null,audioContext=null;
+let harleyUnread=true;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
 notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon">●</span><span><small>MESSAGES · now</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
 $au('phone').appendChild(notif);
+// The unread badge lives outside the icon artwork so it isn't clipped by the icon's rounded mask.
+const messagesDockIcon=document.querySelector('#dock .app-button[data-app="messages"]');
+const unreadBadge=document.createElement('span');
+unreadBadge.className='harley-au-unread-badge is-hidden';
+unreadBadge.textContent='1';
+unreadBadge.setAttribute('aria-label','1 unread message');
+messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
+function syncHarleyBadge(){
+ unreadBadge.classList.toggle('is-hidden',!harleyUnread||state.screen==='lock');
+}
+function markHarleyRead(){
+ harleyUnread=false;
+ hideNotif();
+ syncHarleyBadge();
+}
 function sound(){
  try{
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
@@ -32,11 +48,17 @@ function sound(){
  }catch(e){} // Audio may be restricted until a user interacts with the browser.
 }
 function hideNotif(){notif.classList.remove('show')}
-function showNotif(play=false){if(state.screen==='app')return;notif.classList.add('show');if(play)sound()}
+function showNotif(play=false){
+ // Never show the incoming message until the phone has been unlocked with the PIN.
+ if(state.screen!=='home'||!harleyUnread)return;
+ notif.classList.add('show');
+ if(play)sound();
+}
 function openHarley(){
- hideNotif();
- if(state.screen==='lock'){pendingOpen=true;requestUnlock();return}
- pendingOpen=false;openApp('messages');state.thread='harley';state.view='convo';render();
+ if(state.screen!=='home'&&state.screen!=='app')return;
+ markHarleyRead();
+ openApp('messages');
+ state.thread='harley';state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',openHarley);
 notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif);
@@ -45,11 +67,23 @@ enterPasscodeDigit=function(digit){
  const wasLocked=state.screen==='lock';
  oldEnterPIN(digit);
  if(wasLocked&&state.screen==='home'){
-   if(pendingOpen){openHarley();sound()}else showNotif(true);
+   syncHarleyBadge();
+   showNotif(true);
  }
 };
 const oldLayer=layer;
-layer=function(which){oldLayer(which);$au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages')};
+layer=function(which){
+ oldLayer(which);
+ $au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages');
+ if(which!=='home')hideNotif();
+ syncHarleyBadge();
+};
+// A chat read clears the unread badge, including when Harley is opened from the Messages list.
+document.addEventListener('click',e=>{
+ if(e.target.closest('[data-thread="harley"]')&&state.screen==='app'&&state.app==='messages'){
+   markHarleyRead();
+ }
+},true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
@@ -215,5 +249,4 @@ document.addEventListener('click',e=>{
 document.addEventListener('submit',e=>{
  if(e.target.id==='chat-form'&&inHarley()){e.preventDefault();e.stopImmediatePropagation();sendScripted()}
 },true);
-setTimeout(()=>{if(state.screen==='lock')showNotif(false)},1200);
 })();
