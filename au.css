@@ -302,3 +302,82 @@
   #phone.in-app.harley-au-mode .convo-scroll{padding-left:14px;padding-right:14px}
   #phone.in-app.harley-au-mode .bubble{font-size:14px;padding:12px 14px;max-width:86%}
 }
+
+
+/* Liquid glass iMessage navigation: allow bubbles to scroll beneath header. */
+/* Position the translucent navbar over the scroll container, rather than above it,
+   so the moving message bubbles are actually visible through the blur. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation{
+  position:absolute;
+  isolation:isolate;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head{
+  position:absolute;
+  top:55px;
+  left:0;
+  right:0;
+  height:78px;
+  min-height:78px;
+  z-index:45;
+  display:flex;
+  align-items:center;
+  background:linear-gradient(170deg,
+    rgba(255,255,255,.78) 0%,
+    rgba(248,250,255,.65) 49%,
+    rgba(246,249,255,.44) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  backdrop-filter:blur(18px) saturate(180%);
+  border:0;
+  border-bottom:1px solid rgba(199,208,226,.26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 5px 24px rgba(27,54,89,.06);
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(117deg,rgba(255,255,255,.28),rgba(255,255,255,0) 53%,rgba(255,255,255,.15));
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::after{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  height:14px;
+  background:linear-gradient(to bottom,rgba(249,251,255,.28),rgba(255,255,255,0));
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-content{
+  position:relative;
+  min-height:0;
+  overflow:hidden;
+  padding-top:0!important;
+  background:#fff;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll{
+  padding-top:96px;
+  scroll-padding-top:96px;
+  -webkit-overflow-scrolling:touch;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-actions,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-back{
+  position:relative;
+  z-index:1;
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head{
+    background:rgba(250,251,254,.94);
+  }
+}
+@media (prefers-reduced-transparency: reduce){
+  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head{
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+    background:rgba(250,251,254,.96);
+  }
+}
