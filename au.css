@@ -230,3 +230,92 @@
  #phone.in-app.harley-au-mode .au-key-row{gap:3px}
  #phone.in-app.harley-au-mode .au-key{font-size:18px}
 }
+
+
+/* Rounded iMessage bubble redesign: Nakula AU */
+#phone.in-app.harley-au-mode .convo-scroll{
+  padding-left:16px;
+  padding-right:16px;
+}
+#phone.in-app.harley-au-mode .bubble-row{
+  margin:10px 0;
+  align-items:flex-end;
+}
+#phone.in-app.harley-au-mode .bubble{
+  position:relative;
+  max-width:85%;
+  width:max-content;
+  padding:13px 16px;
+  font-size:15px;
+  line-height:1.44;
+  letter-spacing:-.01em;
+  font-weight:400;
+  border-radius:23px;
+  word-break:normal;
+  overflow-wrap:anywhere;
+  box-shadow:none;
+}
+#phone.in-app.harley-au-mode .bubble-row.them .bubble{
+  color:#171719;
+  background:#e5e5e7;
+  border-radius:23px 23px 23px 7px;
+}
+#phone.in-app.harley-au-mode .bubble-row.me .bubble{
+  color:#fff;
+  background:#10a8f6;
+  border-radius:23px 23px 7px 23px;
+}
+#phone.in-app.harley-au-mode .bubble-row .bubble::before,
+#phone.in-app.harley-au-mode .bubble-row .bubble::after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  pointer-events:none;
+}
+#phone.in-app.harley-au-mode .bubble-row.them .bubble::before{
+  left:-7px;
+  width:17px;
+  height:19px;
+  background:#e5e5e7;
+  border-bottom-right-radius:15px;
+}
+#phone.in-app.harley-au-mode .bubble-row.them .bubble::after{
+  left:-11px;
+  width:11px;
+  height:21px;
+  background:#fff;
+  border-bottom-right-radius:13px;
+}
+#phone.in-app.harley-au-mode .bubble-row.me .bubble::before{
+  right:-7px;
+  width:17px;
+  height:19px;
+  background:#10a8f6;
+  border-bottom-left-radius:15px;
+}
+#phone.in-app.harley-au-mode .bubble-row.me .bubble::after{
+  right:-11px;
+  width:11px;
+  height:21px;
+  background:#fff;
+  border-bottom-left-radius:13px;
+}
+/* Leave the tail only on the last consecutive bubble from each sender. */
+@supports selector(.bubble-row:has(+ .bubble-row)){
+  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble{
+    border-bottom-right-radius:23px;
+  }
+  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble{
+    border-bottom-left-radius:23px;
+  }
+  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble::before,
+  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble::after,
+  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble::before,
+  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble::after{
+    display:none;
+  }
+}
+@media(max-width:385px){
+  #phone.in-app.harley-au-mode .convo-scroll{padding-left:14px;padding-right:14px}
+  #phone.in-app.harley-au-mode .bubble{font-size:14px;padding:12px 14px;max-width:86%}
+}
