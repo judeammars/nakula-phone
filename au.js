@@ -2,17 +2,17 @@
 (function(){
 'use strict';
 const timeline=[{"me":false,"time":"20.20","text":"Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok. Off the record kok."},{"me":true,"time":"20.20","text":"Saya sedang drafting defense statement, make it quick. Ada apa?"},{"me":false,"time":"20.21","text":"Ini soal isu PHK massal di anak perusahaan logistik itu. Whistleblower gue di HR mereka bilang, alasan efisiensi itu cuma kedok biar perusahaannya bisa hindarin bayar pesangon secara penuh. Perundingan bipartitnya gagal total kemarin."},{"me":true,"time":"20.21","text":"Typical corporate playbook. Mereka pasti ingin frame situasinya sebagai force majeure atau kerugian finansial berat untuk justify pesangon minim menggunakan aturan baru. Saat bipartit, perusahaannya memberikan audited financial statements tidak, untuk membuktikan kerugian tersebut?"},{"me":false,"time":"20.22","text":"Nggak ada. Press release yang dikirim ke newsroom gue cuma pure PR bullshit. Katanya \"restrukturisasi strategis demi long-term sustainability\", my ass. Kalau serikat pekerjanya mutusin buat ajuin class-action lawsuit, what are their actual odds di pengadilan?"},{"me":true,"time":"20.23","text":"Slim to none, kalau grounds-nya tidak solid. Gugatan perwakilan kelompok di PHI itu exceptionally messy. Serikat pekerjanya harus memegang risalah perundingan bipartit yang gagal itu dulu sebelum mereka bahkan bisa eskalasi ke Disnaker untuk mediasi."},{"me":true,"time":"20.23","text":"Parahnya lagi, kalau perusahaannya sengaja mengajukan PKPU hanya untuk menunda pembayaran pesangon, pekerjanya otomatis akan turun status menjadi kreditur konkuren. It’s a legal bloodbath."},{"me":false,"time":"20.23","text":"Gila........."},{"me":false,"time":"20.24","text":"Jadi mereka secara legal ngeksploitasi loophole buat bikin pekerjanya berdarah-darah."},{"me":false,"time":"20.24","text":"Can I quote you on that? Gue pake anonymous attribution deh, \"Menurut seorang corporate litigator ternama di SCBD...\" 😂"},{"me":true,"time":"20.24","text":"Absolutely not. Do not even try. Saya tidak akan mengambil risiko melanggar conflict of interest policy firma saya hanya untuk scoop kamu, Harley. Keep my existence out of your headline."},{"me":false,"time":"20.25","text":"Chill, man. 🙈"},{"me":false,"time":"20.25","text":"Gue paham kode etik jurnalistik. Gue nggak bakal bakar source gue sendiri. Lagian embargo-nya sampai cetakan cetak besok pagi kok."},{"me":false,"time":"20.25","text":"Btw, lu beneran nggak mau ngasih gue exclusive interview soal kasus tambangnya PBK Group? On the record, kali ini. It would be a massive front-page feature."},{"me":true,"time":"20.26","text":"Harley, saya block ya if this conversation turn into an ambush interview."},{"me":false,"time":"20.26","text":"Oh you won’t."},{"me":false,"time":"20.26","text":"Halo?"},{"me":false,"time":"20.26","text":"Nakula. 🥺"}];
-const adnanTimeline=[{"me":false,"time":"23.48","text":"Nakula, saya baru selesai review draft subpoena tim kamu buat PBK Group. Kamu beneran mau kejar full discovery buat semua komunikasi internal BoD mereka?"},{"me":false,"time":"23.48","text":"Termasuk anak kandungnya Abian Pangestu?"},{"me":true,"time":"23.49","text":"Benar, Pak. Tanda tangan Jenoah Pangestu ada di approval AMDAL yang rilis tiga hari sebelum longsor. Logika hukumnya cacat. It's clearly a backdated document."},{"me":true,"time":"23.49","text":"Saya butuh email trail mereka untuk membuktikan mens rea dari pihak eksekutif."},{"me":false,"time":"23.50","text":"Kamu sadar kan PBK Group pakai HHP? Lead counsel mereka Pak Damar, mentor kamu dulu, kan?"},{"me":false,"time":"23.50","text":"They will drown your team in motions to dismiss. Mereka punya resources buat bikin kasus ini berlarut-larut sampai bertahun-tahun."},{"me":false,"time":"23.50","text":"HHP pasti bakal dorong ke out-of-court settlement pakai uang tutup mulut yang besar dengan dalih good faith."},{"me":true,"time":"23.51","text":"Saya tidak akan menyarankan settlement ke klien. Dua warga desa meninggal dalam insiden itu, Pak. Saya tidak peduli seberapa besar dana CSR atau kompensasi yang mereka tawarkan, fokus tuntutan saya tetap di Corporate Criminal Liability."},{"me":true,"time":"23.51","text":"I am going to pierce their corporate veil. Para eksekutif yang bertanggung jawab harus dipidana secara individu. Mereka tidak bisa terus-terusan sembunyi di balik nama entitas perusahaan."},{"me":false,"time":"23.51","text":"Saya pahami idealisme kamu dari Leiden belum luntur, dan rekam jejak trial kamu dari Columbia memang luar biasa. Tapi kita harus realistis, Nakula. Lawan kita PBK Group, a tier-1 holding company."},{"me":false,"time":"23.51","text":"Kalau tim kamu salah langkah sedikit saja di ruang sidang, they will ruin your career and drag this firm down with you."},{"me":false,"time":"23.51","text":"Pastikan bukti yang kamu kumpulkan benar-benar bulletproof sebelum kita filing resmi ke pengadilan. Jangan sampai firma kita kena gugatan balik soal pencemaran nama baik."},{"me":true,"time":"23.52","text":"Understood. Saya pastikan argumen kita solid. Berkas revisinya akan ada di meja Bapak besok jam 8 pagi."},{"me":false,"time":"23.52","text":"Jangan lupa istirahat, Nakula. Your billable hours bulan ini sudah di luar batas kewajaran. Log off malam ini. That's an order."},{"me":true,"time":"23.52","text":"Noted, Pak. Terima kasih."}];
+const adnanTimeline=[{"me":false,"time":"18.42","text":"Nakula, good evening. Sudah sempat review berkas yang Nirmala kirim sore tadi?"},{"me":true,"time":"18.43","text":"Sudah, Pak. Ada dua bagian di kronologi yang perlu diverifikasi lagi. Saya tandai di file."},{"me":false,"time":"18.43","text":"Alright. No rush tonight. Saya hanya mau pastikan besok kita punya versi yang sama untuk dibahas dengan tim."},{"me":true,"time":"18.44","text":"Understood. Saya rapikan catatan revisinya malam ini, besok pagi tinggal kita cross-check."},{"me":false,"time":"18.45","text":"Bagus. By the way, Nirmala bilang kamu belum makan sejak siang. Jangan dibiasakan, Nakula."},{"me":true,"time":"18.45","text":"She's exaggerating, Pak. Saya sempat makan. Kopi juga."},{"me":false,"time":"18.46","text":"Kopi is not a meal. Lima belas tahun di firma ini mengajarkan saya satu hal: tidak ada brief yang membaik karena lawyer-nya lupa istirahat."},{"me":true,"time":"18.46","text":"Noted, Pak. I'll get dinner before continuing."},{"me":false,"time":"18.47","text":"Good. See you tomorrow. And please, no email at 3 AM this time."},{"me":true,"time":"18.47","text":"No promises, Pak. But I'll try."}];
 
 const $au=(id)=>document.getElementById(id);
 threads=[
 {id:'harley',name:'Harley Mahira',role:'Journalist',initials:'HM',date:'now',messages:[{...timeline[0]}]},
-{id:'adnan',name:'Adnan W. (Managing Partner)',role:'Managing Partner',initials:'AW',date:'',messages:[]},
+{id:'adnan',name:'Adnan W. (Managing Partner)',role:'Managing Partner',initials:'AW',date:'18.47',messages:adnanTimeline.map(m=>({...m}))},
 {id:'damar',name:'Mas Damar',role:'HHP',initials:'MD',date:'',messages:[]},
 {id:'nirmala',name:'Nirmala',role:'Junior Assoc. AHP',initials:'N',date:'',messages:[]}
 ];
-let cursor=1,adnanCursor=0,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
-let harleyUnread=true,adnanUnread=false,adnanStarted=false,adnanQueued=false;
+let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
+let harleyUnread=true,adnanUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan'].includes(state.thread);
@@ -55,30 +55,6 @@ function setNotification(id){
  notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=t.messages[0]?.text||'';
  notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
 }
-function showAdnanNotification(){
- if(state.screen==='lock'||!adnanUnread)return;
- setNotification('adnan');
- notif.classList.add('show');
- sound();
-}
-function startAdnanChapter(){
- if(adnanStarted)return;
- adnanStarted=true;adnanCursor=1;
- const t=threadById('adnan');
- t.messages=[{...adnanTimeline[0]}];
- t.date='23.48';
- // The newest conversation moves to the top, matching iMessage ordering.
- const position=threads.findIndex(x=>x.id==='adnan');
- if(position>0)threads.unshift(...threads.splice(position,1));
- adnanUnread=true;syncHarleyBadge();
- if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
- showAdnanNotification();
- setTimeout(()=>receive('adnan'),1450);
-}
-function queueAdnanChapter(){
- if(adnanQueued)return;
- adnanQueued=true;setTimeout(startAdnanChapter,1650);
-}
 
 function sound(){
  try{
@@ -110,13 +86,123 @@ function openStoryThread(id){
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
 notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif);
+
+/* Fictional incoming-call sequence following the final Harley message. */
+let unknownQueued=false,unknownStage='idle',unknownAttempt=0;
+let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callLineIndex=0;
+const unknownLines=[
+ 'Jauh-jauh dari masalah ini, Mas Nakula. Pilih damai saja.',
+ 'Tidak semua perkara perlu sampai ke meja hakim.',
+ 'Anda orang pintar. Pasti tahu kapan harus berhenti bertanya.',
+ 'Anggap saja ini nasihat. Selamat malam.'
+];
+const callScreen=document.createElement('div');
+callScreen.id='nakula-unknown-call';
+callScreen.className='nakula-unknown-call';
+callScreen.hidden=true;
+callScreen.setAttribute('role','dialog');
+callScreen.setAttribute('aria-label','Incoming call from Unknown');
+callScreen.innerHTML=
+ '<div class="nakula-call-top"><span class="nakula-call-network">INDOSAT</span><span class="nakula-call-signal">●●●◖</span></div>'+
+ '<div class="nakula-call-content">'+
+   '<div class="nakula-call-avatar" aria-hidden="true"><svg viewBox="0 0 64 64" fill="currentColor"><circle cx="32" cy="22" r="12"/><path d="M8 56c0-14 9-22 24-22s24 8 24 22Z"/></svg></div>'+
+   '<div class="nakula-call-name">Unknown</div>'+
+   '<div class="nakula-call-status" id="nakula-call-status">incoming call…</div>'+
+   '<div class="nakula-call-voice" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>'+
+   '<div class="nakula-call-caption" id="nakula-call-caption" aria-live="polite"></div>'+
+ '</div>'+
+ '<div class="nakula-call-actions">'+  // Button text remains accessible for screenreaders
+  '<button type="button" class="nakula-call-decline" data-nakula-call="decline" aria-label="Decline call"><span class="nakula-call-icon">✕</span><small>Decline</small></button>'+
+  '<button type="button" class="nakula-call-accept" data-nakula-call="accept" aria-label="Answer call"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 2.6 3.5 5.7c-1.8 2.3 1.2 8.1 5.6 12.4 4.4 4.4 10.3 7.4 12.5 5.6l2.9-3.2-5.3-4.1-2.7 2.8c-2.8-1.3-5.3-3.8-6.6-6.6l2.7-2.7-4-5.3Z"/></svg><small>Accept</small></button>'+
+ '</div>'+
+ '<button type="button" class="nakula-call-hangup" data-nakula-call="hangup" hidden>End call</button>';
+$au('phone').appendChild(callScreen);
+const callStatus=callScreen.querySelector('#nakula-call-status');
+const callCaption=callScreen.querySelector('#nakula-call-caption');
+function clearUnknownTimers(){
+ clearInterval(callRingTimer);callRingTimer=null;
+ clearTimeout(callRetryTimer);callRetryTimer=null;
+ clearTimeout(callSubtitleTimer);callSubtitleTimer=null;
+}
+function ringPulse(){
+ try{
+  const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
+  audioContext=audioContext||new Audio();
+  if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+  const t=audioContext.currentTime+.025;
+  [0,.2,.4].forEach((delay,i)=>{
+   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+   osc.type='sine';osc.frequency.value=i%2?490:440;
+   gain.gain.setValueAtTime(.0001,t+delay);
+   gain.gain.linearRampToValueAtTime(.055,t+delay+.02);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+delay+.17);
+   osc.connect(gain).connect(audioContext.destination);
+   osc.start(t+delay);osc.stop(t+delay+.18);
+  });
+ }catch(e){}
+}
+function showUnknownCall(){
+ if(unknownStage==='answered'||unknownStage==='finished')return;
+ unknownAttempt++;
+ unknownStage='ringing';
+ callScreen.hidden=false;
+ callScreen.classList.remove('is-connected');
+ callStatus.textContent='incoming call…';
+ callCaption.textContent='';
+ callScreen.querySelector('.nakula-call-actions').hidden=false;
+ callScreen.querySelector('.nakula-call-hangup').hidden=true;
+ ringPulse();
+ callRingTimer=setInterval(ringPulse,2700);
+}
+function queueUnknownCall(){
+ if(unknownQueued)return;
+ unknownQueued=true;
+ callRetryTimer=setTimeout(showUnknownCall,1450);
+}
+function closeUnknownCall(){
+ clearUnknownTimers();callScreen.hidden=true;
+ unknownStage='finished';
+}
+function nextUnknownSubtitle(){
+ if(unknownStage!=='answered')return;
+ if(callLineIndex>=unknownLines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1200);return}
+ callCaption.classList.remove('is-visible');
+ callSubtitleTimer=setTimeout(()=>{
+  if(unknownStage!=='answered')return;
+  callCaption.textContent=unknownLines[callLineIndex++];
+  callCaption.classList.add('is-visible');
+  callSubtitleTimer=setTimeout(nextUnknownSubtitle,callLineIndex===1?3700:3400);
+ },210);
+}
+callScreen.addEventListener('click',e=>{
+ const button=e.target.closest('[data-nakula-call]');
+ if(!button)return;
+ const action=button.dataset.nakulaCall;
+ if(action==='decline'&&unknownStage==='ringing'){
+  clearUnknownTimers();callScreen.hidden=true;
+  if(unknownAttempt===1){
+    unknownStage='retrying';
+    callRetryTimer=setTimeout(showUnknownCall,2000);
+  }else unknownStage='finished';
+ }else if(action==='accept'&&unknownStage==='ringing'){
+  clearUnknownTimers();
+  unknownStage='answered';
+  callLineIndex=0;
+  callScreen.classList.add('is-connected');
+  callStatus.textContent='00:00 · connected';
+  callScreen.querySelector('.nakula-call-actions').hidden=true;
+  callScreen.querySelector('.nakula-call-hangup').hidden=false;
+  callSubtitleTimer=setTimeout(nextUnknownSubtitle,750);
+ }else if(action==='hangup'&&unknownStage==='answered')closeUnknownCall();
+});
+
 const oldEnterPIN=enterPasscodeDigit;
 enterPasscodeDigit=function(digit){
  const wasLocked=state.screen==='lock';
  oldEnterPIN(digit);
  if(wasLocked&&state.screen==='home'){
    syncHarleyBadge();
-   if(adnanUnread)showAdnanNotification();else showNotif(true);
+   showNotif(true);
  }
 };
 const oldLayer=layer;
@@ -132,7 +218,7 @@ document.addEventListener('click',e=>{
  const t=e.target.closest('[data-thread]');
  if(!t)return;
  if(t.dataset.thread==='harley')markHarleyRead();
- if(t.dataset.thread==='adnan'&&adnanStarted)markAdnanRead();
+ if(t.dataset.thread==='adnan')markAdnanRead();
 },true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
@@ -278,7 +364,7 @@ function receive(id=state.thread){
   if(!next||next.me){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
-   if(id==='harley'&&current>=script.length)queueAdnanChapter();
+   if(id==='harley'&&current>=script.length)queueUnknownCall();
    return;
   }
   const thread=threadById(id);
