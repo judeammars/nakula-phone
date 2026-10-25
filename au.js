@@ -87,7 +87,15 @@ document.addEventListener('click',e=>{
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
- return arr.map(t=>'<button class="thread" data-thread="'+esc(t.id)+'"><span class="avatar harley-au-avatar '+esc(t.id)+'">'+esc(t.initials)+'</span><span class="thread-main"><span class="thread-line"><span class="thread-name">'+esc(t.name)+'</span><span class="thread-date">'+esc(t.date)+'</span></span><span class="thread-preview">'+esc(t.messages[t.messages.length-1]?.text||t.role)+'</span><span class="harley-au-role">'+esc(t.role)+'</span></span><span class="thread-arrow">›</span></button>').join('');
+ return arr.map(t=>{
+   const unread=t.id==='harley'&&harleyUnread;
+   const preview=t.messages[t.messages.length-1]?.text||t.role||'';
+   return '<button class="thread'+(unread?' is-unread':'')+'" data-thread="'+esc(t.id)+'" aria-label="'+esc(t.name)+(unread?', unread message':'')+'">'+
+     (unread?'<span class="thread-unread" aria-hidden="true"></span>':'')+
+     '<span class="avatar harley-au-avatar '+esc(t.id)+'">'+esc(t.initials)+'</span>'+
+     '<span class="thread-main"><span class="thread-line"><span class="thread-name">'+esc(t.name)+'</span><span class="thread-date">'+esc(t.date||'')+'</span></span>'+
+     '<span class="thread-preview">'+esc(preview)+'</span></span><span class="thread-arrow" aria-hidden="true">›</span></button>';
+ }).join('');
 };
 
 /* In-page iOS-inspired keyboard, animating Nakula's scripted replies.
