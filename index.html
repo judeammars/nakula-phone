@@ -238,32 +238,6 @@ html,body{height:100%;background:#000;}
 .photo-detail .photo-full{background-size:contain;background-repeat:no-repeat;background-color:#101014;background-position:center}
 .photo-detail .photo-label{padding:7px 11px;border-radius:12px;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
-/* Nakula's iPhone Notes dark agenda reference */
-#phone.nakula-notes-mode #app-screen.page{background:#000;color:#f1f1f1}
-#phone.nakula-notes-mode #app-screen .page-head{height:72px;min-height:72px;background:#000;border:0;padding:8px 18px}
-#phone.nakula-notes-mode #app-screen .page-content{background:#000;color:#ededed}
-#phone.nakula-notes-mode .statusbar{color:#fff}
-#phone.nakula-notes-mode .home-bar{background:#fff}
-#phone.nakula-notes-mode .nakula-note-back,#phone.nakula-notes-mode .nakula-note-top-actions button{border:1px solid #333;background:#1b1b1d;color:#eee;cursor:pointer;height:43px;min-width:43px;border-radius:24px;font-size:23px;display:inline-grid;place-items:center;padding:0 12px}
-#phone.nakula-notes-mode .nakula-note-top-actions{margin-left:auto;display:flex;gap:8px}
-#phone.nakula-notes-mode .nakula-note-document{padding:10px 24px 120px}
-#phone.nakula-notes-mode .nakula-note-date{text-align:center;color:#909095;font-size:13px;margin:0 0 18px}
-#phone.nakula-notes-mode .nakula-note-title{color:#f0f0f0;font-size:clamp(27px,7.8vw,35px);font-weight:760;line-height:1.2;letter-spacing:-.038em;margin:0 0 31px;overflow-wrap:anywhere}
-#phone.nakula-notes-mode .nakula-note-body{font-size:16px;line-height:1.54;letter-spacing:-.012em}
-#phone.nakula-notes-mode .nakula-note-section{font-size:18px;line-height:1.4;font-weight:725;color:#eee;margin:29px 0 10px;padding-left:12px;position:relative}
-#phone.nakula-notes-mode .nakula-note-section:before{content:'';position:absolute;top:4px;bottom:3px;left:0;width:4px;border-radius:3px;background:#5d5d5d}
-#phone.nakula-notes-mode .nakula-note-bullet{padding-left:0;margin:3px 0}
-#phone.nakula-notes-mode .nakula-note-bullet u{text-decoration-thickness:1px;text-underline-offset:3px}
-#phone.nakula-notes-mode .nakula-note-case{margin:5px 0 4px}
-#phone.nakula-notes-mode .nakula-note-detail{padding-left:15px;margin:4px 0}
-#phone.nakula-notes-mode .nakula-notes-gap{height:8px}
-#phone.nakula-notes-mode .nakula-note-toolbar{position:absolute;bottom:26px;left:20px;right:20px;z-index:4;display:flex;gap:5px;align-items:center;pointer-events:none}
-#phone.nakula-notes-mode .nakula-note-toolbar button{pointer-events:auto;color:#eee;background:#1c1c1d;border:1px solid #343434;border-radius:22px;min-width:43px;height:45px;font-size:22px;cursor:pointer}
-#phone.nakula-notes-mode .nakula-note-toolbar .nakula-note-edit{margin-left:auto;width:47px;height:47px;border-radius:50%}
-#phone.nakula-notes-mode .ios-row{background:#1b1b1d;color:#eee;border-bottom:1px solid #323234}
-#phone.nakula-notes-mode .ios-row strong,#phone.nakula-notes-mode .large-title{color:#eee}
-#phone.nakula-notes-mode .note-title-input,#phone.nakula-notes-mode .note-editor{color:#fff}
-@media(max-width:360px){#phone.nakula-notes-mode .nakula-note-document{padding-left:18px;padding-right:18px}#phone.nakula-notes-mode .nakula-note-body{font-size:15px}#phone.nakula-notes-mode .nakula-note-title{font-size:28px}}
 </style>
 <link rel="stylesheet" href="./au.css">
 </head>
@@ -388,13 +362,16 @@ const getSaved=(key,fallback)=>{try{let value=localStorage.getItem('myphone-ios-
 const setSaved=(key,value)=>{try{localStorage.setItem('myphone-ios-'+key,JSON.stringify(value))}catch{}};
 const previousNotes=getSaved('notes',null);
 const notesContentVersion=getSaved('notes-content-version',0);
-const oldDefaultIds=new Set([1,2,3,101,102,103,104,105,106,107,108,109,201]);
+const oldBuiltInIds=new Set([1,2,3,101,102,103,104,105,106,107,108,109,201]);
 let notes;
-if(notesContentVersion<3){
- const personalNotes=Array.isArray(previousNotes)?previousNotes.filter(n=>n&&typeof n==='object'&&!oldDefaultIds.has(Number(n.id))):[];
+if(notesContentVersion<4){
+ const personalNotes=Array.isArray(previousNotes)?previousNotes.filter(n=>n&&typeof n==='object'&&!oldBuiltInIds.has(Number(n.id))):[];
  notes=[...structuredClone(defaults.notes),...personalNotes];
- setSaved('notes',notes);setSaved('notes-content-version',3);
-}else{notes=Array.isArray(previousNotes)?previousNotes:structuredClone(defaults.notes)}
+ setSaved('notes',notes);
+ setSaved('notes-content-version',4);
+}else{
+ notes=Array.isArray(previousNotes)?previousNotes:structuredClone(defaults.notes);
+}
 let threads=getSaved('threads',defaults.threads),letters=getSaved('letters',[]),favorites=getSaved('favorites',[]),darkMode=getSaved('dark',false);
 const photoItems=[
 {name:'After hours at work',src:'./gallery/workdesk.jpg'},
@@ -408,7 +385,7 @@ const nakulaPlaylist=[{"title":"Intro","artist":"The xx"},{"title":"Retrograde",
 const state={screen:'lock',app:null,view:null,thread:null,note:null,photo:null};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function now(){let d=new Date();let status=$('status-time');if(status)status.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false});let lockClock=$('lock-clock');if(lockClock)lockClock.textContent=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}).replace(':','.');let lockDate=$('lock-date');if(lockDate)lockDate.textContent=d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'});let ww=$('widget-weekday'),wd=$('widget-day'),wm=$('widget-month');if(ww)ww.textContent=d.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase();if(wd)wd.textContent=d.getDate();if(wm)wm.textContent=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});const fmt=(tz)=>new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:tz}).format(d).replace(':','.');let cup=$('cup-time'),tok=$('tok-time'),syd=$('syd-time');if(cup)cup.textContent=fmt('America/Los_Angeles');if(tok)tok.textContent=fmt('Asia/Tokyo');if(syd)syd.textContent=fmt('Australia/Sydney');let cd=$('cal-icon-day'),cn=$('cal-icon-number');if(cd)cd.textContent=d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase();if(cn)cn.textContent=d.getDate();let hlt=$('home-live-time');if(hlt)hlt.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false})};now();setInterval(now,30000);
-function layer(which){state.screen=which;['lock','home','app'].forEach(n=>$(n+'-screen').classList.toggle('active',n===which));$('phone').classList.toggle('in-app',which==='app');$('phone').classList.toggle('dark-ui',which==='app'&&!!darkMode);$('phone').classList.toggle('nakula-notes-mode',which==='app'&&state.app==='notes')}
+function layer(which){state.screen=which;['lock','home','app'].forEach(n=>$(n+'-screen').classList.toggle('active',n===which));$('phone').classList.toggle('in-app',which==='app');$('phone').classList.toggle('dark-ui',which==='app'&&!!darkMode)}
 function unlock(){state.app=null;state.view=null;layer('home')}
 function goHome(){state.app=null;state.view=null;state.thread=null;layer('home')}
 function lock(){state.app=null;state.view=null;hidePasscode();layer('lock')}
@@ -421,21 +398,12 @@ function requestUnlock(){showPasscode()}
 function enterPasscodeDigit(d){ if(passcodeValue.length>=4) return; const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';} passcodeValue+=d; updatePasscodeDots(); if(passcodeValue.length===4){ if(passcodeValue===PHONE_PIN){ hidePasscode();  state.app=null; state.view=null; layer('home'); } else { const layerEl=$('passcode-layer'); if(layerEl){ layerEl.classList.remove('shake'); void layerEl.offsetWidth; layerEl.classList.add('shake'); setTimeout(()=>layerEl.classList.remove('shake'),320);} clearPasscode('Wrong PIN'); } }}
 function deletePasscodeDigit(){ if(!passcodeValue.length) return; passcodeValue=passcodeValue.slice(0,-1); updatePasscodeDots(); const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';}}
 
-function openApp(id){state.app=id;state.view=id==='notes'?'note':null;state.note=id==='notes'?201:null;state.thread=null;state.photo=null;layer('app');render()}
+function openApp(id){state.app=id;state.view=null;state.thread=null;state.photo=null;layer('app');render()}
 function showToast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove('show'),1900)}
 function back(){if(state.app==='messages'&&state.view==='convo'){state.view=null;state.thread=null;render();return}if(state.app==='notes'&&state.view){state.view=null;state.note=null;render();return}if(state.app==='photos'&&state.view){state.view=null;state.photo=null;render();return}if(state.app==='journal'&&state.view){state.view=null;render();return}goHome()}
 function pageHeader(left,title,right=''){return `<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> ${esc(left)}</button><span class="app-title">${esc(title)}</span><span style="width:63px;display:flex;justify-content:flex-end">${right}</span>`}
 function actionBtn(id,label='＋'){return `<button class="round-action" data-action="${id}" aria-label="${id}">${label}</button>`}
 function setView(view){state.view=view;render()}
-function formatNakulaNotes(value){
- return String(value||'').split('\n').map(line=>{const t=line.trim();
- if(!t)return '<div class="nakula-notes-gap"></div>';
- if(t==='AGENDA & STRUKTUR WAKTU'||t==='BERKAS PERKARA AKTIF')return '<h3 class="nakula-note-section">'+esc(t)+'</h3>';
- if(t.startsWith('• '))return '<p class="nakula-note-bullet">'+esc(t).replace(/(\d{2}:\d{2})/,'<u>$1</u>')+'</p>';
- if(/^\d+\.\s/.test(t))return '<p class="nakula-note-case">'+esc(t)+'</p>';
- if(t.startsWith('- '))return '<p class="nakula-note-detail">'+esc(t)+'</p>';
- return '<p>'+esc(t)+'</p>';
- }).join('');}
 function render(){if(state.screen!=='app'){return;}let h='',content='',app=state.app;const b='<span class="chev-left">‹</span> Home';
 if(app==='messages'){
  if(state.view==='convo'){
@@ -448,11 +416,7 @@ if(app==='messages'){
  }
 }else if(app==='notes'){
  h=pageHeader('Home','Notes',state.view? '':actionBtn('new-note','✎'));
- if(state.view==='note'){
- let n=notes.find(x=>String(x.id)===String(state.note));
- h='<button class="nakula-note-back" data-action="back" aria-label="Back to notes">‹</button><div class="nakula-note-top-actions"><button data-action="notes-undo" aria-label="Undo">↶</button><button data-action="notes-share" aria-label="Share note">↥</button><button data-action="notes-more" aria-label="More options">•••</button></div>';
- content=n?'<article class="nakula-note-document"><div class="nakula-note-date">'+esc(n.date)+'</div><h2 class="nakula-note-title">'+esc(n.title)+'</h2><div class="nakula-note-body">'+formatNakulaNotes(n.body)+'</div></article><div class="nakula-note-toolbar"><button data-action="notes-checklist" aria-label="Checklist">☷</button><button data-action="notes-attach" aria-label="Attachments">⌁</button><button data-action="notes-markup" aria-label="Markup">Ⓐ</button><button data-action="edit-note" class="nakula-note-edit" aria-label="Edit note">✎</button></div>':'No note found';
-}
+ if(state.view==='note'){let n=notes.find(x=>String(x.id)===String(state.note));content=n?`<p class="fine-title">${esc(n.date)}</p><h2 class="large-title" style="font-size:26px">${esc(n.title)}</h2><div class="note-text">${esc(n.body)}</div><button class="muted-btn" data-action="edit-note">Edit Note</button>`:'No note found';}
  else if(state.view==='editor'){let n=notes.find(x=>String(x.id)===String(state.note));content=`<form id="note-form"><input class="note-title-input" name="title" maxlength="85" placeholder="Title" value="${esc(n?.title||'')}" required><textarea class="note-editor" name="body" placeholder="Write something…" maxlength="5000">${esc(n?.body||'')}</textarea><button class="ios-btn" type="submit">Save Note</button></form><p class="field-note">Notes are stored on this device only.</p>`;}
  else content=`<div class="large-title">Notes</div><p class="smallcaps yellow">All Notes · ${notes.length}</p><div class="ios-list">${notes.map(n=>`<button class="ios-row" data-note="${esc(n.id)}"><span class="row-main"><strong>${esc(n.title)}</strong><span class="row-sub">${esc(n.date)} &nbsp; ${esc(n.body).replace(/\n/g,' ')}</span></span><span class="end">›</span></button>`).join('')}</div>`;
 }else if(app==='photos'){
@@ -481,7 +445,7 @@ if(app==='messages'){
 }else if(app==='settings'){
  h=pageHeader('Home','Settings');content=`<div class="large-title">Settings</div><div class="profile-banner"><span class="profile-silhouette">${svg('about')}</span><div><h2>Nakula's Phone</h2><p>AU archive settings</p></div></div><div class="list-group"><div class="ios-row"><span class="row-main"><strong>Wallpaper</strong><span class="row-sub">New York City · Chrysler Building</span></span></div><div class="ios-row"><span class="row-main"><strong>Appearance</strong><span class="row-sub">Dark mode for app pages</span></span><button class="switch ${darkMode?'on':''}" data-action="dark-mode" role="switch" aria-checked="${darkMode}" aria-label="Toggle app dark mode"></button></div><button class="ios-row" data-action="lock"><span class="row-main"><strong>Lock Screen</strong><span class="row-sub">Return to the wallpaper</span></span><span class="end">›</span></button></div><button class="warn" data-action="clear-demo">Reset local demo data</button><p class="fine-title">All messages, edits, and favorites are stored locally. Nothing here accesses a real iPhone.</p>`;
 }
-$('app-header').innerHTML=h;$('app-content').innerHTML=content;$('app-screen').classList.toggle('in-conversation',app==='messages'&&state.view==='convo');$('app-content').style.padding=(app==='messages'&&state.view==='convo')?'0':(app==='notes'?'0':'16px 21px 37px');if(app==='messages'&&state.view==='convo'){$('app-content').style.overflow='hidden';let el=$('chat-scroll');if(el)el.scrollTop=el.scrollHeight}else{$('app-content').style.overflowY='auto';$('app-content').scrollTop=0}
+$('app-header').innerHTML=h;$('app-content').innerHTML=content;$('app-screen').classList.toggle('in-conversation',app==='messages'&&state.view==='convo');$('app-content').style.padding=(app==='messages'&&state.view==='convo')?'0':'16px 21px 37px';if(app==='messages'&&state.view==='convo'){$('app-content').style.overflow='hidden';let el=$('chat-scroll');if(el)el.scrollTop=el.scrollHeight}else{$('app-content').style.overflowY='auto';$('app-content').scrollTop=0}
 }
 function threadMarkup(arr){return arr.map((t,i)=>`<button class="thread" data-thread="${esc(t.id)}">${i===0?'<span class="thread-unread"></span>':''}<span class="avatar ${esc(t.id)}">${esc(t.initials)}</span><span class="thread-main"><span class="thread-line"><span class="thread-name">${esc(t.name)}</span><span class="thread-date">${esc(t.date)}</span></span><span class="thread-preview">${esc(t.messages[t.messages.length-1]?.text||'')}</span></span><span class="thread-arrow">›</span></button>`).join('')}
 
@@ -489,7 +453,7 @@ $('unlock')?.addEventListener('click',requestUnlock);$('home-button')?.addEventL
 let touchY=null;$('lock-screen')?.addEventListener('pointerdown',e=>{if($('passcode-layer')?.classList.contains('show')) return; touchY=e.clientY});$('lock-screen')?.addEventListener('pointerup',e=>{if($('passcode-layer')?.classList.contains('show')) return; if(touchY!==null&&touchY-e.clientY>48)requestUnlock();touchY=null});
 document.addEventListener('click',e=>{const digitBtn=e.target.closest('[data-passcode-digit]'); if(digitBtn){enterPasscodeDigit(String(digitBtn.dataset.passcodeDigit)); return;} const passAction=e.target.closest('[data-passcode-action]'); if(passAction){ if(passAction.dataset.passcodeAction==='delete') deletePasscodeDigit(); else hidePasscode(); return;} let target=e.target.closest('[data-app],[data-open],[data-action],[data-thread],[data-note],[data-photo],[data-entry],[data-favorite]');if(!target)return;
 if(target.dataset.app){openApp(target.dataset.app);return}if(target.dataset.open){openApp(target.dataset.open);return}if(target.hasAttribute('data-thread')){state.thread=target.dataset.thread;state.view='convo';render();return}if(target.hasAttribute('data-note')){state.note=target.dataset.note;state.view='note';render();return}if(target.hasAttribute('data-photo')){state.photo=Number(target.dataset.photo);state.view='photo';render();return}if(target.hasAttribute('data-entry')){state.note=Number(target.dataset.entry);state.view='entry';render();return}if(target.hasAttribute('data-favorite')){let i=Number(target.dataset.favorite);favorites=favorites.includes(i)?favorites.filter(n=>n!==i):[...favorites,i];setSaved('favorites',favorites);render();return}
-let action=target.dataset.action;if(action==='back'){back()}else if(action==='new-note'){state.note=null;state.view='editor';render()}else if(action==='edit-note'){state.view='editor';render()}else if(action==='notes-undo'){showToast('Nothing to undo')}else if(action==='notes-more'){state.view='editor';render()}else if(action==='notes-checklist'){showToast('Checklist in note')}else if(action==='notes-attach'){showToast('Attachments unavailable')}else if(action==='notes-markup'){showToast('Markup unavailable')}else if(action==='notes-share'){const n=notes.find(x=>String(x.id)===String(state.note));if(n){const txt=n.title+'\n\n'+n.body;if(navigator.share)navigator.share({title:n.title,text:txt}).catch(()=>{});else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(txt).then(()=>showToast('Note copied')).catch(()=>showToast('Sharing unavailable'));else showToast('Sharing unavailable');}}else if(action==='lock'){lock()}else if(action==='dark-mode'){darkMode=!darkMode;setSaved('dark',darkMode);layer('app');render()}else if(action==='clear-demo'){if(confirm('Reset all demo messages, notes, and favorites on this device?')){notes=structuredClone(defaults.notes);threads=structuredClone(defaults.threads);letters=[];favorites=[];['notes','threads','letters','favorites'].forEach(k=>setSaved(k,({notes,threads,letters,favorites})[k]));render();showToast('Local demo data reset.')}}else if(action==='compose'){showToast('Select a conversation to send a local message.')}else if(action==='music-info'){showToast('This is a visual playlist preview, without audio.')}else if(action==='camera-lock'){requestUnlock()}else if(action==='torch'){showToast('Flashlight simulation only.')}else if(action==='attach'){showToast('Attachments are not enabled in this demo.')}});
+let action=target.dataset.action;if(action==='back'){back()}else if(action==='new-note'){state.note=null;state.view='editor';render()}else if(action==='edit-note'){state.view='editor';render()}else if(action==='lock'){lock()}else if(action==='dark-mode'){darkMode=!darkMode;setSaved('dark',darkMode);layer('app');render()}else if(action==='clear-demo'){if(confirm('Reset all demo messages, notes, and favorites on this device?')){notes=structuredClone(defaults.notes);threads=structuredClone(defaults.threads);letters=[];favorites=[];['notes','threads','letters','favorites'].forEach(k=>setSaved(k,({notes,threads,letters,favorites})[k]));render();showToast('Local demo data reset.')}}else if(action==='compose'){showToast('Select a conversation to send a local message.')}else if(action==='music-info'){showToast('This is a visual playlist preview, without audio.')}else if(action==='camera-lock'){requestUnlock()}else if(action==='torch'){showToast('Flashlight simulation only.')}else if(action==='attach'){showToast('Attachments are not enabled in this demo.')}});
 document.addEventListener('submit',e=>{if(e.target.id==='chat-form'){e.preventDefault();let field=$('chat-input');if(!field)return;let value=field.value.trim();if(!value)return;let t=threads.find(x=>x.id===state.thread);if(!t)return;t.messages.push({me:true,text:value});t.date='now';setSaved('threads',threads);render();$('chat-input')?.focus();return}if(e.target.id==='letter-form'){e.preventDefault();let d=new FormData(e.target);let name=String(d.get('name')||'').trim(),message=String(d.get('message')||'').trim();if(!name||!message)return;letters.unshift({name,message,date:new Date().toLocaleDateString('en-US')});letters=letters.slice(0,30);setSaved('letters',letters);render();showToast('Saved on this device');return}if(e.target.id==='note-form'){e.preventDefault();let d=new FormData(e.target),title=String(d.get('title')||'').trim(),body=String(d.get('body')||'').trim();if(!title)return;if(state.note!==null){let n=notes.find(x=>String(x.id)===String(state.note));if(n){n.title=title;n.body=body;n.date='Edited now'}}else{state.note=Date.now();notes.unshift({id:state.note,title,body,date:'Just now'})}setSaved('notes',notes);state.view='note';render();showToast('Note saved');return}});
 document.addEventListener('input',e=>{if(e.target.id==='message-search'){let query=e.target.value.trim().toLowerCase();$('thread-list').innerHTML=threadMarkup(threads.filter(t=>t.name.toLowerCase().includes(query)||t.messages.some(m=>m.text.toLowerCase().includes(query))))}});
 document.addEventListener('keydown',e=>{if($('passcode-layer')?.classList.contains('show')){if(/^\d$/.test(e.key)){enterPasscodeDigit(e.key);return;} if(e.key==='Backspace'){deletePasscodeDigit(); return;} if(e.key==='Escape'){hidePasscode(); return;}} if(e.key==='Escape'){if(state.screen==='app')back();else if(state.screen==='home')lock()}if(e.key==='Enter'&&e.target.id==='chat-input'&&!e.shiftKey){e.preventDefault();$('chat-form')?.requestSubmit()}});
