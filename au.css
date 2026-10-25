@@ -1,0 +1,52 @@
+
+/* Nakula AU iMessage layout and Harley notification. */
+.harley-au-notification{position:absolute;z-index:91;top:59px;left:12px;right:12px;display:flex;align-items:flex-start;border-radius:18px;padding:8px 9px;background:rgba(42,43,51,.91);color:white;border:1px solid rgba(255,255,255,.15);box-shadow:0 12px 36px #0008;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);opacity:0;pointer-events:none;transform:translateY(-16px);transition:opacity .26s,transform .28s}
+.harley-au-notification.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+.harley-au-notif-body{flex:1;min-width:0;display:flex;gap:10px;align-items:flex-start;border:0;background:none;color:inherit;text-align:left;padding:2px 0}
+.harley-au-notif-body>span:last-child{display:flex;flex-direction:column;min-width:0;gap:3px;flex:1}
+.harley-au-notif-body small{font-size:10px;letter-spacing:.05em;color:#c9c9d3}
+.harley-au-notif-body strong{font-size:14px}
+.harley-au-notif-body>span:last-child>span{font-size:12px;max-height:37px;overflow:hidden;line-height:1.3}
+.harley-au-notif-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#2fc85d;color:white;font-size:22px;flex:none}
+.harley-au-notif-close{border:0;background:#ffffff1c;color:#fff;width:25px;height:25px;border-radius:50%;font-size:18px;flex:none}
+.phone.in-app.harley-au-mode .page,.phone.in-app.harley-au-mode .page-content{background:#121318;color:#fff}
+.phone.in-app.harley-au-mode .page-head{background:#191a1d;border-color:#34343a;color:#fff}
+.phone.in-app.harley-au-mode .statusbar{color:#fff}
+.phone.in-app.harley-au-mode .large-title,.phone.in-app.harley-au-mode .thread-name{color:#fff}
+.phone.in-app.harley-au-mode .thread{background:#191a1d;color:#fff}
+.phone.in-app.harley-au-mode .thread:after{background:#38383d}
+.phone.in-app.harley-au-mode .thread-preview,.phone.in-app.harley-au-mode .thread-date{color:#a6a8b1}
+.phone.in-app.harley-au-mode .thread:hover{background:#25252b}
+.phone.in-app.harley-au-mode .ios-search{background:#303036;color:#e1e1e6}
+.phone.in-app.harley-au-mode .ios-search input{color:#fff}
+.phone.in-app.harley-au-mode .smallcaps{color:#aeb0b7}
+.harley-au-role{font-size:10px;color:#797d89;display:block;margin-top:3px}
+.harley-au-avatar.harley{background:linear-gradient(135deg,#5d8b95,#274455)}
+.harley-au-avatar.adnan{background:linear-gradient(135deg,#7c8294,#333a52)}
+.harley-au-avatar.damar{background:linear-gradient(135deg,#9c8877,#594943)}
+.harley-au-avatar.nirmala{background:linear-gradient(135deg,#7485b3,#334360)}
+.phone.in-app.harley-au-mode .conversation{background:#121318;color:#fff}
+.phone.in-app.harley-au-mode .convo-scroll{background:#121318;padding:20px 13px 12px}
+.phone.in-app.harley-au-mode .date-divider{color:#8d8f97}
+.phone.in-app.harley-au-mode .bubble-row{margin:7px 0}
+.phone.in-app.harley-au-mode .bubble{background:#3a3b40;color:#fff;max-width:87%;font-size:14px;line-height:1.41;padding:10px 13px 7px;border-radius:17px}
+.phone.in-app.harley-au-mode .bubble-row.me .bubble{background:#0969d8;color:#fff}
+.harley-au-time{display:block;text-align:right;color:#c9c9d1b5;font-size:10px;margin-top:5px}
+.phone.in-app.harley-au-mode .convo-foot,.phone.in-app.harley-au-mode .convo-local{background:#1c1d22;border-color:#34353a}
+.phone.in-app.harley-au-mode .convo-local{font-size:10px;line-height:1.25;color:#a6a7af}
+.phone.in-app.harley-au-mode .chat-input{background:#292a30;color:#fff;border:1px solid #505158}
+.phone.in-app.harley-au-mode .chat-input::placeholder{color:#a2a3ad}
+.phone.in-app.harley-au-mode .chat-input[readonly]{cursor:pointer;user-select:none}
+.phone.in-app.harley-au-mode .send-btn:disabled{background:#424550;color:#9599a1}
+.harley-au-head{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;margin-left:auto;margin-right:auto}
+.harley-au-head-avatar{display:grid;place-items:center;width:34px;height:34px;background:#536c73;border-radius:50%;font-size:12px;flex:none}
+.harley-au-head strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:134px;font-size:13px}
+.harley-au-head small{display:block;color:#9fa1ae;font-size:10px;margin-top:1px}
+.harley-au-head-icons{font-size:17px;min-width:42px;color:#5da5ff;white-space:nowrap}
+.harley-au-privacy{background:#27282e;color:#aeb0b8;max-width:260px;margin:0 auto 17px;border-radius:11px;padding:9px 12px;text-align:center;font-size:11px;line-height:1.35}
+.harley-au-dots{display:flex;gap:5px;align-items:center;justify-content:center;width:58px;min-height:33px}
+.harley-au-dots i{width:6px;height:6px;background:#c5c5cd;border-radius:50%;animation:harley-au-bounce .9s infinite alternate}
+.harley-au-dots i:nth-child(2){animation-delay:.15s}
+.harley-au-dots i:nth-child(3){animation-delay:.3s}
+@keyframes harley-au-bounce{to{opacity:.3;transform:translateY(-2px)}}
+@media(max-width:385px){.phone.in-app.harley-au-mode .bubble{font-size:13px}.harley-au-head strong{max-width:92px;font-size:12px}.harley-au-head-icons{font-size:14px;min-width:30px}.harley-au-notification{left:8px;right:8px}}
