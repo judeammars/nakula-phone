@@ -65,7 +65,6 @@ function auKeyboardMarkup(){
  const shift='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 1.8 13h5.6v8h9.2v-8h5.6L12 2z"/></svg>';
  const del='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H22v16H9L1 12 9 4z"/><path d="m12 9 6 6m0-6-6 6"/></svg>';
  return '<div class="au-visual-keyboard" id="au-visual-keyboard" aria-label="iPhone style keyboard">'+
-  '<div class="au-key-predictive"><span class="au-predict-word">Saya</span><span class="au-predict-word">the</span><span class="au-predict-word">Nakula</span><button type="button" data-au-hide-keyboard class="au-key-dismiss" aria-label="Hide keyboard">⌄</button><button type="button" data-au-toggle-sound class="au-key-sound" aria-label="Toggle keyboard sound">'+(keyboardSoundEnabled?'♪':'♪̸')+'</button></div>'+
   row('qwertyuiop')+row('asdfghjkl','au-middle-row')+
   '<div class="au-key-row au-key-row-third">'+key('shift',shift,'au-key-modifier')+Array.from('zxcvbnm').map(char=>key(char,char)).join('')+key('delete',del,'au-key-modifier')+'</div>'+
   '<div class="au-key-row au-key-row-bottom">'+key('123','123','au-key-modifier au-key-numbers')+key('globe','◎','au-key-modifier au-key-globe')+key('space','space','au-key-space')+key('return','return','au-key-modifier au-key-return')+'</div>'+
@@ -202,10 +201,6 @@ document.addEventListener('click',e=>{
 
 document.addEventListener('click',e=>{
  if(!inHarley())return;
- const hidden=e.target.closest('[data-au-hide-keyboard]');
- if(hidden){e.preventDefault();e.stopImmediatePropagation();typingRun++;clearTimeout(typingTimer);typing=false;ready=false;keyboardVisible=false;render();return}
- const toggle=e.target.closest('[data-au-toggle-sound]');
- if(toggle){e.preventDefault();e.stopImmediatePropagation();keyboardSoundEnabled=!keyboardSoundEnabled;const icon=toggle.textContent;toggle.textContent=keyboardSoundEnabled?'♪':'♪̸';toggle.setAttribute('aria-label',keyboardSoundEnabled?'Mute keyboard sound':'Enable keyboard sound');return}
  const k=e.target.closest('[data-au-key]');
  if(k){
    e.preventDefault();e.stopImmediatePropagation();
