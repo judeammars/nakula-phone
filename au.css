@@ -157,7 +157,7 @@
 /* Interactive iPhone keyboard */
 #phone.in-app.harley-au-mode .au-visual-keyboard{
   box-sizing:border-box;flex:none;width:100%;
-  height:clamp(218px,35dvh,290px);
+  height:clamp(185px,30dvh,252px);
   min-height:0;display:flex;flex-direction:column;gap:6px;
   padding:3px 4px max(12px,env(safe-area-inset-bottom,0px));
   background:#d0d3dc;color:#17191d;
@@ -167,22 +167,6 @@
 }
 #phone.in-app.harley-au-mode .keyboard-visible .harley-au-composer{padding-bottom:7px;border-top-color:#ededf0}
 #phone.in-app.harley-au-mode .keyboard-visible .convo-scroll{padding-bottom:8px}
-#phone.in-app.harley-au-mode .keyboard-visible .au-visual-keyboard .au-key-predictive{
-  display:flex;align-items:center;height:34px;min-height:34px;
-  border-bottom:1px solid #c2c5ce
-}
-#phone.in-app.harley-au-mode .au-key-predict-word{
-  min-width:0;flex:1;text-align:center;font-size:13px;color:#50525a;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  border-right:1px solid #bbbfc9;line-height:22px
-}
-#phone.in-app.harley-au-mode .au-key-dismiss,
-#phone.in-app.harley-au-mode .au-key-sound{
-  flex:none;border:0;background:transparent;color:#686b73;
-  width:29px;height:30px;display:grid;place-items:center;
-  padding:0;font-size:22px
-}
-#phone.in-app.harley-au-mode .au-key-sound{font-size:19px;font-weight:700}
 #phone.in-app.harley-au-mode .au-key-row{
   flex:1;min-height:0;display:flex;justify-content:center;gap:4px;
   width:100%;align-items:stretch
@@ -221,8 +205,7 @@
 #phone.in-app.harley-au-mode .au-key-row-bottom .au-key-return{flex:1.7;color:#38404c}
 #phone.in-app.harley-au-mode .au-keyboard-footer{height:5px;flex:none}
 @media(max-height:710px){
- #phone.in-app.harley-au-mode .au-visual-keyboard{height:clamp(190px,32dvh,225px);gap:4px}
- #phone.in-app.harley-au-mode .au-visual-keyboard .au-key-predictive{height:28px;min-height:28px}
+ #phone.in-app.harley-au-mode .au-visual-keyboard{height:clamp(166px,27dvh,198px);gap:4px}
  #phone.in-app.harley-au-mode .au-keyboard-footer{height:3px}
 }
 @media(max-width:350px){
