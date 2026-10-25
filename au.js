@@ -39,10 +39,13 @@ function openHarley(){
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',openHarley);
 notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif);
-const oldFinish=finishPhoneUnlock;
-finishPhoneUnlock=function(){
- oldFinish();
- if(pendingOpen){openHarley();sound()}else showNotif(true);
+const oldEnterPIN=enterPasscodeDigit;
+enterPasscodeDigit=function(digit){
+ const wasLocked=state.screen==='lock';
+ oldEnterPIN(digit);
+ if(wasLocked&&state.screen==='home'){
+   if(pendingOpen){openHarley();sound()}else showNotif(true);
+ }
 };
 const oldLayer=layer;
 layer=function(which){oldLayer(which);$au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages')};
