@@ -419,7 +419,7 @@
 
 /* Harley Mahira's uploaded portrait: inlined WebP, no extra server dependency */
 #phone.in-app.harley-au-mode .harley-au-avatar.harley,
-#phone.in-app.harley-au-mode .harley-au-head-avatar {
+#phone.in-app.harley-au-mode .harley-au-head-avatar.harley {
   background-image: url("data:image/webp;base64,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") !important;
   background-position: 50% 44% !important;
   background-size: cover !important;
@@ -609,16 +609,17 @@
 
 
 /* Unknown-call aftermath: iPhone-style call history and discreet story continuation. */
-#phone.in-app.harley-au-mode .harley-au-avatar.unknown{
-  background:#a4a4aa;
-  color:#fff;
-  font-size:20px;
+#phone.in-app.harley-au-mode .harley-au-avatar.unknown,
+#phone.in-app.harley-au-mode .harley-au-head-avatar.unknown{
+  background:#a2a2a7 !important;
+  background-image:none !important;
+  color:#fff !important;
+  font-size:22px !important;
   font-weight:600;
 }
-#phone.in-app.harley-au-mode .harley-au-head-avatar.unknown{
-  background:#a2a2a7;
-  color:#fff;
-  font-size:22px;
+#phone.in-app.harley-au-mode .harley-au-avatar.unknown{
+  background:#a4a4aa !important;
+  font-size:20px !important;
 }
 #phone.in-app.harley-au-mode .nakula-incident-cta{
   display:flex;
