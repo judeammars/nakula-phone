@@ -216,9 +216,9 @@ function receive(){
   if(!next||next.me){incoming=false;if(inHarley())render();return}
   threads[0].messages.push({...next});cursor++;
   if(inHarley()){render();sound()}
-  setTimeout(one,next.text.length>160?1100:750);
+  setTimeout(one,next.text.length>160?1800:1250);
  }
- setTimeout(one,950);
+ setTimeout(one,1550);
 }
 function sendScripted(){
  if(!inHarley())return;
