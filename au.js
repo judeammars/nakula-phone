@@ -15,10 +15,10 @@ let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingT
 let harleyUnread=true,adnanUnread=false,unknownUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
-const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan'].includes(state.thread);
-const activeTimeline=()=>state.thread==='adnan'?adnanTimeline:timeline;
-const activeIndex=()=>state.thread==='adnan'?adnanCursor:cursor;
-const setIndex=(id,i)=>{if(id==='adnan')adnanCursor=i;else cursor=i};
+const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan','unknown'].includes(state.thread);
+const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:timeline;
+const activeIndex=()=>state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:cursor;
+const setIndex=(id,i)=>{if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else cursor=i};
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
@@ -32,7 +32,7 @@ unreadBadge.textContent='1';
 unreadBadge.setAttribute('aria-label','1 unread message');
 messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
 function syncHarleyBadge(){
- const count=Number(harleyUnread)+Number(adnanUnread);
+ const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread);
  unreadBadge.textContent=String(count);
  unreadBadge.setAttribute('aria-label',count+' unread messages');
  unreadBadge.classList.toggle('is-hidden',!count||state.screen==='lock');
@@ -44,6 +44,11 @@ function markHarleyRead(){
 }
 function markAdnanRead(){
  adnanUnread=false;
+ hideNotif();
+ syncHarleyBadge();
+}
+function markUnknownRead(){
+ unknownUnread=false;
  hideNotif();
  syncHarleyBadge();
 }
@@ -81,7 +86,7 @@ function showNotif(play=false){
 }
 function openStoryThread(id){
  if(state.screen!=='home'&&state.screen!=='app')return;
- if(id==='adnan')markAdnanRead();else markHarleyRead();
+ if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else markHarleyRead();
  openApp('messages');state.thread=id;state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
@@ -309,7 +314,8 @@ enterPasscodeDigit=function(digit){
  oldEnterPIN(digit);
  if(wasLocked&&state.screen==='home'){
    syncHarleyBadge();
-   showNotif(true);
+   if(unknownUnread){setNotification('unknown');notif.classList.add('show');sound()}
+   else showNotif(true);
  }
 };
 const oldLayer=layer;
@@ -326,12 +332,13 @@ document.addEventListener('click',e=>{
  if(!t)return;
  if(t.dataset.thread==='harley')markHarleyRead();
  if(t.dataset.thread==='adnan')markAdnanRead();
+ if(t.dataset.thread==='unknown')markUnknownRead();
 },true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
  return arr.map(t=>{
-   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread);
+   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread);
    const preview=t.messages[t.messages.length-1]?.text||t.role||'';
    return '<button class="thread'+(unread?' is-unread':'')+'" data-thread="'+esc(t.id)+'" aria-label="'+esc(t.name)+(unread?', unread message':'')+'">'+
      (unread?'<span class="thread-unread" aria-hidden="true"></span>':'')+
@@ -403,6 +410,7 @@ render=function(){
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
+   if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
    if(state.screen==='app'&&state.app==='messages'){
      const oldCaption=document.querySelector('#app-content .convo-local');
      if(oldCaption)oldCaption.remove();
@@ -412,6 +420,10 @@ render=function(){
  const thread=threadById(state.thread),script=activeTimeline(),index=activeIndex(),next=script[index],done=!next&&!isReceiving();
  const bubbles=thread.messages.map(m=>'<div class="bubble-row '+(m.me?'me':'them')+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div></div>').join('');
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
+ const aftermathCta=state.thread==='unknown'&&aftermathTriggered?
+  '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
+ const delivered=state.thread==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length?
+  '<div class="nakula-message-delivered">Delivered</div>':'';
  const camera='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="14" r="4"/></svg>';
  const mic='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"/></svg>';
  const plus='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>';
@@ -420,7 +432,7 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+esc(thread.initials)+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today '+(state.thread==='adnan'?'23.48':'20.20')+'</div>'+bubbles+dots+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today '+(state.thread==='unknown'?'23.57':state.thread==='adnan'?'18.42':'20.20')+'</div>'+bubbles+dots+delivered+aftermathCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
@@ -465,8 +477,8 @@ function receive(id=state.thread){
  incomingThread=id;
  if(inScripted()&&state.thread===id)render();
  function one(){
-  const script=id==='adnan'?adnanTimeline:timeline;
-  const current=id==='adnan'?adnanCursor:cursor;
+  const script=id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:timeline;
+  const current=id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:cursor;
   const next=script[current];
   if(!next||next.me){
    incomingThread=null;
@@ -491,6 +503,10 @@ function sendScripted(){
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;render();
+ if(id==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length){
+  const idx=threads.findIndex(t=>t.id==='adnan');
+  if(idx>0)threads.unshift(...threads.splice(idx,1));
+ }
  if(script[current+1]&&!script[current+1].me)receive(id);
 }
 document.addEventListener('click',e=>{
