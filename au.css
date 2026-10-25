@@ -383,3 +383,35 @@
     background:rgba(250,251,254,.96);
   }
 }
+
+
+/* iOS unread badge on the Messages dock icon. */
+#phone .dock .app-button[data-app="messages"]{
+  position:relative;
+  overflow:visible;
+}
+#phone .dock .app-button[data-app="messages"] .app-icon{
+  overflow:hidden;
+}
+#phone .dock .harley-au-unread-badge{
+  position:absolute;
+  z-index:8;
+  top:-10px;
+  right:-9px;
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:999px;
+  background:#ff3b30;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+  font-size:15px;
+  line-height:1;
+  font-weight:500;
+  letter-spacing:-.02em;
+  border:1.5px solid rgba(255,255,255,.82);
+  box-shadow:0 2px 7px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+#phone .dock .harley-au-unread-badge.is-hidden{display:none}
