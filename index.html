@@ -231,6 +231,13 @@ html,body{height:100%;background:#000;}
 .phone.in-app.dark-ui .nakula-curated-row{border-bottom-color:rgba(255,255,255,.09)}
 .phone.in-app.dark-ui .nakula-curated-row .track-info strong{color:#f8f8f9}
 
+
+/* Nakula's photo library, gallery images served from this site's repository. */
+.gallery .photo-cell{background:#e5e4e6}
+.gallery .photo-thumb{background-size:cover;background-position:center;transform:translateZ(0)}
+.photo-detail .photo-full{background-size:contain;background-repeat:no-repeat;background-color:#101014;background-position:center}
+.photo-detail .photo-label{padding:7px 11px;border-radius:12px;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
 </style>
 <link rel="stylesheet" href="./au.css">
 </head>
@@ -354,7 +361,14 @@ const defaults={notes:[{id:1,title:'Things to remember',body:'Take the long way 
 const getSaved=(key,fallback)=>{try{let value=localStorage.getItem('myphone-ios-'+key);return value===null?fallback:JSON.parse(value)}catch{return fallback}};
 const setSaved=(key,value)=>{try{localStorage.setItem('myphone-ios-'+key,JSON.stringify(value))}catch{}};
 let notes=getSaved('notes',defaults.notes),threads=getSaved('threads',defaults.threads),letters=getSaved('letters',[]),favorites=getSaved('favorites',[]),darkMode=getSaved('dark',false);
-const photoItems=[{name:'New York',cls:'image-one',real:true},{name:'Skyline study',cls:'image-two'},{name:'Late afternoon',cls:'image-three'},{name:'Blue hour',cls:'image-four'},{name:'Quiet street',cls:'image-five'},{name:'City nights',cls:'image-six'}];
+const photoItems=[
+{name:'After hours at work',src:'./gallery/workdesk.jpg'},
+{name:'Little companion',src:'./gallery/cat.jpg'},
+{name:'Night drive',src:'./gallery/nightdrive.jpg'},
+{name:'Coffee break',src:'./gallery/coffee.jpg'},
+{name:'A familiar face',src:'./gallery/portrait.jpg'},
+{name:'New York',cls:'image-one',real:true}
+];
 const nakulaPlaylist=[{"title":"Intro","artist":"The xx"},{"title":"Retrograde","artist":"James Blake"},{"title":"On the Nature of Daylight","artist":"Max Richter"},{"title":"Nights","artist":"Frank Ocean"},{"title":"About Today","artist":"The National"},{"title":"In a Sentimental Mood","artist":"Duke Ellington & John Coltrane"},{"title":"How to Disappear Completely","artist":"Radiohead"},{"title":"Near Light","artist":"Ólafur Arnalds"},{"title":"Self Control","artist":"Frank Ocean"},{"title":"Sparks","artist":"Coldplay"},{"title":"Apocalypse","artist":"Cigarettes After Sex"},{"title":"The Night We Met","artist":"Lord Huron"},{"title":"Experience","artist":"Ludovico Einaudi"},{"title":"Vienna","artist":"Billy Joel"},{"title":"The Rip","artist":"Portishead"},{"title":"To Build a Home","artist":"The Cinematic Orchestra"}];
 const state={screen:'lock',app:null,view:null,thread:null,note:null,photo:null};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -395,9 +409,14 @@ if(app==='messages'){
  else content=`<div class="large-title">Notes</div><p class="smallcaps yellow">All Notes · ${notes.length}</p><div class="ios-list">${notes.map(n=>`<button class="ios-row" data-note="${esc(n.id)}"><span class="row-main"><strong>${esc(n.title)}</strong><span class="row-sub">${esc(n.date)} &nbsp; ${esc(n.body).replace(/\n/g,' ')}</span></span><span class="end">›</span></button>`).join('')}</div>`;
 }else if(app==='photos'){
  h=pageHeader('Home',state.view==='photo'?'Photo':'Photos');
- if(state.view==='photo'){let p=photoItems[state.photo];content=`<div class="photo-detail"><div class="photo-full ${p.cls}">${p.real?'':'<div class="placeholder-shape"></div>'}</div><div class="photo-label">${esc(p.name)}</div></div>`;}
- else content=`<div class="photos-header"><div><div class="large-title" style="margin-bottom:7px">Library</div><p class="fine-title">Recent photos</p></div><span class="smallcaps">${photoItems.length} items</span></div><div class="gallery">${photoItems.map((p,i)=>`<button class="photo-cell" data-photo="${i}" aria-label="Open ${esc(p.name)}"><div class="photo-thumb ${p.cls}">${p.real?'':'<div class="placeholder-shape"></div>'}</div></button>`).join('')}</div><p class="music-caption">One image is your chosen wallpaper. The others are visual placeholders.</p>`;
-
+ if(state.view==='photo'){
+  const p=photoItems[Number(state.photo)];
+  if(!p){state.view=null;return render()}
+  const photoStyle=p.src?'style="background-image:url('+esc(p.src)+')"':'';
+  content=`<div class="photo-detail"><div class="photo-full ${esc(p.cls||'')}" ${photoStyle}></div><div class="photo-label">${esc(p.name)}</div></div>`;
+ }else{
+  content=`<div class="photos-header"><div><div class="large-title" style="margin-bottom:7px">Library</div><p class="fine-title">Recent photos</p></div><span class="smallcaps">${photoItems.length} items</span></div><div class="gallery">${photoItems.map((p,i)=>`<button class="photo-cell" data-photo="${i}" aria-label="Open ${esc(p.name)}"><div class="photo-thumb ${esc(p.cls||'')}" ${p.src?'style="background-image:url('+esc(p.src)+')"':''}></div></button>`).join('')}</div>`;
+ }
 }else if(app==='music'){
  h=pageHeader('Home','Music');content=`<p class="smallcaps red" style="margin-top:8px">LIBRARY</p><div class="large-title">Music</div><div class="playlist-header"><div><strong>After Hours</strong><span>Nakula's rotation · ${nakulaPlaylist.length} songs</span></div></div><div class="smallcaps" style="margin-top:23px">SONGS</div>${nakulaPlaylist.map((song,i)=>`<div class="song-row nakula-curated-row"><span class="nakula-song-number">${String(i+1).padStart(2,'0')}</span><span class="track-info"><strong>${esc(song.title)}</strong><span>${esc(song.artist)}</span></span><span class="nakula-song-more" aria-hidden="true">···</span></div>`).join('')}`;
 }else if(app==='journal'){
