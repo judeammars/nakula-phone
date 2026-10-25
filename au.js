@@ -96,17 +96,17 @@ notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif
 /* Fictional incoming-call sequence following the final Harley message. */
 let unknownQueued=false,unknownStage='idle',unknownAttempt=0,unknownInterrupted=false;
 let unknownCursor=1,aftermathTriggered=false,adnanIncidentPending=false,phoneRecentsFilter='all',callConnectedAt=0;
-const unknownMessageText='Saya rasa kita perlu bicara lagi, Pak Nakula. Kali ini dengarkan sampai selesai.';
+const unknownMessageText='Saya rasa peringatan tadi sudah cukup jelas, Pak Nakula. Berhenti mengusut Zona B. Anda masih punya kesempatan untuk mundur.';
 const unknownTimeline=[{me:false,time:'23.57',text:unknownMessageText}];
-const adnanIncidentText='Pak, maaf menghubungi selarut ini. Saya baru menerima beberapa panggilan anonim terkait perkara PBK Group. Belum ada ancaman eksplisit, tapi saya rasa perlu saya dokumentasikan. Akan saya jelaskan besok pagi.';
+const adnanIncidentText='Pak, mohon maaf menghubungi selarut ini. Saya menerima panggilan anonim berulang terkait perkara Zona B. Penelepon meminta saya menghentikan penyelidikan atas PBK Group dan mengintimidasi saya setelah panggilan diputus. Call log serta pernyataannya sedang saya dokumentasikan. Akan saya jelaskan besok pagi.';
 let unknownCallHistory=getSaved('nakula-unknown-call-history',[]);
 if(!Array.isArray(unknownCallHistory))unknownCallHistory=[];
 let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callLineIndex=0;
 const unknownLines=[
- 'Jauh-jauh dari masalah ini, Mas Nakula. Pilih damai saja.',
- 'Tidak semua perkara perlu sampai ke meja hakim.',
- 'Anda orang pintar. Pasti tahu kapan harus berhenti bertanya.',
- 'Anggap saja ini nasihat. Selamat malam.'
+ 'Pak Nakula, saya sarankan Anda berhenti mengusut insiden Zona B.',
+ 'PBK Group sudah menawarkan penyelesaian kepada keluarga itu. Jangan bawa perkara ini lebih jauh.',
+ 'Ada orang-orang yang tidak ingin berkas itu dibuka lagi. Anda mengerti maksud saya?',
+ 'Hentikan penyelidikannya. Anggap ini peringatan terakhir.'
 ];
 const unknownAngryLines=[
  'BERANI-BERANINYA ANDA MEMATIKAN TELEPON SAAT SAYA SEDANG BICARA?!',
@@ -175,11 +175,11 @@ function finishUnknownIncident(){
   notes.unshift({id:9901,title:'UNKNOWN CALL / incident log',date:'25 October 2026 · 23:57',body:[
    'CALL RECORD — PRIVATE','','Caller ID: Withheld / Unknown.',
    'Repeated incoming calls following several declines.',
-   'Caller referred to the ongoing PBK Group litigation.',
+   'Caller demanded that I stop examining Zona B and named PBK Group.',
    'Tone escalated after I ended the first connected call.',
    '','ACTION ITEMS',
    '• Preserve call logs and the exact statements.',
-   '• Do not speculate about the caller’s identity.',
+   '• Caller may be protecting PBK interests; no verified identity or affiliation yet.',
    '• Do not disclose client materials or engage further.',
    '• Notify Adnan and assess protective steps if needed.',
    '','No assumptions. Just evidence.'
