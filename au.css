@@ -606,3 +606,146 @@
 #nakula-unknown-call.is-angry .nakula-call-voice i{
   background:#ff8a8a;
 }
+
+
+/* Unknown-call aftermath: iPhone-style call history and discreet story continuation. */
+#phone.in-app.harley-au-mode .harley-au-avatar.unknown{
+  background:#a4a4aa;
+  color:#fff;
+  font-size:20px;
+  font-weight:600;
+}
+#phone.in-app.harley-au-mode .harley-au-head-avatar.unknown{
+  background:#a2a2a7;
+  color:#fff;
+  font-size:22px;
+}
+#phone.in-app.harley-au-mode .nakula-incident-cta{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding:25px 13px 20px;
+}
+#phone.in-app.harley-au-mode .nakula-incident-cta small{
+  color:#9799a3;
+  font-size:10px;
+  font-weight:550;
+  letter-spacing:.075em;
+}
+#phone.in-app.harley-au-mode .nakula-incident-cta button{
+  color:#007aff;
+  background:#f2f5fa;
+  padding:10px 17px;
+  border-radius:19px;
+  border:1px solid #e7edf5;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+}
+#phone.in-app.harley-au-mode .nakula-message-delivered{
+  text-align:right;
+  margin:3px 3px 12px;
+  color:#91939c;
+  font-size:11px;
+}
+#phone.in-app:not(.harley-au-mode) .nakula-phone-recents{
+  min-height:100%;
+  color:#1c1c1e;
+}
+#phone .nakula-phone-recents .large-title{
+  font-size:33px;
+  margin:12px 0 13px;
+  font-weight:740;
+  letter-spacing:-.04em;
+}
+#phone .nakula-call-filter{
+  display:flex;
+  padding:3px;
+  border-radius:11px;
+  background:#e8e8ed;
+  gap:2px;
+  margin:0 auto 19px;
+  max-width:240px;
+}
+#phone .nakula-call-filter button{
+  border:0;
+  flex:1;
+  padding:8px 13px;
+  border-radius:8px;
+  background:transparent;
+  color:#48484f;
+  font-weight:550;
+  font-size:13px;
+  cursor:pointer;
+}
+#phone .nakula-call-filter button.selected{
+  background:white;
+  color:#161619;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+#phone .nakula-call-history{
+  display:flex;
+  flex-direction:column;
+  border-top:1px solid #e8e9ee;
+}
+#phone .nakula-call-history-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  min-height:75px;
+  border-bottom:1px solid #eeeef1;
+}
+#phone .nakula-recents-avatar{
+  width:43px;
+  height:43px;
+  background:#d9d9dd;
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:23px;
+  font-weight:600;
+  border-radius:50%;
+}
+#phone .nakula-recents-main{
+  display:flex;
+  flex:1;
+  min-width:0;
+  gap:3px;
+  flex-direction:column;
+}
+#phone .nakula-recents-main strong{
+  font-size:16px;
+  color:#1c1c1e;
+  font-weight:650;
+}
+#phone .nakula-recents-main strong.missed{color:#ff3b30}
+#phone .nakula-recents-main small,
+#phone .nakula-recents-time{
+  color:#93949c;
+  font-size:12px;
+}
+#phone .nakula-recents-time{align-self:center;flex:none}
+#phone .nakula-recents-empty{
+  margin:54px 0;
+  text-align:center;
+  font-size:14px;
+  color:#92939a;
+}
+#phone .nakula-recents-contacts{
+  border:0;
+  background:none;
+  color:#007aff;
+  font-size:13px;
+  padding:20px 5px;
+  cursor:pointer;
+}
+#phone.dark-ui .nakula-phone-recents{color:#fff}
+#phone.dark-ui .nakula-call-filter{background:#313136}
+#phone.dark-ui .nakula-call-filter button{color:#b9b9c2}
+#phone.dark-ui .nakula-call-filter button.selected{color:#fff;background:#55555c}
+#phone.dark-ui .nakula-call-history{border-color:#34343a}
+#phone.dark-ui .nakula-call-history-row{border-color:#33343a}
+#phone.dark-ui .nakula-recents-main strong{color:#fff}
+#phone.dark-ui .nakula-recents-main strong.missed{color:#ff635b}
+#phone.dark-ui .nakula-recents-avatar{background:#494a54}
