@@ -366,7 +366,7 @@ const isUntouchedSampleNote=n=>{
  if(!n||typeof n!=='object')return false;
  const id=Number(n.id),title=n.title||'',body=String(n.body||'');
  return (id===1&&title==='Things to remember'&&body.startsWith('Take the long way home sometimes.'))||
-        (id===2&&title==='Weekend'&&body.startsWith('Coffee.\\n'))||
+        (id===2&&title==='Weekend'&&body.startsWith('Coffee.'))||
         (id===3&&title==='A thought'&&body.startsWith('Maybe not everything needs to be figured out at once.'));
 };
 let notes;
