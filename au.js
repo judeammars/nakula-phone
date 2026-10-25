@@ -88,13 +88,19 @@ notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openSt
 notif.querySelector('.harley-au-notif-close').addEventListener('click',hideNotif);
 
 /* Fictional incoming-call sequence following the final Harley message. */
-let unknownQueued=false,unknownStage='idle',unknownAttempt=0;
+let unknownQueued=false,unknownStage='idle',unknownAttempt=0,unknownInterrupted=false;
 let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callLineIndex=0;
 const unknownLines=[
  'Jauh-jauh dari masalah ini, Mas Nakula. Pilih damai saja.',
  'Tidak semua perkara perlu sampai ke meja hakim.',
  'Anda orang pintar. Pasti tahu kapan harus berhenti bertanya.',
  'Anggap saja ini nasihat. Selamat malam.'
+];
+const unknownAngryLines=[
+ 'BERANI-BERANINYA ANDA MEMATIKAN TELEPON SAAT SAYA SEDANG BICARA?!',
+ 'SAYA BELUM SELESAI, NAKULA SHANKARA BUMI!',
+ 'SAYA SUDAH MEMPERINGATKAN ANDA UNTUK MENJAUH DARI PERKARA PBK GROUP!',
+ 'JANGAN PERNAH MENGANGGAP PERINGATAN SAYA SEBAGAI LELUCON!'
 ];
 const callScreen=document.createElement('div');
 callScreen.id='nakula-unknown-call';
@@ -146,7 +152,8 @@ function showUnknownCall(){
  unknownAttempt++;
  unknownStage='ringing';
  callScreen.hidden=false;
- callScreen.classList.remove('is-connected');
+ callScreen.classList.remove('is-connected','is-angry');
+ callCaption.classList.remove('is-visible');
  callStatus.textContent='incoming call…';
  callCaption.textContent='';
  callScreen.querySelector('.nakula-call-actions').hidden=false;
@@ -160,18 +167,32 @@ function queueUnknownCall(){
  callRetryTimer=setTimeout(showUnknownCall,1450);
 }
 function closeUnknownCall(){
- clearUnknownTimers();callScreen.hidden=true;
+ clearUnknownTimers();
+ callScreen.hidden=true;
+ callScreen.classList.remove('is-connected','is-angry');
+ callCaption.classList.remove('is-visible');
  unknownStage='finished';
+}
+function retryUnknownAfterHangup(){
+ // Hanging up while connected makes this same caller redial with an angrier script.
+ clearUnknownTimers();
+ unknownInterrupted=true;
+ callScreen.hidden=true;
+ callScreen.classList.remove('is-connected','is-angry');
+ callCaption.classList.remove('is-visible');
+ unknownStage='retrying';
+ callRetryTimer=setTimeout(showUnknownCall,3200);
 }
 function nextUnknownSubtitle(){
  if(unknownStage!=='answered')return;
- if(callLineIndex>=unknownLines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1200);return}
+ const lines=unknownInterrupted?unknownAngryLines:unknownLines;
+ if(callLineIndex>=lines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1200);return}
  callCaption.classList.remove('is-visible');
  callSubtitleTimer=setTimeout(()=>{
   if(unknownStage!=='answered')return;
-  callCaption.textContent=unknownLines[callLineIndex++];
+  callCaption.textContent=lines[callLineIndex++];
   callCaption.classList.add('is-visible');
-  callSubtitleTimer=setTimeout(nextUnknownSubtitle,callLineIndex===1?3700:3400);
+  callSubtitleTimer=setTimeout(nextUnknownSubtitle,unknownInterrupted?2800:(callLineIndex===1?3700:3400));
  },210);
 }
 callScreen.addEventListener('click',e=>{
@@ -189,11 +210,12 @@ callScreen.addEventListener('click',e=>{
   unknownStage='answered';
   callLineIndex=0;
   callScreen.classList.add('is-connected');
+  callScreen.classList.toggle('is-angry',unknownInterrupted);
   callStatus.textContent='00:00 · connected';
   callScreen.querySelector('.nakula-call-actions').hidden=true;
   callScreen.querySelector('.nakula-call-hangup').hidden=false;
   callSubtitleTimer=setTimeout(nextUnknownSubtitle,750);
- }else if(action==='hangup'&&unknownStage==='answered')closeUnknownCall();
+ }else if(action==='hangup'&&unknownStage==='answered')retryUnknownAfterHangup();
 });
 
 const oldEnterPIN=enterPasscodeDigit;
