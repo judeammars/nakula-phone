@@ -57,13 +57,26 @@ threadMarkup=function(arr){
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
- if(!inHarley()){oldRender();return}
+ if(!inHarley()){
+   oldRender();
+   if(state.screen==='app'&&state.app==='messages'){
+     const oldCaption=document.querySelector('#app-content .convo-local');
+     if(oldCaption)oldCaption.remove();
+   }
+   return;
+ }
  const thread=threads[0],next=timeline[cursor],done=!next&&!incoming;
- const bubbles=thread.messages.map(m=>'<div class="bubble-row '+(m.me?'me':'them')+'"><div class="bubble"><div>'+esc(m.text)+'</div><small class="harley-au-time">'+esc(m.time||'')+(m.me?' ✓✓':'')+'</small></div></div>').join('');
+ const bubbles=thread.messages.map(m=>'<div class="bubble-row '+(m.me?'me':'them')+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div></div>').join('');
  const dots=incoming?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
- const place=done?'Conversation complete':incoming?'Harley is typing…':next?.me?'Tap to type Nakula’s reply':'iMessage';
- $au('app-header').innerHTML='<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> Messages</button><div class="harley-au-head"><span class="harley-au-head-avatar">HM</span><span><strong>Harley Mahira</strong><small>iMessage</small></span></div><span class="harley-au-head-icons" aria-hidden="true">▹ ♧</span>';
- $au('app-content').innerHTML='<div class="conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today · 20.20</div><div class="harley-au-privacy">🔒 Fictional messages from Nakula’s phone.</div>'+bubbles+dots+'</div><form class="convo-foot" id="chat-form"><button type="button" class="plus-btn" data-action="attach">+</button><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="'+esc(place)+'" aria-label="Tap to type Nakula’s reply"></textarea><button class="send-btn" type="submit" aria-label="Send scripted reply" '+(ready?'':'disabled')+'>↑</button></form><div class="convo-local">'+(done?'End of this chapter. Refresh to replay.':incoming?'Harley is replying…':'Tap the message field to type Nakula’s reply, then send.')+'</div></div>';
+ const camera='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="14" r="4"/></svg>';
+ const mic='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"/></svg>';
+ const plus='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>';
+ const back='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3 6 12l9 9"/></svg>';
+ const video='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="6" width="15" height="12" rx="3"/><path d="M17 10l5-3v10l-5-3"/></svg>';
+ const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
+ const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
+ $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar">HM</span><span class="harley-au-head-name">Harley Mahira<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today 20.20</div>'+bubbles+dots+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form></div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
@@ -71,7 +84,7 @@ render=function(){
 function beginAutoType(){
  if(!inHarley()||typing||incoming||ready)return;
  const message=timeline[cursor];if(!message?.me)return;
- typing=true;let index=0;
+ typing=true;let index=0;const composer=$au('chat-form');if(composer)composer.classList.add('has-reply');
  function step(){
   if(!inHarley()){typing=false;return}
   const field=$au('chat-input');if(!field){typing=false;return}
