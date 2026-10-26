@@ -1734,3 +1734,227 @@
 #phone.in-app.dark-ui .nakula-new-game-info{
  color:#9b9ca5;
 }
+
+
+/* CHAPTER 02.2 — FILES AND NIRMALA PHOTO */
+/* The provided Nirmala portrait is embedded locally so no image host is needed. */
+#phone.in-app.harley-au-mode .harley-au-avatar.nirmala,
+#phone.in-app.harley-au-mode .harley-au-head-avatar.nirmala {
+ background-image:url("data:image/webp;base64,UklGRnQIAABXRUJQVlA4IGgIAAAwLACdASqQAJAAPrFOoUynJCMiJzDtUOAWCWUAzXyiFIG70JuOTkXjocP11EEp1mtlcLHUSyUwJGK5/xcNrIhKnlxJxjOk3Nev6vWNRTP1dOivJwh2lO+fgBGvUH1z2qQ5nnHIZkGao5rhASA7oX/R7e40CLw0SafpkuaNOZo30RzjwCJH/onEosCyLUHd/ad8GfWDcAf0RS8XR9/LEB7sCMUZHMSntURvMOkDPyyMsOQmyx0WuEXZJ2Enal0485mF3m92uVHMPUSlqVgJHq/rNg+Fz0em97PM87PDDNglMcZ/tN1uQKMSJDbZQwWoJx9xtuGV9yzDZg4hJG4R5oAax9kxUqWJtk71xiKK4U6IJOJtObTCUk3qYih2aD9c66rbW//RKahbnqz2O79XS6ewxlWqUzcb5S7typ5VpOJ8zrAfqOxEcidBqdyqdpnlGrck1PPc9S2Hb+FJBhSRlADcRBjm1rcHzS0EgAD+8iDeiGMMWj0Tu14kZIB4mfcw+/55AxEYN1PtznFu6bixvxGEDLsA/m/weZ0/g9XdVzGJtcV1nHWekYjJqhUIlg12tjK42074uALoTfEu1bmbLM2ppFbRGMqmQvDXuHty9r3h6Xma9IUoNs6wZH3ZOvi8TkF6YizU38AMzAVE6A9pR0D24J7SqY5gzRZea6pE/1ZMNKRNMD70zRjmTYAq65TaAIPOnlpkfR/4Sd2J3gICSztOyCoVa63AQU2J9r//pq8+PxqME0KYUyQsgJ442ujvql2HEibXS2Yd6iFOj/S4ZB85Lv9s+/8XpveenpUlzg46ch+ZEdl0MXlSrnZvtAJSQoKAfxrAE3mV+OdHa+2tDa1So/8OclNkq7ZADSyO/TF0b1P5q2tB/21vr9ofe+7s87bTdjbHvLgT92MhP/YXvt04fP2pzcK10M8sh1B1O1IuSA+d5IG/D4H2S/lp9/3KchVP2B+FdC+GLbLCgYDFkiRgdZOUfcbk6XMbJmefU6xfXfwocv8e9pOKm6gWSHVc790aqusva71VZoI83B9zHStySYwREX+qwRGEAXB7GtO4nQ0WKs3fo05tU7tx951xWlbaUhcHQ2elh8At0yIrLHiccn+nEUEBXFUaGl4M9Blld2LxekCLL+IdqlaISsKMOgKwfePgLsbkZ73GdZwrmV6mteoMjk0ZCCY4h6EgRlyya+Jrpzt6R17ND23v657I9p6NVKkBNM/zGtR505rP3ZxtZR6ZujxxRxKEWUJquKZHfcRL4TayBkmQ+R62tMspYkKUB0N32FtXXhSyK1IJ2QFa4tFIEw9os9EbqqQWG20HJNXncT7qivCDyqpScrOVaps4LHoshFoWG7PUi64ZCA879NAk2/Zj2Esw0XcqYDATVcDBFAPA53U+DpXa3K1TKeFWLz6f65j2ecTV4cQxOlhBGOHA6cGgQI+EDydKawq+4VXPkIx8loN1ZsegssAbP9f1ifVfVLItNB+zGvzlKYhR66zAQAJhosA3GKffVDtodYsQ807jGLwe6NIjEwEbNH8WlOggLDYeY2YieaC6PO2gAa0rEKUiJFuml5FemgY3MK675fEoKvT45YAKnYcmWW+bQB1Xclr10QU22jHimBqMqCpFB4WKXypIgOWUI+3CksLdrFDXZj1lTCHMRbbLaHKzzymZj91iBVg2iQ7H/X6RUUClow+hGKhjPQYB7y+Jkw2j9964IJnl+OFaCqRD/73HT4AxSyfw5vm7PRO1pVsXKECbRp6blHRP22ncKD6XWe8BjmipE7oZ+WbgWUqOdVigEjfET2GhOQIVpug3CTntGjoc8OmjYaYfJAuYJf/DnzQX0KH/Hh/C5e1E67a7cypw35b/xUDbih//CDN6xYQQ4yN3RM4bibFgOqy6yLa9SWkYVLgQyeqG+JWLgfBhsxh16Brd+DRFHc4d/TQDHIApiTJL+n2d5GHD4Te/UeXHoFbX0AaV3keK5s7YPfVA6fJ49wOpqeEv7rxDDAfHrtbzs08eRYnnMjlITONuuEiqYMFBbRo0PBWZjQIaUcpRk9I3MB7S8ryQRUG1q7wuaPimsC9XgbvIvAIJl4fV5Ankmi+h+apQkf4C+GjTJkMBKCJ2prjMDu0+GwfgDi71VCOEmK7HEot6JqDDwUZNyIeZyLr/FZEdWfFzmzIRVC9QronzV8l0Yt7x6CymjqKdnZqIYhkYLpxhMS7O7NZYaWjgBQ+deGuC8OaQHoQvt+BucTxB3gdQ2MfVDx5ZBxNS6cemPqy8Q5sP05nHKuWAWR8/dpVgKGai23S/Mh/s94kzsancVSVk2kxLySH+k7SQQFvEGrhBNGAWwRw9Z7AMDMGFXuqzHO3gDuDrN9EYM93YIuZT8H2k/XbErhf+2D2MAZc3Z3wdhkTIMHok4aiRN0NG8E6LTmYcVNxDVKbUd11hvcXrzs8YIrk47EKsxSubUxCOMBRrRZdY6r6iUvn4JT47Pex/Cp2P+9vg2+DE97yWTDiNipyun+TBB0UdytcSIZIBLH9axs+MxXNThlErGUzfteW6vIZ3bcsYCFZ7EVxHYJNpUmXZQByi1LHOq/nGCLulDP+41sEEbX30JeKtGNbvce21ezP9KJQScGTY14t3Y9s4RtO9U84lEXJ7eDqVW52toR/DGUQT7upoMCDVv0lFZH9WlvoEkWDr+sa7yq26HiwXuhdgNXusJ5x8Bd+XwlaQjSFb764V9BNQdAaKYfIKMMIC+kQJsJE9R21Nf/z6cJqAm5fKH+U/MINGOZ73QuTYWKpNgOiQO7WymM5wpQcX32LJZO8dD88QsnPmEXpT94JtjAMSOZuzSenkB6rIU6voQq9sO4cbjVBe0PgqWXWQphxSk2EivBAA");
+ background-position:center 42%;
+ background-size:cover;
+ background-repeat:no-repeat;
+ color:transparent;
+ text-shadow:none;
+}
+#phone .nakula-files-app-button .app-icon.icon-files{
+ background:#fff;
+ overflow:hidden;
+ border:1px solid rgba(90,132,200,.08);
+}
+#phone .nakula-files-app-button .app-icon.icon-files svg{
+ display:block;width:100%;height:100%;
+}
+#phone.in-app .nakula-files-screen{
+ box-sizing:border-box;
+ background:#f7f8fc;
+ min-height:100%;
+ color:#1b1c21;
+ display:flex;flex-direction:column;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+}
+#phone.in-app .nakula-files-head-right{
+ width:48px;display:flex;align-items:center;justify-content:flex-end;
+}
+#phone.in-app .nakula-files-head-right button{
+ border:0;background:none;color:#3389f3;font-size:25px;cursor:pointer;
+}
+#phone.in-app .nakula-files-browser{
+ flex:1;padding:18px 17px 28px;box-sizing:border-box;
+}
+#phone.in-app .nakula-files-kicker{
+ color:#9197a4;font-size:10px;font-weight:650;letter-spacing:.095em;
+ margin-bottom:8px;
+}
+#phone.in-app .nakula-files-browser h1{
+ font-size:31px;line-height:1.15;letter-spacing:-.025em;margin:0 0 17px;
+}
+#phone.in-app .nakula-files-search{
+ min-height:34px;padding:0 11px;display:flex;align-items:center;gap:7px;
+ background:#e9ebf1;color:#8d929d;border-radius:12px;font-size:15px;margin-bottom:21px;
+}
+#phone.in-app .nakula-files-search:first-letter{font-size:22px}
+#phone.in-app .nakula-files-section-title{
+ text-transform:uppercase;letter-spacing:.09em;
+ color:#9499a5;font-weight:650;font-size:10px;margin:0 0 10px;
+}
+#phone.in-app .nakula-files-location-list,
+#phone.in-app .nakula-files-document-list{
+ border-radius:14px;background:#fff;overflow:hidden;
+}
+#phone.in-app .nakula-files-folder,
+#phone.in-app .nakula-files-row{
+ width:100%;min-height:67px;
+ display:flex;align-items:center;gap:12px;
+ background:none;border:0;padding:11px 13px;
+ text-align:left;color:inherit;cursor:pointer;font:inherit;
+}
+#phone.in-app .nakula-files-folder+.nakula-files-folder,
+#phone.in-app .nakula-files-row+.nakula-files-row{
+ border-top:1px solid #eeeff4;
+}
+#phone.in-app .nakula-files-folder:active,
+#phone.in-app .nakula-files-row:active{background:rgba(70,136,246,.1)}
+#phone.in-app .nakula-files-folder-icon{
+ width:35px;height:31px;display:grid;place-items:center;
+ color:#4189f6;flex:none;
+}
+#phone.in-app .nakula-files-folder-icon svg{width:32px;height:29px}
+#phone.in-app .nakula-files-folder>span:nth-child(2),
+#phone.in-app .nakula-files-row-copy{
+ display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;
+}
+#phone.in-app .nakula-files-folder strong,
+#phone.in-app .nakula-files-row-copy strong{
+ font-size:13px;font-weight:570;overflow-wrap:anywhere;line-height:1.3;
+}
+#phone.in-app .nakula-files-folder small,
+#phone.in-app .nakula-files-row-copy small{
+ font-size:10px;color:#898f9b;line-height:1.3;
+}
+#phone.in-app .nakula-files-chevron{color:#a9adba;font-size:24px;flex:none;line-height:1}
+#phone.in-app .nakula-files-doc-icon{
+ display:grid;place-items:center;flex:none;width:33px;height:40px;
+ border-radius:5px;
+ background:#ed6463;color:#fff;
+ font-size:11px;font-weight:750;letter-spacing:-.025em;
+}
+#phone.in-app .nakula-files-help{
+ font-size:12px;color:#8d939f;margin:-5px 0 19px;
+}
+#phone.in-app .nakula-files-tip{
+ font-size:12px;line-height:1.5;color:#8b909c;padding:8px 5px;
+}
+#phone.in-app .nakula-files-empty{
+ min-height:200px;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;text-align:center;gap:8px;color:#8d929d;
+}
+#phone.in-app .nakula-files-empty div{font-size:48px;opacity:.45}
+#phone.in-app .nakula-files-empty strong{font-size:15px;color:#646b79}
+#phone.in-app .nakula-files-empty span{font-size:12px;max-width:220px;line-height:1.5}
+#phone.in-app .nakula-files-tabs{
+ display:flex;justify-content:space-around;align-items:center;
+ background:#fff;border-top:1px solid #e7e9ee;
+ padding:7px 7px max(12px,env(safe-area-inset-bottom,12px));
+ flex:none;gap:10px;
+}
+#phone.in-app .nakula-files-tabs button{
+ display:flex;align-items:center;flex-direction:column;gap:2px;
+ border:0;background:none;color:#999daa;
+ font:500 10px -apple-system,BlinkMacSystemFont,sans-serif;
+ min-width:75px;cursor:pointer;
+}
+#phone.in-app .nakula-files-tabs button.active{color:#438cf4}
+#phone.in-app .nakula-files-tabs button span{font-size:27px;line-height:1.2}
+#phone.in-app .nakula-files-preview{
+ padding:15px 12px 30px;display:flex;flex-direction:column;gap:13px;
+}
+#phone.in-app .nakula-files-preview-top{
+ display:flex;align-items:center;gap:11px;
+ font-size:12px;min-width:0;padding:0 4px;
+}
+#phone.in-app .nakula-files-preview-top>div{
+ display:flex;flex-direction:column;min-width:0;gap:3px;
+}
+#phone.in-app .nakula-files-preview-top strong{overflow-wrap:anywhere;font-size:12px}
+#phone.in-app .nakula-files-preview-top small{font-size:11px;color:#8d929c}
+#phone.in-app .nakula-files-sheet{
+ background:#fff;border:1px solid #dddfe6;
+ padding:27px 19px 34px;box-shadow:0 3px 18px rgba(0,0,0,.075);
+ min-height:350px;
+}
+#phone.in-app .nakula-files-watermark{
+ color:#b7b8be;font-size:8px;letter-spacing:.08em;
+ margin:0 0 28px;
+}
+#phone.in-app .nakula-files-sheet-label{
+ color:#5d6471;font-size:9px;font-weight:700;letter-spacing:.08em;
+ margin-bottom:6px;
+}
+#phone.in-app .nakula-files-sheet h2{
+ font-size:19px;line-height:1.25;margin:0 0 19px;color:#262934;
+}
+#phone.in-app .nakula-files-sheet-rule{
+ height:2px;background:#333f55;margin-bottom:23px;
+}
+#phone.in-app .nakula-files-field{
+ border-bottom:1px solid #eef0f3;padding:0 0 12px;margin-bottom:14px;
+}
+#phone.in-app .nakula-files-field strong{
+ color:#617080;letter-spacing:.08em;font-size:10px;
+}
+#phone.in-app .nakula-files-field p{
+ font-size:12px;line-height:1.55;margin:5px 0 0;color:#252a31;
+ white-space:pre-wrap;overflow-wrap:anywhere;
+}
+#phone.in-app .nakula-files-sheet-footer{
+ margin-top:27px;font-size:9px;color:#a0a6b0;text-align:center;letter-spacing:.08em;
+}
+#phone.in-app .nakula-files-info{
+ background:#fff;border-radius:14px;padding:18px 15px;
+}
+#phone.in-app .nakula-files-info h2{margin:0 0 14px;font-size:18px}
+#phone.in-app .nakula-files-info-row{
+ display:flex;flex-direction:column;gap:3px;padding:10px 1px;
+ border-bottom:1px solid #ecedf0;
+}
+#phone.in-app .nakula-files-info-row span{font-size:11px;color:#858b96}
+#phone.in-app .nakula-files-info-row strong{font-size:13px;font-weight:550;line-height:1.35}
+#phone.in-app .nakula-files-info p{font-size:11px;color:#838b98;line-height:1.5}
+#phone.in-app .nakula-files-actions{display:flex;gap:8px;flex-wrap:wrap}
+#phone.in-app .nakula-files-actions button,
+#phone.in-app .nakula-files-return-bar button{
+ flex:1;border:0;border-radius:12px;padding:12px 9px;
+ font:600 12px -apple-system,BlinkMacSystemFont,sans-serif;
+ background:#e1eaf9;color:#267ae8;cursor:pointer;
+}
+#phone.in-app .nakula-files-return-bar{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:9px;margin:0 13px 15px;padding:12px 11px;
+ background:#e0f4e7;border-radius:12px;color:#347b52;font-size:11px;
+}
+#phone.in-app .nakula-files-return-bar button{flex:none;background:#c4e7d2;color:#286d43}
+#phone.in-app.harley-au-mode .nakula-files-review-callout{
+ display:flex;flex-direction:column;align-items:center;gap:6px;
+ margin:15px 5px 20px;padding:16px 14px;
+ text-align:center;border-radius:17px;
+ border:1px solid rgba(78,139,240,.28);
+ background:rgba(70,136,246,.08);
+}
+#phone.in-app.harley-au-mode .nakula-files-review-callout span{
+ color:#8fa6c7;letter-spacing:.08em;font-size:9px;font-weight:700;
+}
+#phone.in-app.harley-au-mode .nakula-files-review-callout strong{
+ color:#aecbff;font-size:14px;
+}
+#phone.in-app.harley-au-mode .nakula-files-review-callout small{
+ color:#969ba9;line-height:1.4;font-size:11px;
+}
+#phone.in-app.harley-au-mode .nakula-files-review-callout button{
+ margin-top:6px;padding:10px 18px;
+ background:#4288f5;color:white;border:0;border-radius:13px;
+ font:600 13px -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;
+}
+#phone.in-app.dark-ui .nakula-files-screen{background:#151518;color:#f3f3f6}
+#phone.in-app.dark-ui .nakula-files-folder,
+#phone.in-app.dark-ui .nakula-files-location-list,
+#phone.in-app.dark-ui .nakula-files-document-list,
+#phone.in-app.dark-ui .nakula-files-tabs,
+#phone.in-app.dark-ui .nakula-files-info{background:#252529}
+#phone.in-app.dark-ui .nakula-files-folder+.nakula-files-folder,
+#phone.in-app.dark-ui .nakula-files-row+.nakula-files-row{border-top-color:#35363c}
+#phone.in-app.dark-ui .nakula-files-search{background:#2e2e34}
+#phone.in-app.dark-ui .nakula-files-sheet{background:#fdfdfd;color:#252a31}
+#phone.in-app.dark-ui .nakula-files-folder strong,
+#phone.in-app.dark-ui .nakula-files-row strong{color:#f3f3f6}
+#phone.in-app.dark-ui .nakula-files-return-bar{color:#204e30}
