@@ -1386,33 +1386,49 @@
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble{
  background:var(--nakula-reference-gray);color:#fff;
 }
-/* Smaller, more curved tails, with the user's reference color palette. */
+/* Restore the original iMessage two-layer bubble tail.
+   Both layers have rounded upper junctions, which smooth away the little
+   right-angle bump above the tail while retaining the original silhouette. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before{
- width:14px;height:20px;bottom:-1px;pointer-events:none;
- /* A single continuous tail removes the square bump introduced by a cutout. */
+ display:block;
+ width:16px;
+ height:18px;
+ bottom:0;
+ pointer-events:none;
+ -webkit-clip-path:none;
+ clip-path:none;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
- display:none!important;
+ display:block;
+ width:10px;
+ height:18px;
+ bottom:0;
+ pointer-events:none;
+ background:var(--nakula-reference-cutout);
+ -webkit-clip-path:none;
+ clip-path:none;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::before{
- right:-10px;
+ right:-7px;
  background:var(--nakula-reference-blue);
- -webkit-clip-path:path("M 0 0 C 0 8 1 14 5 17 C 8 18 11 18 14 17 C 11 20 5 20 0 19 Z");
- clip-path:path("M 0 0 C 0 8 1 14 5 17 C 8 18 11 18 14 17 C 11 20 5 20 0 19 Z");
+ border-radius:0 11px 0 16px / 0 12px 0 16px;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::after{
  right:-10px;
+ border-radius:0 0 0 13px / 0 0 0 13px;
+ border-top-left-radius:7px 10px;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
- left:-10px;
- -webkit-clip-path:path("M 14 0 C 14 8 13 14 9 17 C 6 18 3 18 0 17 C 3 20 9 20 14 19 Z");
- clip-path:path("M 14 0 C 14 8 13 14 9 17 C 6 18 3 18 0 17 C 3 20 9 20 14 19 Z");
+ left:-7px;
+ border-radius:11px 0 16px 0 / 12px 0 16px 0;
 }
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
  background:var(--nakula-reference-gray);
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::after{
  left:-10px;
+ border-radius:0 0 13px 0 / 0 0 13px 0;
+ border-top-right-radius:7px 10px;
 }
 /* Consecutive messages remain visually clustered at the existing 2px gap. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next.me .bubble{border-bottom-right-radius:8px}
