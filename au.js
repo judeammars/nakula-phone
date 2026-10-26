@@ -770,6 +770,7 @@ function makeStorySnapshot(reason='progress'){
    harleyCursor:cursor,adnanCursor,unknownCursor,nirmalaCursor,nirmalaAutoplayStarted,
    day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
    day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,day2FamilyTaskDismissed,
+   day2ReadFileIds:[...day2ReadFileIds],
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -826,6 +827,15 @@ function loadStoryState(){
  day2BriefingDone=!!p.day2BriefingDone||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2BriefingOutcome));
  day2FamiliesReceived=!!p.day2FamiliesReceived||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyPacket));
  day2FamilyDocsRead={statements:!!p.day2FamilyDocsRead?.statements,client:!!p.day2FamilyDocsRead?.client};
+ // Backfill previously opened documents in existing saves. All new reads
+ // are stored by file ID, so every document can dim individually.
+ day2ReadFileIds=new Set(Array.isArray(p.day2ReadFileIds)?
+  p.day2ReadFileIds.filter(id=>typeof id==='string'&&/^[a-z_]{1,40}$/.test(id)).slice(0,24):[]);
+ if(day2FilesInspected.approval)day2ReadFileIds.add('approval');
+ if(day2FilesInspected.metadata)day2ReadFileIds.add('signature');
+ if(day2CaseBriefRead)day2ReadFileIds.add('casebrief');
+ if(day2FamilyDocsRead.statements)day2ReadFileIds.add('family_statements');
+ if(day2FamilyDocsRead.client)day2ReadFileIds.add('family_intake');
  day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
  day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
  day2FamilyTaskDismissed=!!p.day2FamilyTaskDismissed||!!day2FamilyPriority;
@@ -1946,6 +1956,7 @@ function nakulaAdditionalDocs(){
 function nakulaFilesAvailableDocs(){return [...nakulaFilesDocs,...nakulaAdditionalDocs()]}
 
 let nakulaFilesPath='root',nakulaFilesTab='browse',nakulaFilesDocId=null,nakulaFilesInfo=false;
+let day2ReadFileIds=new Set();
 const nakulaFilesReady=()=>day2Stage!=='none'&&!currentStoryEnding;
 function ensureNakulaFilesIcon(){
  const grid=$au('apps-grid');
@@ -1964,10 +1975,13 @@ function ensureNakulaFilesIcon(){
 }
 function nakulaFilesEsc(v){return esc(v)}
 function nakulaFilesRow(doc){
- return '<button class="nakula-files-row" type="button" data-nakula-file="'+doc.id+'">'+
+ const read=day2ReadFileIds.has(doc.id);
+ return '<button class="nakula-files-row'+(read?' is-read':'')+'" type="button" data-nakula-file="'+doc.id+
+  '" aria-label="'+nakulaFilesEsc(doc.name)+(read?', already read':', unread')+'">'+
  '<span class="nakula-files-doc-icon" aria-hidden="true">PDF</span>'+
  '<span class="nakula-files-row-copy"><strong>'+nakulaFilesEsc(doc.name)+'</strong><small>'+doc.kind+' · '+doc.size+'</small></span>'+
- '<span class="nakula-files-chevron">›</span></button>';
+ (read?'<span class="nakula-files-read-indicator" aria-hidden="true">✓ Read</span>':'')+
+ '<span class="nakula-files-chevron" aria-hidden="true">›</span></button>';
 }
 function nakulaFilesFolder(id,name,details){
  return '<button type="button" class="nakula-files-folder" data-nakula-folder="'+id+'">'+
@@ -2001,7 +2015,7 @@ function renderNakulaFilesApp(){
      current.body.map(([k,v])=>'<div class="nakula-files-field"><strong>'+nakulaFilesEsc(k)+'</strong><p>'+nakulaFilesEsc(v)+'</p></div>').join('')+
     '<div class="nakula-files-sheet-footer">REVIEW COPY · LEGAL CASE FILE</div></article>')+
    '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Back to Preview':'Get Info')+'</button>'+
-    (day2FilesReviewed()?'<button type="button" data-nakula-files-return>Return to Nirmala</button>':'')+'</div></div>';
+    '<button type="button" data-nakula-files-back>Back to PBK Group</button></div></div>';
  }else if(nakulaFilesPath==='pbk'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>PBK Group</h1>'+
@@ -2037,22 +2051,35 @@ function renderNakulaFilesApp(){
    '<button type="button" data-nakula-family-task-open>Choose Next Step</button></section>':'';
  const chapterNext=day2CaseBriefAvailable()&&!day2BriefingDone&&day2CaseBriefRead&&!detail?
   '<div class="nakula-files-return-bar"><span>✓ Case brief reviewed · 09.00</span><button type="button" data-nakula-calendar-open>Open Calendar Briefing</button></div>':'';
- const familyNext=day2FamilyPriority&&!detail?'<div class="nakula-files-return-bar"><span>✓ Family follow-up saved</span><button type="button" data-nakula-family-return>Return to Nirmala</button></div>':'';
- const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
-  '<div class="nakula-files-return-bar"><span>✓ '+(day2InvestigationChoice==='verify'?'Digital signature verification':'Original-document provenance')+' prioritized</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
- content.innerHTML='<div class="nakula-files-screen">'+familyChoice+body+investigationChoice+chapterNext+familyNext+callout+'</div>';
+ // Completed tasks belong in the saved story state, not in permanent
+ // status bars at the foot of every Files screen.
+ const familyNext='';
+ const callout=day2FilesReviewed()&&!day2RedFolderDelivered&&!day2BriefingDone&&!detail&&day2FilesReceived?
+  '<div class="nakula-files-active-action"><span>Evidence review complete. Continue the conversation.</span><button type="button" data-nakula-files-return>Back to Nirmala’s Chat</button></div>':'';
+ content.innerHTML='<div class="nakula-files-screen">'+familyChoice+callout+body+investigationChoice+chapterNext+familyNext+'</div>';
  if(!detail)scheduleDay2FamilyTask();
 }
 function nakulaOpenFilesDocument(id){
  const doc=nakulaFilesAvailableDocs().find(d=>d.id===id);
  if(!doc||!day2FilesReceived)return;
  nakulaFilesDocId=id;nakulaFilesPath='document';nakulaFilesInfo=false;
+ day2ReadFileIds.add(id);
  if(id==='approval')day2FilesInspected.approval=true;
  if(id==='signature')day2FilesInspected.metadata=true;
  if(id==='casebrief')day2CaseBriefRead=true;
  if(id==='family_statements')day2FamilyDocsRead.statements=true;
  if(id==='family_intake')day2FamilyDocsRead.client=true;
  saveStoryState(id==='casebrief'?'CP02-03-case-brief-read':id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
+ render();
+}
+function nakulaReturnToNirmala(){
+ // Explicit navigation, rather than relying on a stale in-document action.
+ hideDay2FamilyTask();
+ nakulaFilesPath='root';nakulaFilesDocId=null;nakulaFilesInfo=false;
+ if(state.screen!=='app')return;
+ openApp('messages');
+ state.thread='nirmala';state.view='convo';
+ markNirmalaRead();
  render();
 }
 function nakulaFilesBack(){
@@ -2095,7 +2122,7 @@ document.addEventListener('click',e=>{
   e.preventDefault();e.stopImmediatePropagation();chooseDay2FamilyPriority(chooseFamily.dataset.nakulaFamilyChoice);return;
  }
  const familyReturn=e.target.closest('[data-nakula-family-return]');
- if(familyReturn){e.preventDefault();e.stopImmediatePropagation();openStoryThread('nirmala');return}
+ if(familyReturn){e.preventDefault();e.stopImmediatePropagation();nakulaReturnToNirmala();return}
  const choice=e.target.closest('[data-nakula-investigation-choice]');
  if(choice&&state.screen==='app'&&state.app==='files'){
   e.preventDefault();e.stopImmediatePropagation();
@@ -2103,7 +2130,7 @@ document.addEventListener('click',e=>{
   return;
  }
  const returnToNirmala=e.target.closest('[data-nakula-files-return]');
- if(returnToNirmala){e.preventDefault();e.stopImmediatePropagation();openStoryThread('nirmala');return}
+ if(returnToNirmala){e.preventDefault();e.stopImmediatePropagation();nakulaReturnToNirmala();return}
  if(state.screen!=='app'||state.app!=='files')return;
  const folder=e.target.closest('[data-nakula-folder]');
  if(folder){e.preventDefault();e.stopImmediatePropagation();nakulaFilesPath=folder.dataset.nakulaFolder;render();return}
