@@ -1223,10 +1223,13 @@
    A smaller blur radius preserves its blue silhouette; boosted saturation
    reproduces the strong blue glow in the earlier iOS reference. */
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
-  background:linear-gradient(180deg,
-    rgba(16,19,28,.31) 0%,
-    rgba(13,18,28,.16) 53%,
-    rgba(12,20,34,.075) 100%);
+  /* Safari-safe, scroll-aware blue/gray reflection from real bubbles. */
+  background:
+    var(--nakula-chat-glow,none),
+    linear-gradient(180deg,
+      rgba(16,19,28,.27) 0%,
+      rgba(13,18,28,.13) 53%,
+      rgba(12,20,34,.055) 100%);
   -webkit-backdrop-filter:blur(15px) saturate(240%) brightness(1.12);
   backdrop-filter:blur(15px) saturate(240%) brightness(1.12);
   border-bottom:1px solid rgba(170,177,193,.11);
