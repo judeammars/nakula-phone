@@ -1567,3 +1567,67 @@
   padding:7px 12px;
  }
 }
+
+
+/* CHAPTER 02.1 — THE MORNING BRIEF choices */
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice{
+ display:flex;
+ flex-direction:column;
+ gap:9px;
+ padding:18px 7px 16px;
+ margin:12px 0 0;
+ align-items:stretch;
+}
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice>span{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ font-size:10px;
+ letter-spacing:.1em;
+ font-weight:650;
+ color:#9999a2;
+ text-align:center;
+ margin-bottom:2px;
+}
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice button{
+ width:100%;
+ min-height:52px;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ align-items:flex-start;
+ padding:10px 14px;
+ gap:3px;
+ text-align:left;
+ border-radius:16px;
+ border:1px solid rgba(105,147,220,.24);
+ background:#eff4ff;
+ color:#1461b8;
+ font:600 14px/1.2 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+ -webkit-tap-highlight-color:transparent;
+}
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice button small{
+ font-size:11px;
+ font-weight:400;
+ color:#667a9a;
+}
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice button:active{
+ opacity:.72;
+ transform:scale(.993);
+}
+#phone.in-app.harley-au-mode .nakula-day2-brief-choice button:focus-visible{
+ outline:2px solid #4b91f8;
+ outline-offset:2px;
+}
+#phone.in-app.dark-ui.harley-au-mode .nakula-day2-brief-choice button{
+ color:#f0f4ff;
+ background:rgba(38,53,80,.82);
+ border-color:rgba(112,147,202,.29);
+}
+#phone.in-app.dark-ui.harley-au-mode .nakula-day2-brief-choice button small{
+ color:#a1b0cc;
+}
+@media(max-width:385px){
+ #phone.in-app.harley-au-mode .nakula-day2-brief-choice{
+  padding-left:2px;padding-right:2px;
+ }
+}
