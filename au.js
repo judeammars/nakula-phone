@@ -381,7 +381,7 @@ function makeStorySnapshot(reason='progress'){
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,
    harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,
-   unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,aftermathTriggered,
+   unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
    adnanIncidentPending,phoneRecentsFilter
   },
   threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
@@ -435,7 +435,7 @@ function loadStoryState(){
  }
  // A browser refresh cannot restore in-flight audio/typing timers. Resume an
  // unanswered call as the SAME ringing attempt without adding a duplicate log.
- storyResumeSameCall=unknownStage==='ringing'||unknownStage==='answered';
+ storyResumeSameCall=!!p.unknownResumeSameCall||unknownStage==='ringing'||unknownStage==='answered';
  if(storyResumeSameCall){unknownStage='retrying';unknownQueued=true;}
  if(cursor>=timeline.length&&!aftermathTriggered&&unknownStage==='idle'){
   unknownQueued=true;
@@ -447,10 +447,13 @@ function resumePendingStoryCall(){
  if(!storyNeedsCallResume||storyCallResumeScheduled||state.screen==='lock')return;
  storyNeedsCallResume=false;storyCallResumeScheduled=true;
  const reuseAttempt=storyResumeSameCall;
- storyResumeSameCall=false;
  setTimeout(()=>{
   storyCallResumeScheduled=false;
-  if(state.screen==='lock'||aftermathTriggered||unknownStage==='finished')return;
+  if(state.screen==='lock'||aftermathTriggered||unknownStage==='finished'){
+   storyNeedsCallResume=!aftermathTriggered&&unknownStage!=='finished';
+   return;
+  }
+  storyResumeSameCall=false;
   showUnknownCall(reuseAttempt);
  },1100);
 }
