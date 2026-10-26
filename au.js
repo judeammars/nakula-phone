@@ -492,6 +492,10 @@ function initializeStorySave(){
   &&unknownCallHistory.some(x=>x.kind==='Answered'))finishUnknownIncident();
  saveStoryState(restored?'resumed':'new-game');
  syncHarleyBadge();
+ // The persistent Lock Screen card is only shown on a visit that restored
+ // an existing, valid save; it is never shown by an in-session checkpoint.
+ showReturningStoryNotice=restored&&!currentStoryEnding;
+ renderReturningStoryNotice();
  renderStoryEndingMenu();
  if(storyAwaitingSilenceChoice)showSilenceDecision();
 }
@@ -545,6 +549,44 @@ function showProgressToast(){
  clearTimeout(progressToastTimeout);
  progressToastTimeout=setTimeout(()=>progressToast.classList.remove('is-visible'),3200);
 }
+/* Persistent iOS-style save notification, visible only on a returning
+   visit to the Lock Screen. Unlike the transient CP01 toast, this remains
+   in the notification stack until Nakula's phone is unlocked. */
+let showReturningStoryNotice=false;
+const returningStoryNotice=document.createElement('button');
+returningStoryNotice.type='button';
+returningStoryNotice.className='nakula-story-return-notification';
+returningStoryNotice.hidden=true;
+returningStoryNotice.setAttribute('aria-label','Progress saved. Unlock Nakula phone to resume the story');
+returningStoryNotice.innerHTML=
+ '<span class="nakula-return-icon" aria-hidden="true">'+
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.7h12a1 1 0 0 1 1 1V21l-7-4.5L5 21V4.7a1 1 0 0 1 1-1z"/><path d="m9 10 2 2 4-4"/></svg>'+
+ '</span>'+
+ '<span class="nakula-return-text">'+
+  '<span class="nakula-return-heading"><strong>STORY PROGRESS</strong><span>Saved</span></span>'+
+  '<span class="nakula-return-title">Progress Saved</span>'+
+  '<span class="nakula-return-description">Last progress has been saved. Unlock to continue Nakula’s story.</span>'+
+  '<span class="nakula-return-checkpoint"></span>'+
+ '</span>';
+const storyLockBottom=$au('lock-screen').querySelector('.lock-bottom');
+if(storyLockBottom){
+ storyLockBottom.insertBefore(returningStoryNotice,storyLockBottom.querySelector('.lock-actions'));
+}else{
+ $au('lock-screen').appendChild(returningStoryNotice);
+}
+function renderReturningStoryNotice(){
+ const visible=showReturningStoryNotice&&!currentStoryEnding&&state.screen==='lock';
+ returningStoryNotice.hidden=!visible;
+ if(!visible)return;
+ const label=aftermathTriggered?'CHAPTER 01 · CALL AFTERMATH':'CHAPTER 01 · IN PROGRESS';
+ returningStoryNotice.querySelector('.nakula-return-checkpoint').textContent=
+  label+' · '+window.nakulaNarrativeClock.time();
+}
+returningStoryNotice.addEventListener('click',()=>{
+ if(!showReturningStoryNotice||currentStoryEnding||state.screen!=='lock')return;
+ requestUnlock();
+});
+
 const storyEndingLockCard=document.createElement('button');
 storyEndingLockCard.type='button';
 storyEndingLockCard.className='nakula-story-lock-card';
@@ -571,6 +613,8 @@ $au('phone').appendChild(silenceSheet);
 function renderStoryEndingMenu(){
  const ending=endingById(currentStoryEnding);
  const visible=!!ending;
+ if(visible)showReturningStoryNotice=false;
+ renderReturningStoryNotice();
  storyEndingLockCard.hidden=!visible;
  if(ending){
   storyEndingLockCard.querySelector('.nakula-story-lock-title').textContent=ending.label;
@@ -691,8 +735,16 @@ layer=function(which){
  $au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages');
  if(which!=='home')hideNotif();
  syncHarleyBadge();
- if(which==='home')resumePendingStoryCall();
- if(which==='lock'){silenceSheet.hidden=true;renderStoryEndingMenu();}
+ if(which==='home'){
+  showReturningStoryNotice=false;
+  renderReturningStoryNotice();
+  resumePendingStoryCall();
+ }
+ if(which==='lock'){
+  silenceSheet.hidden=true;
+  renderReturningStoryNotice();
+  renderStoryEndingMenu();
+ }
  if(which==='home')restoreStoryOverlay();
 };
 // A chat read clears the unread badge, including when Harley is opened from the Messages list.
