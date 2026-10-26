@@ -175,17 +175,17 @@ function finishUnknownIncident(){
  if(aftermathTriggered||unknownCallHistory.length===0)return;
  aftermathTriggered=true;
  if(!notes.some(n=>Number(n.id)===9901)){
-  notes.unshift({id:9901,title:'UNKNOWN CALL / incident log',date:'25 October 2026 · 23:57',body:[
-   'CALL RECORD — PRIVATE','','Caller ID: Withheld / Unknown.',
-   'Repeated incoming calls following several declines.',
-   'Caller demanded that I stop examining Zona B and named PBK Group.',
-   'Tone escalated after I ended the first connected call.',
-   '','ACTION ITEMS',
-   '• Preserve call logs and the exact statements.',
-   '• Caller may be protecting PBK interests; no verified identity or affiliation yet.',
-   '• Do not disclose client materials or engage further.',
-   '• Notify Adnan and assess protective steps if needed.',
-   '','No assumptions. Just evidence.'
+  notes.unshift({id:9901,title:'PANGGILAN TAK DIKENAL / catatan insiden',date:'25 Oktober 2026 · 23.57',body:[
+   'CATATAN PANGGILAN — PRIBADI','',
+   'Nomor penelepon: Disembunyikan / Tidak dikenal.',
+   'Panggilan masuk berulang kali setelah beberapa kali ditolak.',
+   'Penelepon meminta saya menghentikan penelusuran insiden Zona B dan menyebut PBK Group.',
+   'Nada bicaranya semakin agresif setelah saya mengakhiri panggilan pertama yang tersambung.',
+   '','TINDAK LANJUT',
+   '• Simpan riwayat panggilan dan catat pernyataan penelepon secara akurat.',
+   '• Ada indikasi kepentingan pihak PBK, tetapi identitas dan keterkaitan penelepon belum terverifikasi.',
+   '• Jangan membagikan berkas klien atau menanggapi penelepon lebih lanjut.',
+   '• Laporkan kepada Pak Adnan dan pertimbangkan langkah perlindungan jika diperlukan.'
   ].join('\n')});
   // The incident note is visible during this run, but never saved for a new run.
  }
