@@ -1169,3 +1169,85 @@
  }
  #lock-screen .nakula-return-checkpoint{margin-top:0}
 }
+
+
+/* Fix iMessage liquid glass on scroll: keep the glass separate from the navbar. */
+/* Messages scroll in .convo-scroll below the independent .page-head. A highly
+   opaque navbar plus GPU transform had made the backdrop visually disappear.
+   The blurred ::before is transparent and layered above moving chat bubbles. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-content{
+  position:relative;
+  z-index:0;
+  overflow:hidden;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  z-index:45;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-transform:none;
+  transform:none;
+  overflow:visible;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(248,250,255,.72) 0%,
+    rgba(248,250,255,.56) 52%,
+    rgba(244,248,255,.32) 100%);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  backdrop-filter:blur(30px) saturate(180%);
+  border-bottom:1px solid rgba(195,205,222,.19);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.36),0 6px 20px rgba(0,0,0,.06);
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head>*{
+  position:relative;
+  z-index:1;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::after{
+  z-index:0;
+  background:linear-gradient(to bottom,rgba(230,234,248,.17),transparent);
+}
+/* Dark mode: sufficiently translucent to visibly refract blue/gray bubbles,
+   still legible with the avatar, Messages back button and call controls. */
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+  background:linear-gradient(180deg,
+    rgba(21,22,28,.70) 0%,
+    rgba(20,22,29,.53) 55%,
+    rgba(23,26,34,.30) 100%);
+  -webkit-backdrop-filter:blur(32px) saturate(170%);
+  backdrop-filter:blur(32px) saturate(170%);
+  border-bottom:1px solid rgba(170,177,193,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 22px rgba(0,0,0,.11);
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::after{
+  background:linear-gradient(to bottom,rgba(23,26,34,.20),transparent);
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+    background:rgba(244,247,253,.91);
+  }
+  #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+    background:rgba(23,24,30,.91);
+  }
+}
+@media (prefers-reduced-transparency:reduce){
+  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+    background:rgba(244,247,253,.96);
+  }
+  #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+    background:rgba(23,24,30,.96);
+  }
+}
