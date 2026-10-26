@@ -2205,7 +2205,9 @@ function renderNakulaFilesApp(){
      current.body.map(([k,v])=>'<div class="nakula-files-field"><strong>'+nakulaFilesEsc(k)+'</strong><p>'+nakulaFilesEsc(v)+'</p></div>').join('')+
     '<div class="nakula-files-sheet-footer">REVIEW COPY · LEGAL CASE FILE</div></article>')+
    '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Back to Preview':'Get Info')+'</button>'+
-    '<button type="button" data-nakula-files-back>Back to PBK Group</button></div></div>';
+    (current.id==='casebrief'&&day2CaseBriefRead&&!day2BriefingDone
+     ?'<button type="button" data-nakula-files-start-briefing>Mulai Briefing</button>'
+     :'<button type="button" data-nakula-files-back>Back to PBK Group</button>')+'</div></div>';
  }else if(nakulaFilesPath==='pbk'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>PBK Group</h1>'+
@@ -2303,6 +2305,21 @@ document.addEventListener('click',e=>{
  if(goCalendar){e.preventDefault();e.stopImmediatePropagation();openApp('calendar');return}
  const showCaseFile=e.target.closest('[data-nakula-calendar-case-file]');
  if(showCaseFile){e.preventDefault();e.stopImmediatePropagation();if(day2CaseBriefAvailable()){nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument('casebrief')}return}
+ const briefFromFiles=e.target.closest('[data-nakula-files-start-briefing]');
+ if(briefFromFiles&&state.screen==='app'&&state.app==='files'){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(day2CaseBriefRead&&!day2BriefingDone){
+   // Enter the meeting directly, without an intermediate Calendar tap.
+   hideDay2FamilyTask();
+   day2CalendarBriefOpen=true;
+   window.nakulaNarrativeClock.set(9,0,1);
+   nakulaFilesPath='pbk';nakulaFilesDocId=null;nakulaFilesInfo=false;
+   saveStoryState('CP02-03-briefing-opened');
+   openApp('calendar');
+   render();
+  }
+  return;
+ }
  const startBrief=e.target.closest('[data-nakula-calendar-briefing]');
  if(startBrief&&state.app==='calendar'&&day2CaseBriefRead&&!day2BriefingDone){
   e.preventDefault();e.stopImmediatePropagation();day2CalendarBriefOpen=true;render();return;
