@@ -2292,14 +2292,15 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto)?' chat-has-attachment':'');
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead)?' chat-has-attachment':'');
   const attachment=m.day2MentariPhoto?
    '<div class="nakula-mentari-photo-block"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
     '<div class="nakula-mentari-actions"><button type="button" data-day2-mentari-view>Lihat di Foto</button>'+
      '<button type="button" data-day2-mentari-save>'+(day2MentariEvidenceSaved?'✓ Bukti tersimpan':'Simpan sebagai Bukti')+'</button></div></div>':
    m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
-   m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
+   m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
+   m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
 }
@@ -2637,6 +2638,13 @@ const nakulaFilesDocs=Object.freeze([
    files until the story unlocks their contents. This prevents spoilers. */
 function nakulaAdditionalDocs(){
  const files=[];
+ if(['file','found','invitation','complete'].includes(day2Page312Stage))files.push({
+  id:'operational_addendum',name:DAY2_PAGE312_FILE,kind:'PDF Document',size:'8.7 MB',folder:'PBK Group',
+  title:'PBK GROUP · ADENDUM OPERASIONAL ZONA B',badge:'RESTRICTED · 487 HALAMAN',
+  metadata:[['Judul','PBK Operational Addendum · Zona B'],['Total halaman','487'],['Diserahkan oleh','Nirmala · 26 Oktober 2026'],['Fokus pemeriksaan','Halaman 312 · Kewenangan operasional']],
+  body:[['DOCUMENT NOTE','Dokumen besar ini tersedia melalui pembaca interaktif. Periksa halaman 312 untuk rujukan kewenangan penandatangan.']]
+ });
+
  if(day2CaseBriefAvailable())files.push({
   id:'casebrief',name:'CASE_BRIEF_PBK.pdf',kind:'PDF Document',size:'640 KB',folder:'PBK Group',
   title:'CASE BRIEF · ZONA B',badge:'ATTORNEY WORK PRODUCT · 09.00',
@@ -2761,6 +2769,16 @@ function renderNakulaFilesApp(){
      :current.id==='settlement'
       ?'<button type="button" data-day2-offer-from-files>Kembali ke Tawaran</button>'
       :'<button type="button" data-nakula-files-back>Back to PBK Group</button>')+'</div></div>';
+  if(current.id==='operational_addendum'){
+   body='<div class="nakula-files-preview nakula-page312-preview">'+
+    '<div class="nakula-files-preview-top"><span class="nakula-files-doc-icon">PDF</span><div><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Salinan pemeriksaan</small></div></div>'+
+    (nakulaFilesInfo?
+     '<section class="nakula-files-info"><h2>Informasi Dokumen</h2>'+current.metadata.map(([k,v])=>'<div class="nakula-files-info-row"><span>'+nakulaFilesEsc(k)+'</span><strong>'+nakulaFilesEsc(v)+'</strong></div>').join('')+'</section>':
+     day2Page312PreviewHtml())+
+    '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+(nakulaFilesInfo?'Kembali ke Pratinjau':'Info')+'</button>'+
+    (day2InvitationDelivered?'<button type="button" data-day2-invite-goto>Buka Undangan</button>':
+    '<button type="button" data-nakula-files-back>Kembali ke PBK Group</button>')+'</div></div>';
+  }
  }else if(nakulaFilesPath==='pbk'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>PBK Group</h1>'+
@@ -2812,14 +2830,17 @@ function nakulaOpenFilesDocument(id){
  const doc=nakulaFilesAvailableDocs().find(d=>d.id===id);
  if(!doc||!day2FilesReceived)return;
  nakulaFilesDocId=id;nakulaFilesPath='document';nakulaFilesInfo=false;
- day2ReadFileIds.add(id);
+ // Opening a 487-page document is not the same as finding page 312.
+ if(id!=='operational_addendum'||day2Page312FindingSaved)day2ReadFileIds.add(id);
  if(id==='approval')day2FilesInspected.approval=true;
  if(id==='signature')day2FilesInspected.metadata=true;
  if(id==='casebrief')day2CaseBriefRead=true;
  if(id==='settlement')day2OfferDocRead=true;
  if(id==='family_statements')day2FamilyDocsRead.statements=true;
  if(id==='family_intake')day2FamilyDocsRead.client=true;
- saveStoryState(id==='casebrief'?'CP02-03-case-brief-read':id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
+ saveStoryState(id==='operational_addendum'?'CP02-07-addendum-opened':
+  id==='casebrief'?'CP02-03-case-brief-read':
+  id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
  render();
 }
 function nakulaReturnToNirmala(){
@@ -2875,6 +2896,18 @@ document.addEventListener('click',e=>{
  if(finishChapter){e.preventDefault();e.stopImmediatePropagation();finishDay2Chapter2();return}
  const closeChapter=e.target.closest('[data-day2-chapter-close]');
  if(closeChapter){e.preventDefault();e.stopImmediatePropagation();hideDay2ChapterFinale();return}
+ const pageOpen=e.target.closest('[data-day2-page-open]');
+ if(pageOpen&&day2Page312Stage!=='none'&&day2Page312Stage!=='queued'){
+  e.preventDefault();e.stopImmediatePropagation();
+  nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument('operational_addendum');return;
+ }
+ const pageNav=e.target.closest('[data-day2-page-nav]');
+ if(pageNav&&state.screen==='app'&&state.app==='files'){
+  e.preventDefault();e.stopImmediatePropagation();
+  setDay2Page312Page(day2Page312CurrentPage+Number(pageNav.dataset.day2PageNav));return;
+ }
+ const pageRecord=e.target.closest('[data-day2-page-record]');
+ if(pageRecord){e.preventDefault();e.stopImmediatePropagation();recordDay2Page312Finding();return}
  const mentariView=e.target.closest('[data-day2-mentari-view]');
  if(mentariView){e.preventDefault();e.stopImmediatePropagation();openDay2MentariPhoto();return}
  const mentariSave=e.target.closest('[data-day2-mentari-save]');
@@ -2952,6 +2985,13 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-nakula-files-back]')){e.preventDefault();e.stopImmediatePropagation();nakulaFilesBack()}
 },true);
 
+document.addEventListener('submit',e=>{
+ if(!e.target.closest('[data-day2-page-jump]'))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(state.screen!=='app'||state.app!=='files'||nakulaFilesDocId!=='operational_addendum')return;
+ const field=e.target.querySelector('input[name="page"]');
+ if(field)setDay2Page312Page(field.value);
+},true);
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'&&day2FamilyTaskModal&&!day2FamilyTaskModal.hidden){
   e.preventDefault();deferDay2FamilyTask();
