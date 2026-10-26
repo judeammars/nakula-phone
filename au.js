@@ -584,7 +584,7 @@ function chooseDay2FamilyPriority(choice){
  render();
 }
 function renderDay2Calendar(){
- if(state.screen!=='app'||state.app!=='calendar')return;
+ if(state.screen!=='app'||state.app!=='calendar'||!day2CaseBriefAvailable())return;
  const content=$au('app-content');
  if(!content)return;
  // The existing Calendar shell and clock are still rendered by index.html.
@@ -1970,7 +1970,7 @@ function renderNakulaFilesApp(){
   '<section class="nakula-files-decision" role="group" aria-label="Evidence investigation choice"><small>07.35 · CASE DECISION</small><h2>What should Nakula do?</h2><p>Both paths can progress. Choose which evidence trail to prioritize.</p>'+
   '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
   '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
- const familyChoice=day2FamilyDocsReady()&&!day2FamilyPriority&&day2FamiliesReceived?
+ const familyChoice=day2FamilyDocsReady()&&!day2FamilyPriority&&day2FamiliesReceived&&!detail?
   '<section class="nakula-files-decision" role="group" aria-label="Family advocacy choice"><small>10.10 · CLIENT PRIORITY</small><h2>What should Nakula prioritize?</h2><p>Both paths protect the clients. Their needs and consent must remain central.</p>'+
   '<button type="button" data-nakula-family-choice="consult"><strong>Consult with the Families</strong><span>Discuss needs, explain options, obtain consent</span></button>'+
   '<button type="button" data-nakula-family-choice="corroborate"><strong>Verify the Witness Statements</strong><span>Check timeline and locations without pressuring clients</span></button></section>':'';
