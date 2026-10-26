@@ -2138,3 +2138,163 @@
  #phone.in-app .nakula-calendar-event-time{width:38px;font-size:13px}
  #phone.in-app .nakula-calendar-event-body{padding-left:8px}
 }
+
+/* CHAPTER 02.4 — AIRDROP-INSPIRED NEW TASK SHEET */
+#phone .nakula-family-task-overlay{
+ position:absolute;inset:0;z-index:260;
+ display:flex;align-items:center;justify-content:center;
+ padding:18px 21px;
+ box-sizing:border-box;
+ isolation:isolate;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+ -webkit-font-smoothing:antialiased;
+}
+#phone .nakula-family-task-overlay[hidden]{display:none!important}
+#phone .nakula-family-task-backdrop{
+ position:absolute;inset:0;z-index:0;
+ background:rgba(0,0,0,.53);
+ -webkit-backdrop-filter:blur(13px);
+ backdrop-filter:blur(13px);
+}
+#phone .nakula-family-task-dialog{
+ position:relative;z-index:1;
+ width:100%;max-width:340px;
+ display:flex;flex-direction:column;align-items:stretch;
+ overflow:hidden;
+ padding:22px 17px 13px;
+ box-sizing:border-box;
+ border:1px solid rgba(240,246,255,.16);
+ border-radius:27px;
+ background:linear-gradient(160deg,rgba(53,58,70,.97),rgba(30,33,41,.99));
+ color:#f9fbff;
+ box-shadow:0 18px 54px rgba(0,0,0,.57),inset 0 1px rgba(255,255,255,.12);
+ text-align:center;
+ animation:nakula-task-enter .28s cubic-bezier(.18,.8,.25,1) both;
+}
+@keyframes nakula-task-enter{
+ from{opacity:0;transform:translateY(14px) scale(.965)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+#phone .nakula-family-task-app-icon{
+ width:56px;height:56px;
+ display:grid;place-items:center;
+ align-self:center;
+ margin-bottom:13px;
+ border-radius:17px;
+ background:linear-gradient(145deg,#61a2ff,#2674ed);
+ box-shadow:0 6px 19px rgba(40,124,244,.29),inset 0 1px 1px rgba(255,255,255,.32);
+ font-size:31px;font-weight:700;
+ color:white;
+}
+#phone .nakula-family-task-app-icon span{line-height:1}
+#phone .nakula-family-task-overline{
+ margin:0 0 8px;
+ font-size:10px;font-weight:750;letter-spacing:.16em;
+ color:#a7c9ff;
+}
+#phone .nakula-family-task-dialog h2{
+ margin:0 0 9px;
+ font-size:21px;line-height:1.2;font-weight:700;
+ letter-spacing:-.03em;
+ color:#fff;
+}
+#phone .nakula-family-task-dialog p{
+ margin:0 auto 19px;
+ max-width:255px;
+ font-size:12.5px;line-height:1.5;
+ color:#d0d5e0;
+}
+#phone .nakula-family-task-options{
+ display:flex;flex-direction:column;gap:9px;
+ text-align:left;
+}
+#phone .nakula-family-task-options button{
+ width:100%;min-height:74px;
+ box-sizing:border-box;display:flex;align-items:center;gap:10px;
+ padding:12px 10px;
+ border-radius:16px;
+ border:1px solid rgba(165,190,240,.15);
+ background:rgba(104,125,166,.18);
+ color:#fff;
+ cursor:pointer;
+ font:inherit;
+ -webkit-tap-highlight-color:transparent;
+}
+#phone .nakula-family-task-options button:active{
+ background:rgba(105,147,228,.29);
+ transform:scale(.993);
+}
+#phone .nakula-family-task-option-icon{
+ flex:none;width:30px;height:30px;
+ border-radius:10px;display:grid;place-items:center;
+ color:#bfd9ff;background:rgba(72,139,243,.23);
+ font-size:11px;font-weight:800;
+}
+#phone .nakula-family-task-options button>span:nth-child(2){
+ flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;
+}
+#phone .nakula-family-task-options strong{
+ font-size:13px;line-height:1.27;font-weight:650;
+}
+#phone .nakula-family-task-options small{
+ color:#bec8d9;font-size:11px;line-height:1.4;
+}
+#phone .nakula-family-task-chevron{
+ font-size:23px;line-height:1;color:#b3ccf8;
+}
+#phone .nakula-family-task-later{
+ align-self:center;min-height:42px;width:100%;
+ margin:11px 0 0;
+ background:transparent;color:#a8caff;
+ border:0;border-top:1px solid rgba(255,255,255,.12);
+ padding:9px;
+ font:650 13px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone .nakula-family-task-options button:focus-visible,
+#phone .nakula-family-task-later:focus-visible{
+ outline:2px solid #99caff;outline-offset:2px;
+}
+#phone.in-app .nakula-family-task-banner{
+ display:flex;flex-direction:column;gap:5px;
+ margin:12px 14px 14px;padding:14px 15px;
+ border:1px solid rgba(90,152,255,.29);border-radius:16px;
+ background:linear-gradient(145deg,#e9f1ff,#dceaff);
+ box-shadow:0 5px 15px rgba(30,93,182,.10);
+ color:#183b68;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-family-task-banner>span{
+ color:#457fc8;font-size:10px;font-weight:750;letter-spacing:.12em;
+}
+#phone.in-app .nakula-family-task-banner strong{
+ font-size:15px;font-weight:700;
+}
+#phone.in-app .nakula-family-task-banner small{
+ font-size:11px;color:#5879a3;line-height:1.4;
+}
+#phone.in-app .nakula-family-task-banner button{
+ margin-top:8px;padding:10px;
+ border:0;border-radius:10px;
+ background:#438af4;color:white;
+ font:650 13px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app.dark-ui .nakula-family-task-banner{
+ background:linear-gradient(145deg,#23354f,#1c2a3e);
+ color:#f4f7fd;border-color:rgba(120,163,223,.33);
+}
+#phone.in-app.dark-ui .nakula-family-task-banner small{color:#b4c8e2}
+#phone.in-app.dark-ui .nakula-family-task-banner>span{color:#99bdfa}
+#phone.in-app .nakula-calendar-task-open{
+ background:#416cb2!important;
+ margin-top:2px;
+}
+@media(prefers-reduced-motion:reduce){
+ #phone .nakula-family-task-dialog{animation:none}
+}
+@media(max-width:385px){
+ #phone .nakula-family-task-overlay{padding:15px 15px}
+ #phone .nakula-family-task-dialog{padding:20px 13px 11px;border-radius:24px}
+ #phone .nakula-family-task-dialog h2{font-size:20px}
+}
