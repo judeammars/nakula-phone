@@ -1064,6 +1064,186 @@ function day2ReportSent(){
  return aftermathTriggered&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length
   &&!!report?.me&&!!adnan?.messages.some(m=>m.me&&m.text===report.text);
 }
+
+/* DAILY CASE NOTES — per-playthrough, spoiler-safe legal recaps.
+   A note is created ONCE at the beginning of the next story day.
+   The note is a snapshot, never rewritten when the player learns more.
+   Daily notes live in the story slot; personal Notes remain untouched. */
+let dailyCaseNotes=[];
+const DAILY_CASE_NOTE_FIRST_ID=99201;
+function dailyCaseNoteDate(index){
+ const d=new Date(Date.UTC(2026,9,25+index));
+ const date=new Intl.DateTimeFormat('id-ID',{timeZone:'UTC',day:'numeric',month:'long',year:'numeric'}).format(d);
+ return date;
+}
+function dailyCaseNoteHeader(index){
+ const d=new Date(Date.UTC(2026,9,24+index));
+ const label=new Intl.DateTimeFormat('id-ID',{timeZone:'UTC',day:'numeric',month:'short'}).format(d).toUpperCase().replace('.','');
+ return label+' · CATATAN HARI SEBELUMNYA';
+}
+function buildDailyCaseNoteBody(dayIndex){
+ const parts=['CATATAN PERKARA · PRIBADI','', 'HARI SEBELUMNYA · '+dailyCaseNoteDate(dayIndex-1).toUpperCase(),''];
+ if(dayIndex===1){
+  parts.push(
+   'PERKARA ZONA B',
+   'Penanganan kasus longsor Zona B dan dokumen PBK Group masih berjalan. Saya bertindak untuk kepentingan keluarga korban, bukan PBK. Pisahkan fakta yang sudah diketahui dari dugaan yang belum terverifikasi.','',
+   'PANGGILAN ANONIM',
+   unknownInterrupted
+    ?'Nomor tak dikenal meminta agar penelusuran Zona B dihentikan. Setelah sambungan saya akhiri, penelepon menghubungi kembali dengan lebih agresif.'
+    :'Nomor tak dikenal meminta agar penelusuran Zona B dihentikan. Identitas dan hubungan penelepon dengan PBK belum terverifikasi.',
+   '',
+   'LAPORAN KEPADA ADNAN',
+   'Kronologi ancaman dan waktu panggilan telah saya laporkan kepada Pak Adnan. Catatan panggilan perlu dipertahankan tanpa perubahan.','',
+   'BELUM TERJAWAB',
+   '• Siapa penelepon anonim tersebut?',
+   '• Apa tujuan sebenarnya di balik upaya menghentikan penelusuran Zona B?',
+   '• Dokumen mana yang perlu diperiksa untuk menguatkan kronologi?'
+  );
+ }else if(dayIndex===2){
+  parts.push('PERKARA ZONA B');
+  if(day2FilesInspected.approval&&day2FilesInspected.metadata)
+   parts.push('Salinan AMDAL memuat tanggal 15 Oktober, sedangkan pemeriksaan awal metadata menemukan timestamp tanda tangan 20 Oktober pukul 02.00. Longsor terjadi 18 Oktober. Perbedaan ini adalah petunjuk yang masih perlu diuji.');
+  else if(day2FilesReceived)
+   parts.push('Nirmala mengirim salinan dokumen perkara melalui Files. Pemeriksaan dokumen primer dan keasliannya belum lengkap.');
+  else
+   parts.push('Tim masih mengumpulkan kronologi dan salinan berkas untuk perkara Zona B.');
+  if(day2InvestigationChoice){
+   parts.push('Prioritas yang saya pilih: '+(day2InvestigationChoice==='verify'
+    ?'verifikasi sertifikat serta timestamp tanda tangan digital.'
+    :'penelusuran asal dokumen melalui vendor dan perusahaan asuransi.'));
+  }
+  if(day2BriefingDone)parts.push('Briefing bersama Pak Adnan telah dilakukan. Kesimpulan hukum harus didukung bukti, bukan sekadar dugaan.');
+  parts.push('','KELUARGA KORBAN');
+  if(day2FamilyDocsRead.statements)
+   parts.push('Catatan awal mengenai Rania dan Harun tersedia. Keterangan belum dapat dianggap final tanpa konfirmasi, dan privasi mereka harus dijaga.');
+  else if(day2FamiliesReceived)
+   parts.push('Berkas tindak lanjut keluarga telah diterima. Pemeriksaan dan persetujuan penggunaan informasi masih diperlukan.');
+  else
+   parts.push('Komunikasi dan kebutuhan keluarga korban masih harus diutamakan.');
+  if(day2FamilyPriority){
+   parts.push('Prioritas tindak lanjut: '+(day2FamilyPriority==='consult'
+    ?'berbicara dengan keluarga, menjelaskan pilihan, dan meminta persetujuan.'
+    :'memeriksa kecocokan waktu serta lokasi kesaksian sambil melindungi persetujuan keluarga.'));
+  }
+  if(day2MentariPhotoDelivered){
+   parts.push('','ANCAMAN PRIBADI');
+   parts.push(day2MentariPhotoOpened
+    ?'Nomor anonim menghubungi kembali dan mengirim foto Mentari. Asal foto dan identitas pengirim belum diketahui.'
+    :'Nomor anonim kembali menghubungi dan mengirim gambar. Asal materi yang dikirim belum diketahui.');
+   if(day2MentariEvidenceSaved)parts.push('Kronologi foto yang dikirim penelepon sudah dicatat sebagai bukti.');
+  }
+  if(day2OfferDelivered){
+   parts.push('','TAWARAN PENYELESAIAN');
+   parts.push(day2OfferOpened
+    ?'Kuasa hukum PBK menyampaikan tawaran awal hingga Rp150 miliar. Rincian, syarat, dan persetujuan klien belum lengkap; belum ada kesepakatan.'
+    :'Sebuah email baru dari kuasa hukum PBK masuk ke Mail. Isinya belum diperiksa secara lengkap.');
+   if(day2OfferChoice)parts.push('Langkah yang saya pilih: '+DAY2_OFFER_CHOICES[day2OfferChoice].label.toLowerCase()+'.');
+  }
+  parts.push('','BELUM TERJAWAB',
+   '• Siapa yang mengotorisasi keputusan operasional Zona B?',
+   '• Sejauh mana dokumen dan kesaksian yang sudah diterima dapat diverifikasi?');
+  if(day2MentariPhotoDelivered)parts.push('• Bagaimana penelepon anonim memperoleh materi pribadi tersebut?');
+ }else{
+  parts.push('TINDAK LANJUT',
+   'Pemeriksaan berkas dan komunikasi klien harus diteruskan dengan mengutamakan fakta yang dapat diverifikasi.','',
+   'BELUM TERJAWAB',
+   '• Bukti apa yang masih perlu diverifikasi?',
+   '• Apakah kepentingan dan persetujuan klien sudah terdokumentasi?');
+ }
+ return parts.join('\n');
+}
+function installDailyCaseNotes(){
+ // Reattach only the summary notes for this playthrough; the personal Notes
+ // app persists its own documents using a separate localStorage key.
+ notes=notes.filter(n=>!(n&&Number(n.id)>=99201&&Number(n.id)<=99299));
+ notes.unshift(...dailyCaseNotes.slice().sort((a,b)=>b.id-a.id));
+ updateDailyNotesHomeBadge();
+}
+function syncDailyCaseNotes(){
+ if(day2Stage==='none'||day2Stage==='transition'||currentStoryEnding)return;
+ const storyDay=Math.floor(window.nakulaNarrativeClock.minutes()/1440);
+ if(!Number.isInteger(storyDay)||storyDay<1)return;
+ // The eight-day story is expandable without producing speculative spoilers.
+ const cappedDay=Math.min(storyDay,8);
+ let changed=false;
+ for(let dayIndex=1;dayIndex<=cappedDay;dayIndex++){
+  const id=99200+dayIndex;
+  if(dailyCaseNotes.some(n=>Number(n.id)===id))continue;
+  dailyCaseNotes.push({
+   id,title:dailyCaseNoteHeader(dayIndex),date:dailyCaseNoteDate(dayIndex)+' · Daily Case Notes',
+   body:buildDailyCaseNoteBody(dayIndex),dailyCase:true,read:false,dayIndex
+  });
+  changed=true;
+ }
+ if(changed)installDailyCaseNotes();
+ else updateDailyNotesHomeBadge();
+}
+function updateDailyNotesHomeBadge(){
+ const count=dailyCaseNotes.filter(n=>!n.read).length;
+ document.querySelectorAll('.app-button[data-app="notes"]').forEach(button=>{
+  let badge=button.querySelector('.nakula-daily-home-badge');
+  if(!count){if(badge)badge.remove();return}
+  if(!badge){
+   badge=document.createElement('span');
+   badge.className='nakula-daily-home-badge';
+   const icon=button.querySelector('.app-icon');
+   if(icon)icon.insertAdjacentElement('afterend',badge);
+   else button.appendChild(badge);
+  }
+  badge.textContent=String(count);
+  badge.setAttribute('aria-label',count+' catatan baru');
+ });
+}
+function decorateDailyCaseNotesUI(){
+ if(state.screen!=='app'||state.app!=='notes')return;
+ const content=$au('app-content');if(!content)return;
+ if(state.view==='note'){
+  const note=dailyCaseNotes.find(n=>String(n.id)===String(state.note));
+  if(note){
+   // An auto-generated case recap is a fixed morning snapshot.
+   content.querySelector('[data-action="edit-note"]')?.remove();
+   const h=content.querySelector('.large-title');
+   if(h)h.insertAdjacentHTML('afterend','<div class="nakula-daily-note-description">DAILY CASE NOTES · RINGKASAN OTOMATIS</div>');
+  }
+  return;
+ }
+ if(state.view)return;
+ content.querySelectorAll('[data-note]').forEach(row=>{
+  const note=dailyCaseNotes.find(n=>String(n.id)===String(row.dataset.note));
+  if(!note)return;
+  row.classList.add('nakula-daily-note-row');
+  if(!note.read){
+   row.classList.add('nakula-daily-note-unread');
+   row.setAttribute('aria-label',note.title+', belum dibaca');
+   const badge=document.createElement('span');
+   badge.className='nakula-daily-note-badge';
+   badge.textContent='NEW';
+   const chev=row.querySelector('.end');
+   if(chev)row.insertBefore(badge,chev);
+   else row.appendChild(badge);
+  }
+ });
+}
+function markDailyCaseNoteRead(id){
+ const note=dailyCaseNotes.find(n=>String(n.id)===String(id));
+ if(!note||note.read)return;
+ note.read=true;
+ saveStoryState('daily-case-note-read');
+ updateDailyNotesHomeBadge();
+}
+document.addEventListener('click',e=>{
+ const noteButton=e.target.closest('[data-note]');
+ if(noteButton&&state.screen==='app'&&state.app==='notes'){
+  markDailyCaseNoteRead(noteButton.dataset.note);
+  return;
+ }
+ const edit=e.target.closest('[data-action="edit-note"]');
+ if(edit&&state.screen==='app'&&state.app==='notes'
+  &&dailyCaseNotes.some(n=>String(n.id)===String(state.note))){
+  e.preventDefault();e.stopImmediatePropagation();
+ }
+},true);
+
 function makeStorySnapshot(reason='progress'){
  const incident=notes.find(n=>Number(n.id)===9901);
  return {
@@ -1091,11 +1271,13 @@ function makeStorySnapshot(reason='progress'){
   unknownTimeline:unknownTimeline.map(m=>({...m})),
   nirmalaTimeline:nirmalaTimeline.map(m=>({...m})),
   callLog:unknownCallHistory.map(x=>({...x})),
-  incidentNote:aftermathTriggered&&incident?{...incident}:null
+  incidentNote:aftermathTriggered&&incident?{...incident}:null,
+  dailyCaseNotes:dailyCaseNotes.map(n=>({...n}))
  };
 }
 function saveStoryState(reason='progress'){
  if(!storySaveReady)return false;
+ syncDailyCaseNotes();
  const snapshot=makeStorySnapshot(reason);
  try{
   localStorage.setItem('myphone-ios-'+STORY_SLOT_KEY,JSON.stringify(snapshot));
@@ -1114,6 +1296,12 @@ function loadStoryState(){
   ||(saved.nirmalaTimeline&&(!Array.isArray(saved.nirmalaTimeline)||saved.nirmalaTimeline.length>30))
   ||!Array.isArray(saved.callLog)||saved.callLog.length>30)return false;
  const p=saved.progress;
+ dailyCaseNotes=Array.isArray(saved.dailyCaseNotes)?
+  saved.dailyCaseNotes.filter(n=>n&&n.dailyCase===true&&Number.isInteger(n.id)
+   &&n.id>=99201&&n.id<=99208&&typeof n.title==='string'
+   &&typeof n.body==='string'&&n.body.length<=5000
+   &&typeof n.date==='string').slice(0,8).map(n=>({...n,read:!!n.read})):[];
+ installDailyCaseNotes();
  if(!Number.isInteger(p.harleyCursor)||p.harleyCursor<1||p.harleyCursor>timeline.length
   ||!Number.isInteger(p.adnanCursor)||p.adnanCursor<0||p.adnanCursor>saved.adnanTimeline.length
   ||!Number.isInteger(p.unknownCursor)||p.unknownCursor<0||p.unknownCursor>saved.unknownTimeline.length
@@ -1943,6 +2131,7 @@ render=function(){
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
+   if(state.screen==='app'&&state.app==='notes')decorateDailyCaseNotesUI();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
    if(state.screen==='app'&&state.app==='calendar')renderDay2Calendar();
    if(state.screen==='app'&&state.app==='mail')renderDay2Mail();
