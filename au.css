@@ -942,3 +942,111 @@
 @media(prefers-reduced-transparency:reduce){
   #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head{background:#1d1e23}
 }
+
+/* FASE A.3 STORY PROGRESS */
+/* All surfaces stay within the iPhone, leaving the original lock wallpaper intact. */
+#phone .nakula-story-toast{
+ position:absolute;z-index:105;left:17px;right:17px;top:60px;
+ display:flex;align-items:center;gap:12px;padding:11px 15px;
+ color:#fff;background:rgba(37,43,51,.94);border:1px solid rgba(255,255,255,.14);
+ border-radius:19px;box-shadow:0 10px 34px rgba(0,0,0,.4);
+ backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+ opacity:0;pointer-events:none;transform:translateY(-18px);
+ transition:opacity .24s ease,transform .24s ease;
+}
+#phone .nakula-story-toast.is-visible{opacity:1;transform:translateY(0)}
+#phone .nakula-story-toast-mark{
+ display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;
+ font-weight:800;font-size:19px;color:#c1f6d3;background:#276845;
+}
+#phone .nakula-story-toast span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+#phone .nakula-story-toast strong{font-size:12px;letter-spacing:.045em;color:#a8e4ba}
+#phone .nakula-story-toast small{font-size:11px;color:#d3d8e0;letter-spacing:.035em}
+#phone .nakula-story-lock-card{
+ position:absolute;z-index:80;bottom:132px;left:17px;right:17px;width:calc(100% - 34px);
+ display:flex;align-items:center;gap:11px;min-height:80px;padding:12px;
+ text-align:left;color:#fff;background:rgba(48,55,66,.71);
+ border:1px solid rgba(255,255,255,.24);border-radius:20px;
+ backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+ box-shadow:0 6px 24px rgba(0,0,0,.16);cursor:pointer;font-family:inherit;
+}
+#phone .nakula-story-lock-card .nakula-story-lock-icon{
+ display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:11px;
+ background:#29353e;color:#b6e2cb;font-size:21px;
+}
+#phone .nakula-story-lock-card span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+#phone .nakula-story-lock-card small{font-size:9px;color:#d4dce5;letter-spacing:.04em}
+#phone .nakula-story-lock-card strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#phone .nakula-story-lock-card em{font-size:11px;color:#c6cbd4;font-style:normal}
+#phone .nakula-story-lock-chevron{font-size:24px;color:#c6cbd4}
+#phone .nakula-story-sheet{
+ position:absolute;inset:0;z-index:131;color:#f5f5f7;
+ display:flex;align-items:flex-end;justify-content:center;
+ font-family:inherit;
+}
+#phone .nakula-story-shade{position:absolute;inset:0;background:rgba(0,0,0,.66);backdrop-filter:blur(9px)}
+#phone .nakula-story-sheet-body{
+ position:relative;z-index:1;width:100%;max-height:88%;overflow-y:auto;
+ padding:11px 23px max(29px,env(safe-area-inset-bottom,29px));
+ border-radius:28px 28px 0 0;
+ background:#1c1c1e;box-shadow:0 -12px 45px rgba(0,0,0,.48);
+ border-top:1px solid rgba(255,255,255,.12);
+}
+#phone .nakula-story-grabber{height:5px;width:44px;background:#63636b;border-radius:99px;margin:0 auto 20px}
+#phone .nakula-story-close{
+ position:absolute;top:22px;right:20px;width:30px;height:30px;display:grid;
+ place-items:center;border:0;border-radius:50%;background:#343439;color:#dfdfe4;
+ font-size:24px;line-height:1;cursor:pointer;
+}
+#phone .nakula-story-overline{font-size:11px;color:#9cd6af;letter-spacing:.105em;font-weight:700}
+#phone .nakula-story-sheet-content h2{font-size:24px;font-weight:650;letter-spacing:-.035em;line-height:1.16;margin:13px 0 9px;padding-right:30px;color:#fff}
+#phone .nakula-story-info{font-size:12px;color:#a6a6b0;line-height:1.5;margin:0 0 25px}
+#phone .nakula-story-detail{font-size:14px;color:#dedee3;margin:0 0 18px;line-height:1.5}
+#phone .nakula-story-action{
+ display:block;width:100%;min-height:44px;border-radius:14px;padding:12px 14px;
+ font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin:9px 0;
+ border:1px solid rgba(255,255,255,.12);
+}
+#phone .nakula-story-action.primary{background:#e0e2e7;color:#17171b}
+#phone .nakula-story-action.secondary{background:#303034;color:#f5f5f7}
+#phone .nakula-story-archive{display:flex;flex-direction:column;gap:3px;margin:5px 0 18px}
+#phone .nakula-story-archive-item{
+ display:flex;align-items:center;gap:11px;padding:11px 8px;
+ border-bottom:1px solid rgba(255,255,255,.09);color:#74747e;
+}
+#phone .nakula-story-archive-item.unlocked{color:#f2f2f5}
+#phone .nakula-story-archive-item>span:first-child{font-size:11px;color:#858592;width:21px}
+#phone .nakula-story-archive-item>span:last-child{margin-left:auto;color:#98bfa4}
+#phone .nakula-story-archive-item div{display:flex;flex-direction:column;gap:3px;min-width:0}
+#phone .nakula-story-archive-item strong{font-size:12px;letter-spacing:.01em}
+#phone .nakula-story-archive-item small{font-size:10px;color:#8e8e98}
+#phone .nakula-silence-sheet{
+ position:absolute;inset:0;z-index:126;background:rgba(0,0,0,.64);
+ display:flex;align-items:center;justify-content:center;padding:24px;color:white;
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+#phone .nakula-silence-body{
+ width:100%;padding:28px 17px 17px;border-radius:23px;
+ text-align:center;background:#232429;border:1px solid rgba(255,255,255,.14);
+ box-shadow:0 18px 55px rgba(0,0,0,.55);
+}
+#phone .nakula-silence-icon{font-size:31px;color:#cccfe0;margin-bottom:12px}
+#phone .nakula-silence-body small{font-size:10px;color:#aeb0be;letter-spacing:.12em}
+#phone .nakula-silence-body h2{font-size:19px;font-weight:660;margin:12px 0 8px;color:#fff}
+#phone .nakula-silence-body p{font-size:13px;line-height:1.45;color:#c3c3cf;margin:0 0 20px}
+#phone .nakula-silence-body button{
+ width:100%;min-height:44px;margin:6px 0;border-radius:13px;border:0;
+ background:#dfe4ed;color:#14151b;font:600 13px inherit;cursor:pointer;
+}
+#phone .nakula-silence-body button.nakula-silence-dnd{background:#373941;color:#e5e5e9}
+#phone .nakula-story-sheet[hidden],
+#phone .nakula-story-lock-card[hidden],
+#phone .nakula-silence-sheet[hidden]{display:none!important}
+@media(max-width:385px){
+ #phone .nakula-story-lock-card{bottom:110px;min-height:73px}
+ #phone .nakula-story-lock-card strong{font-size:12px}
+ #phone .nakula-story-sheet-body{padding-left:17px;padding-right:17px}
+}
+@media(prefers-reduced-motion:reduce){
+ #phone .nakula-story-toast{transition:none}
+}
