@@ -12,13 +12,13 @@ threads=[
 {id:'nirmala',name:'Nirmala',role:'Junior Assoc. AHP',initials:'N',date:'',messages:[]}
 ];
 let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
-let harleyUnread=true,adnanUnread=false,unknownUnread=false;
+let harleyUnread=true,adnanUnread=false,unknownUnread=false,nirmalaUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 let harleyAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
-const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&['harley','adnan','unknown'].includes(state.thread);
-const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:timeline;
-const activeIndex=()=>state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:cursor;
+const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered));
+const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?[]:timeline;
+const activeIndex=()=>state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?0:cursor;
 const setIndex=(id,i)=>{if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else cursor=i};
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
@@ -33,7 +33,7 @@ unreadBadge.textContent='1';
 unreadBadge.setAttribute('aria-label','1 unread message');
 messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
 function syncHarleyBadge(){
- const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread);
+ const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread);
  unreadBadge.textContent=String(count);
  unreadBadge.setAttribute('aria-label',count+' unread messages');
  unreadBadge.classList.toggle('is-hidden',!count||state.screen==='lock');
@@ -56,12 +56,18 @@ function markUnknownRead(){
  hideNotif();
  syncHarleyBadge();
 }
+function markNirmalaRead(){
+ nirmalaUnread=false;
+ saveStoryState('read-nirmala');
+ hideNotif();
+ syncHarleyBadge();
+}
 function setNotification(id){
  const t=threadById(id);
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=(id==='adnan'&&day2Stage!=='none'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
 }
 
@@ -90,7 +96,7 @@ function showNotif(play=false){
 }
 function openStoryThread(id){
  if(state.screen!=='home'&&state.screen!=='app')return;
- if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else markHarleyRead();
+ if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else markHarleyRead();
  openApp('messages');state.thread=id;state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
@@ -390,8 +396,92 @@ let storyCallResumeScheduled=false,storyHarleyResumeScheduled=false;
 /* Day 2 persists in the existing story slot, so refreshing during the
    transition/alarm never skips the required Stop interaction. */
 let day2Stage='none',day2TransitionRunning=false,day2TransitionTimer=null;
+let day2BriefPrepared=false,day2BriefChoice=null,day2NirmalaDelivered=false,day2BriefKickoffScheduled=false,day2NirmalaNotifyTimer=null;
 const DAY2_MORNING_MINUTES=1440+7*60+12;
 const DAY2_ADNAN_MESSAGE='Pagi, Na. Saya sudah baca laporanmu semalam. Simpan seluruh riwayat panggilannya. Kita bahas bersama dengan Nirmala pagi ini, terutama berkas PBK Group.';
+/* CHAPTER 02.1 — THE MORNING BRIEF
+   Optional incident-call path has lasting dialogue consequences, but neither
+   path locks the ending. A second choice records which concern Nakula raises.
+   All timeline entries live in the existing story save slot. */
+const DAY2_BRIEF_REPLY_OPTIONS=Object.freeze({
+ evidence:'Saya prioritaskan verifikasi nomor revisi dan metadata bersama Nirmala, Pak. Kalau ada ketidaksesuaian, saya tandai sebelum briefing.',
+ safety:'Saya koordinasi berkas dengan Nirmala, Pak. Untuk ancaman semalam, apakah kronologinya perlu saya pisahkan untuk evaluasi tim?'
+});
+const DAY2_NIRMALA_TEASER='Morning, Na. Aku cocokkan indeks adendum PBK dengan salinan yang kita terima Jumat. Ada dua tanggal revisi yang tidak sinkron. Bisa cek bareng sebelum briefing Pak Adnan?';
+function day2BriefMessage(me,time,text,extra={}){
+ return {me,time,text,dayOffset:1,day2Brief:true,...extra};
+}
+function prepareDay2MorningBrief(){
+ if(day2BriefPrepared||day2Stage!=='complete'||!threadById('adnan')?.messages.some(m=>m.day2Morning))return;
+ const angry=unknownInterrupted;
+ const tailored=angry?[
+  day2BriefMessage(false,'07.14','Pagi, Na. Saya lihat ada panggilan kedua setelah kamu memutus sambungan. Nomor dan waktunya sama?'),
+  day2BriefMessage(true,'07.15','Nomornya sama, Pak. Panggilan kedua lebih agresif. Saya simpan kedua log beserta kronologinya.'),
+  day2BriefMessage(false,'07.16','Baik. Jangan hapus atau ubah catatan waktunya. Kalau ada panggilan baru, laporkan dulu kepada saya.')
+ ]:[
+  day2BriefMessage(false,'07.14','Pagi, Na. Kamu membiarkan penelepon menyelesaikan peringatannya. Ada nama atau istilah spesifik selain PBK dan Zona B?'),
+  day2BriefMessage(true,'07.15','Tidak ada nama baru, Pak. Tapi dia tahu perkara yang sedang kita tangani. Saya catat kata-katanya tanpa menebak identitasnya.'),
+  day2BriefMessage(false,'07.16','Good. That is the right approach. Kita bekerja dari fakta, bukan dari orang yang paling keras mengancam.')
+ ];
+ const common=[
+  day2BriefMessage(false,'07.17','Now, about Zona B. Saya ingin indeks adendum PBK dicocokkan dengan salinan Jumat. Jangan menyimpulkan ada manipulasi sebelum kita periksa dokumen primer.'),
+  day2BriefMessage(true,'07.18','', {choiceId:'day2-brief',choicePending:true}),
+  day2BriefMessage(false,'07.19','', {choiceResponse:'day2-brief'}),
+  day2BriefMessage(true,'07.20','Understood. Saya hubungi Nirmala sekarang, Pak.'),
+  day2BriefMessage(false,'07.21','And please tell me you already had breakfast. Nirmala has been reporting on your coffee habits.'),
+  day2BriefMessage(true,'07.22','Sudah, Pak. Actual food, not just coffee.'),
+  day2BriefMessage(false,'07.23','Good. See you at nine. Bring the discrepancies, not assumptions.')
+ ];
+ adnanTimeline.push(...tailored,...common);
+ day2BriefPrepared=true;
+ saveStoryState('CP02-morning-brief-ready');
+}
+function syncDay2BriefClock(message){
+ if(!message?.day2Brief)return;
+ const hhmm=String(message.time||'').split('.');
+ if(hhmm.length===2)window.nakulaNarrativeClock.set(Number(hhmm[0]),Number(hhmm[1]),1);
+}
+function deliverDay2NirmalaTeaser(){
+ if(day2NirmalaDelivered||!day2BriefPrepared||adnanCursor<adnanTimeline.length)return;
+ const thread=threadById('nirmala');
+ if(!thread)return;
+ if(!thread.messages.some(m=>m.day2Nirmala)){
+  thread.messages.push({me:false,time:'07.25',text:DAY2_NIRMALA_TEASER,dayOffset:1,day2Nirmala:true});
+  thread.date='07.25';
+ }
+ day2NirmalaDelivered=true;
+ nirmalaUnread=true;
+ const idx=threads.findIndex(t=>t.id==='nirmala');
+ if(idx>0)threads.unshift(...threads.splice(idx,1));
+ window.nakulaNarrativeClock.set(7,25,1);
+ saveStoryState('CP02-A-morning-brief');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
+ if(state.screen==='home'||state.screen==='app'){
+  setNotification('nirmala');notif.classList.add('show');sound();
+ }
+}
+function finishDay2MorningBrief(){
+ if(!day2BriefPrepared||adnanCursor<adnanTimeline.length||day2NirmalaDelivered||day2NirmalaNotifyTimer)return;
+ day2NirmalaNotifyTimer=setTimeout(()=>{
+  day2NirmalaNotifyTimer=null;
+  deliverDay2NirmalaTeaser();
+ },1250);
+}
+function queueDay2BriefIncoming(){
+ if(!day2BriefPrepared||day2Stage!=='complete'||day2NirmalaDelivered)return;
+ if(adnanCursor>=adnanTimeline.length){finishDay2MorningBrief();return}
+ const next=adnanTimeline[adnanCursor];
+ if(!next||next.me||incomingThread||day2BriefKickoffScheduled)return;
+ day2BriefKickoffScheduled=true;
+ setTimeout(()=>{
+  day2BriefKickoffScheduled=false;
+  if(day2Stage!=='complete'||adnanCursor>=adnanTimeline.length||incomingThread||!inScripted()||state.thread!=='adnan')return;
+  if(adnanTimeline[adnanCursor]?.me!==false)return;
+  receive('adnan');
+ },1050);
+}
+
 function day2ReportSent(){
  const adnan=threadById('adnan');
  const report=adnanTimeline[adnanTimeline.length-1];
@@ -408,7 +498,8 @@ function makeStorySnapshot(reason='progress'){
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,
-   harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,
+   harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
+   day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
    adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage
   },
@@ -451,6 +542,10 @@ function loadStoryState(){
  cursor=p.harleyCursor;adnanCursor=p.adnanCursor;unknownCursor=p.unknownCursor;
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
  harleyUnread=!!p.harleyUnread;adnanUnread=!!p.adnanUnread;unknownUnread=!!p.unknownUnread;
+ nirmalaUnread=!!p.nirmalaUnread;
+ day2BriefPrepared=!!p.day2BriefPrepared||saved.adnanTimeline.some(m=>m.day2Brief);
+ day2BriefChoice=['evidence','safety'].includes(p.day2BriefChoice)?p.day2BriefChoice:null;
+ day2NirmalaDelivered=!!p.day2NirmalaDelivered||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2Nirmala));
  unknownQueued=!!p.unknownQueued;unknownAttempt=Math.max(0,Math.min(100,Number(p.unknownAttempt)||0));
  unknownInterrupted=!!p.unknownInterrupted;
  currentStoryEnding=isKnownStoryEnding(saved.endingId)?saved.endingId:null;
@@ -519,6 +614,7 @@ function initializeStorySave(){
  if(storyAwaitingSilenceChoice)showSilenceDecision();
  if(day2Stage==='alarm')showDay2Alarm();
  if(day2Stage==='morning')renderDay2MorningNotice();
+ if(day2Stage==='complete'&&day2BriefPrepared&&adnanCursor>=adnanTimeline.length&&!day2NirmalaDelivered)finishDay2MorningBrief();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -927,12 +1023,13 @@ document.addEventListener('click',e=>{
  if(t.dataset.thread==='harley')markHarleyRead();
  if(t.dataset.thread==='adnan')markAdnanRead();
  if(t.dataset.thread==='unknown')markUnknownRead();
+ if(t.dataset.thread==='nirmala')markNirmalaRead();
 },true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
  return arr.map(t=>{
-   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread);
+   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread)||(t.id==='nirmala'&&nirmalaUnread);
    const preview=t.messages[t.messages.length-1]?.text||t.role||'';
    return '<button class="thread'+(unread?' is-unread':'')+'" data-thread="'+esc(t.id)+'" aria-label="'+esc(t.name)+(unread?', unread message':'')+'">'+
      (unread?'<span class="thread-unread" aria-hidden="true"></span>':'')+
@@ -1077,9 +1174,16 @@ render=function(){
    }
    return;
  }
+ if(state.thread==='adnan'&&day2Stage==='complete')prepareDay2MorningBrief();
  const thread=threadById(state.thread),script=activeTimeline(),index=activeIndex(),next=script[index],done=!next&&!isReceiving();
  const bubbles=nakulaRenderChatBubbles(thread.messages);
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
+ const day2ChoiceUI=state.thread==='adnan'&&next?.choiceId==='day2-brief'&&!day2BriefChoice?
+  '<div class="nakula-day2-brief-choice" role="group" aria-label="Choose Nakula’s reply">'+
+   '<span>HOW SHOULD NAKULA RESPOND?</span>'+
+   '<button type="button" data-day2-brief-choice="evidence">Verify the evidence <small>Cross-check PBK documents</small></button>'+
+   '<button type="button" data-day2-brief-choice="safety">Address the threat <small>Request a safety protocol</small></button>'+
+  '</div>':'';
  const aftermathCta=state.thread==='unknown'&&aftermathTriggered?
   '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
  const delivered=state.thread==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length&&thread.messages.length>0&&thread.messages[thread.messages.length-1].me?
@@ -1092,10 +1196,11 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+esc(thread.initials)+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
+ if(state.thread==='adnan'&&day2Stage==='complete')queueDay2BriefIncoming();
  if(inHarley()){
   scheduleHarleyReply();
   // A fully received message is the resume boundary, not a partial keypress.
@@ -1110,6 +1215,7 @@ render=function(){
 };
 function beginAutoType(){
  if(!inScripted()||isReceiving())return;
+ if(state.thread==='adnan'&&activeTimeline()[activeIndex()]?.choicePending)return;
  const message=activeTimeline()[activeIndex()];if(!message?.me)return;
  auArmKeyboardAudio();
  if(!keyboardVisible){
@@ -1162,10 +1268,12 @@ function receive(id=state.thread){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
    if(id==='harley'&&current>=script.length)queueUnknownCall();
+   if(id==='adnan'&&day2BriefPrepared&&day2Stage==='complete'&&current>=script.length)finishDay2MorningBrief();
    saveStoryState('incoming-sequence-finished');
    return;
   }
   if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
+  syncDay2BriefClock(next);
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
   saveStoryState('incoming-message');
@@ -1180,8 +1288,9 @@ function sendScripted(){
  if(typing){clearTimeout(typingTimer);typing=false;ready=true}
  if(!ready){beginAutoType();return}
  const id=state.thread,script=activeTimeline(),current=activeIndex(),m=script[current];
- if(!m?.me)return;
+ if(!m?.me||m.choicePending)return;
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
+ syncDay2BriefClock(m);
  if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;
@@ -1198,6 +1307,28 @@ function sendScripted(){
  }
  if(script[current+1]&&!script[current+1].me)receive(id);
 }
+/* Morning Brief reply selection. The selected version is the exact message
+   the scripted keyboard types, with its consequence saved immediately. */
+document.addEventListener('click',e=>{
+ const btn=e.target.closest('[data-day2-brief-choice]');
+ if(!btn||!inScripted()||state.thread!=='adnan')return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(day2BriefChoice||adnanTimeline[adnanCursor]?.choiceId!=='day2-brief')return;
+ const choice=btn.dataset.day2BriefChoice;
+ if(!Object.prototype.hasOwnProperty.call(DAY2_BRIEF_REPLY_OPTIONS,choice))return;
+ day2BriefChoice=choice;
+ adnanTimeline[adnanCursor]={...adnanTimeline[adnanCursor],text:DAY2_BRIEF_REPLY_OPTIONS[choice],choicePending:false};
+ const response=adnanTimeline[adnanCursor+1];
+ if(response?.choiceResponse==='day2-brief'){
+  response.text=choice==='safety'
+   ?'Ya. Pisahkan catatan ancaman dari berkas klien. Kita bahas langkah perlindungan setelah briefing pukul 09.00.'
+   :'Good. Kirimkan daftar ketidaksesuaian, bukan kesimpulan. Kita bahas pukul 09.00.';
+ }
+ saveStoryState('CP02-brief-decision');
+ render();
+ beginAutoType();
+},true);
+
 document.addEventListener('click',e=>{
  if(e.target.closest('#chat-input')&&inScripted()){
    e.preventDefault();e.stopImmediatePropagation();
