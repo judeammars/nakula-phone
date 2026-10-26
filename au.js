@@ -2021,7 +2021,11 @@ function renderNakulaFilesApp(){
    '<h1>PBK Group</h1>'+
    (day2FilesReceived?
     '<p class="nakula-files-help">Shared by Nirmala · 26 Oct 2026</p><div class="nakula-files-document-list">'+nakulaFilesAvailableDocs().map(nakulaFilesRow).join('')+'</div>'+
-    '<p class="nakula-files-tip">Open <b>AMDAL_Approval_Final.pdf</b> and <b>Digital_Signature_Report.pdf</b> to cross-check the dates.</p>':
+    (day2FamiliesReceived
+     ?(!day2FamilyDocsReady()?'<p class="nakula-files-tip">Review Zona_B_Family_Statements.pdf and Client_Contact_Plan.pdf to understand the families’ needs.</p>':'')
+     :day2CaseBriefAvailable()
+       ?(!day2CaseBriefRead?'<p class="nakula-files-tip">Open CASE_BRIEF_PBK.pdf before the 09.00 briefing.</p>':'')
+       :!day2FilesReviewed()?'<p class="nakula-files-tip">Open AMDAL_Approval_Final.pdf and Digital_Signature_Report.pdf to compare the dates.</p>':''):
     '<div class="nakula-files-empty"><div>◌</div><strong>No documents yet</strong><span>Nirmala will send the case materials to this folder.</span></div>')+'</div>';
  }else if(nakulaFilesPath==='downloads'||nakulaFilesPath==='personal'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div>'+
