@@ -395,7 +395,9 @@ let storySaveReady=false,storyNeedsCallResume=false,storyResumeSameCall=false;
 let storyCallResumeScheduled=false,storyHarleyResumeScheduled=false;
 /* Day 2 persists in the existing story slot, so refreshing during the
    transition/alarm never skips the required Stop interaction. */
-let day2Stage='none',day2TransitionRunning=false,day2TransitionTimer=null;
+let day2Stage='none',day2TransitionRunning=false,day2TransitionTimer=null,day2TransitionDueAt=0;
+// Leave a deliberate story beat after the last Chapter 01 message.
+const DAY2_TRANSITION_PAUSE_MS=7000;
 let day2BriefPrepared=false,day2BriefChoice=null,day2NirmalaDelivered=false,day2BriefKickoffScheduled=false,day2NirmalaNotifyTimer=null;
 const DAY2_MORNING_MINUTES=1440+7*60+12;
 const DAY2_ADNAN_MESSAGE='Pagi, Na. Saya sudah baca laporanmu semalam. Simpan seluruh riwayat panggilannya. Kita bahas bersama dengan Nirmala pagi ini, terutama berkas PBK Group.';
@@ -571,7 +573,7 @@ function makeStorySnapshot(reason='progress'){
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
-   adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage
+   adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage,day2TransitionDueAt
   },
   threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
   adnanTimeline:adnanTimeline.map(m=>({...m})),
@@ -643,10 +645,16 @@ function loadStoryState(){
  aftermathTriggered=!!p.aftermathTriggered;adnanIncidentPending=!!p.adnanIncidentPending;
  phoneRecentsFilter=p.phoneRecentsFilter==='missed'?'missed':'all';
  day2Stage=['none','transition','alarm','morning','complete'].includes(p.day2Stage)?p.day2Stage:'none';
+ // Keep the intended seven-second pause across refreshes; older saves
+ // never stored the deadline, so resume their pending transition promptly.
+ day2TransitionDueAt=day2Stage==='transition'&&Number.isFinite(p.day2TransitionDueAt)&&p.day2TransitionDueAt>0
+  ?p.day2TransitionDueAt:day2Stage==='transition'?Date.now()+650:0;
  // Legacy saves created before DAY 2: infer only after the real incident
  // report was sent, never just from the call having ended.
- if(!p.day2Stage&&day2Stage==='none'&&!currentStoryEnding&&day2ReportSent())
+ if(!p.day2Stage&&day2Stage==='none'&&!currentStoryEnding&&day2ReportSent()){
   day2Stage='transition';
+  day2TransitionDueAt=Date.now()+650;
+ }
  if(day2Stage!=='none'&&day2Stage!=='transition'
   &&window.nakulaNarrativeClock.minutes()<DAY2_MORNING_MINUTES)
   window.nakulaNarrativeClock.restore(DAY2_MORNING_MINUTES);
@@ -1104,8 +1112,21 @@ function stopDay2Alarm(){
 }
 day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay2Alarm);
 
+function scheduleDay2Transition(){
+ if(day2TransitionTimer){clearTimeout(day2TransitionTimer);day2TransitionTimer=null}
+ if(day2Stage!=='transition'||day2TransitionRunning||currentStoryEnding||state.screen==='lock')return;
+ // The due time is absolute, so re-entering Home or refreshing never
+ // restarts an already-in-progress pause from seven full seconds.
+ const due=day2TransitionDueAt||Date.now()+650;
+ const remaining=Math.max(0,due-Date.now());
+ day2TransitionTimer=setTimeout(()=>{
+  day2TransitionTimer=null;
+  startDay2Transition();
+ },remaining);
+}
 function startDay2Transition(){
  if(day2Stage!=='transition'||day2TransitionRunning||currentStoryEnding||state.screen==='lock')return;
+ if(day2TransitionTimer){clearTimeout(day2TransitionTimer);day2TransitionTimer=null}
  day2TransitionRunning=true;
  hideNotif();
  day2Curtain.hidden=false;
@@ -1118,6 +1139,7 @@ function startDay2Transition(){
   // Sunday 25 Oct -> Monday 26 Oct 2026, 07:12 Jakarta.
   window.nakulaNarrativeClock.restore(DAY2_MORNING_MINUTES);
   day2Stage='alarm';
+  day2TransitionDueAt=0;
   state.app=null;state.view=null;state.thread=null;
   hidePasscode();
   layer('lock');
@@ -1162,7 +1184,7 @@ layer=function(which){
   renderReturningStoryNotice();
   renderDay2MorningNotice();
   resumePendingStoryCall();
-  if(day2Stage==='transition')setTimeout(startDay2Transition,650);
+  if(day2Stage==='transition')scheduleDay2Transition();
  }
  if(which==='lock'){
   silenceSheet.hidden=true;
@@ -1530,8 +1552,9 @@ function sendScripted(){
   if(idx>0)threads.unshift(...threads.splice(idx,1));
   if(day2Stage==='none'&&day2ReportSent()&&!currentStoryEnding){
    day2Stage='transition';
+   day2TransitionDueAt=Date.now()+DAY2_TRANSITION_PAUSE_MS;
    saveStoryState('CP01-report-delivered');
-   setTimeout(startDay2Transition,1350);
+   scheduleDay2Transition();
   }
  }
  if(script[current+1]&&!script[current+1].me)receive(id);
