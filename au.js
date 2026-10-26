@@ -599,6 +599,72 @@ function startFreshStory(){
  try{localStorage.removeItem('myphone-ios-'+STORY_SLOT_KEY)}catch(e){}
  try{window.location.reload()}catch(e){}
 }
+/* Story tools live in Nakula's Settings, and unlike the ending menu they
+   are accessible throughout Chapter 01 and Chapter 02.
+   New Game wipes only the current story slot. The discovered-endings
+   archive and normal Notes/Photos/appearance settings are preserved. */
+const newGameConfirmation=document.createElement('div');
+newGameConfirmation.className='nakula-new-game-confirm';
+newGameConfirmation.hidden=true;
+newGameConfirmation.setAttribute('role','dialog');
+newGameConfirmation.setAttribute('aria-modal','true');
+newGameConfirmation.setAttribute('aria-labelledby','nakula-new-game-title');
+newGameConfirmation.innerHTML=
+ '<div class="nakula-new-game-backdrop" data-nakula-new-game-action="cancel"></div>'+
+ '<div class="nakula-new-game-dialog">'+
+  '<div class="nakula-new-game-overline">STORY PROGRESS</div>'+
+  '<h2 id="nakula-new-game-title">Start a New Game?</h2>'+
+  '<p>Your current story progress will be reset to Chapter 01. Unlocked endings will stay in the Story Archive.</p>'+
+  '<button type="button" class="nakula-new-game-danger" data-nakula-new-game-action="confirm">New Game</button>'+
+  '<button type="button" class="nakula-new-game-cancel" data-nakula-new-game-action="cancel">Cancel</button>'+
+ '</div>';
+$au('phone').appendChild(newGameConfirmation);
+function closeNewGameConfirmation(){
+ newGameConfirmation.hidden=true;
+}
+function renderNewGameSettingsControl(){
+ if(state.screen!=='app'||state.app!=='settings')return;
+ const content=$au('app-content');
+ if(!content||content.querySelector('[data-nakula-new-game-settings]'))return;
+ const section=document.createElement('section');
+ section.className='nakula-new-game-settings';
+ section.dataset.nakulaNewGameSettings='true';
+ section.innerHTML=
+  '<div class="nakula-new-game-section-heading">STORY PROGRESS</div>'+
+  '<div class="list-group">'+
+   '<button type="button" class="ios-row nakula-new-game-row" data-nakula-new-game-open>'+
+    '<span class="row-main"><strong>New Game</strong>'+
+     '<span class="row-sub">Restart Nakula’s story from Chapter 01</span></span>'+
+    '<span class="end">›</span>'+
+   '</button>'+
+  '</div>'+
+  '<p class="nakula-new-game-info">Your progress is saved automatically. Starting over does not erase discovered endings, personal Notes, Photos, or appearance.</p>';
+ const resetDemo=content.querySelector('[data-action="clear-demo"]');
+ if(resetDemo)resetDemo.insertAdjacentElement('beforebegin',section);
+ else content.appendChild(section);
+}
+document.addEventListener('click',e=>{
+ const open=e.target.closest('[data-nakula-new-game-open]');
+ if(open){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(state.screen!=='app'||state.app!=='settings')return;
+  newGameConfirmation.hidden=false;
+  newGameConfirmation.querySelector('[data-nakula-new-game-action="cancel"].nakula-new-game-cancel')?.focus();
+  return;
+ }
+ const action=e.target.closest('[data-nakula-new-game-action]');
+ if(!action||newGameConfirmation.hidden)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(action.dataset.nakulaNewGameAction==='cancel'){closeNewGameConfirmation();return}
+ if(action.dataset.nakulaNewGameAction==='confirm'){
+  closeNewGameConfirmation();
+  startFreshStory();
+ }
+},true);
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!newGameConfirmation.hidden)closeNewGameConfirmation();
+});
+
 function initializeStorySave(){
  const restored=loadStoryState();
  storySaveReady=true;
@@ -1167,6 +1233,7 @@ render=function(){
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
+   if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
    if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
    if(state.screen==='app'&&state.app==='messages'){
      const oldCaption=document.querySelector('#app-content .convo-local');
