@@ -2684,3 +2684,186 @@
 @media(max-width:385px){
  #phone.in-app .nakula-daily-note-badge{padding:4px 5px;margin-inline:4px;font-size:8px}
 }
+
+/* CHAPTER 02.7 — PAGE 312 READER AND CHAPTER END */
+#phone.in-app .nakula-page312-preview{padding-bottom:17px}
+#phone.in-app .nakula-page312-reader{
+ display:flex;flex-direction:column;gap:12px;
+ padding:3px 0 10px;color:#eef1f7;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-page312-overline{
+ color:#94a7bd;letter-spacing:.12em;font-weight:730;
+ font-size:9px;padding:0 3px;
+}
+#phone.in-app .nakula-page312-paper{
+ background:#f9f8f3;
+ color:#32343d;
+ min-height:330px;
+ box-sizing:border-box;
+ display:flex;flex-direction:column;
+ border-radius:3px;
+ padding:22px 20px 15px;
+ box-shadow:0 4px 18px #0003;
+}
+#phone.in-app .nakula-page312-page-title{
+ font-weight:790;font-size:9px;
+ letter-spacing:.075em;line-height:1.55;
+ color:#666c77;
+ border-bottom:1px solid #bbbcc2;
+ padding:0 0 12px;
+}
+#phone.in-app .nakula-page312-paper h2{
+ font-size:19px;letter-spacing:-.02em;
+ line-height:1.24;font-weight:760;
+ margin:14px 0;
+ color:#262c37;
+}
+#phone.in-app .nakula-page312-paper p{
+ font-size:12px;line-height:1.63;
+ margin:0 0 13px;
+}
+#phone.in-app .nakula-page312-highlight{
+ padding:12px 10px;margin:5px 0 15px;
+ border-left:3px solid #cba748;
+ background:#fff0bc;
+ color:#584618;
+ font-size:11px;
+ font-weight:600;
+ line-height:1.45;
+}
+#phone.in-app .nakula-page312-mention{
+ padding:10px;margin:0 0 12px;
+ border:1px solid #cdd4db;
+ border-radius:4px;
+ font-size:11px;line-height:1.6;color:#3b424a;
+}
+#phone.in-app .nakula-page312-paper-footer{
+ margin-top:auto;
+ padding-top:15px;
+ border-top:1px solid #ced2d5;
+ display:flex;align-items:center;justify-content:space-between;
+ color:#818995;font-size:9px;letter-spacing:.06em;
+}
+#phone.in-app .nakula-page312-controls{
+ display:flex;align-items:center;gap:5px;
+ padding:1px 0;
+ width:100%;
+ min-width:0;
+}
+#phone.in-app .nakula-page312-controls>button{
+ flex:none;display:grid;place-items:center;
+ width:32px;height:40px;border-radius:10px;
+ border:1px solid #52637c;background:#2e3c51;
+ color:#e4eafa;font-size:24px;cursor:pointer;
+}
+#phone.in-app .nakula-page312-controls button:disabled{opacity:.38;cursor:default}
+#phone.in-app .nakula-page312-jump{
+ flex:1;min-width:0;display:flex;align-items:center;
+ justify-content:space-between;gap:5px;
+ padding:5px;border-radius:10px;
+ background:#2d3544;border:1px solid #525c6d;
+ box-sizing:border-box;
+}
+#phone.in-app .nakula-page312-jump label,
+#phone.in-app .nakula-page312-jump span{
+ font-size:10px;color:#d5dce9;white-space:nowrap;
+}
+#phone.in-app .nakula-page312-jump input{
+ flex:1;min-width:0;width:43px;
+ border-radius:6px;border:1px solid #6c7890;
+ background:#f6f7fa;color:#20242d;
+ height:30px;box-sizing:border-box;
+ font-size:13px;font-weight:650;text-align:center;
+ padding:2px;
+ appearance:textfield;
+}
+#phone.in-app .nakula-page312-jump input::-webkit-outer-spin-button,
+#phone.in-app .nakula-page312-jump input::-webkit-inner-spin-button{
+ -webkit-appearance:none;margin:0;
+}
+#phone.in-app .nakula-page312-jump button{
+ flex:none;padding:8px;border:0;border-radius:7px;
+ font-size:11px;font-weight:750;
+ background:#4388ef;color:white;cursor:pointer;
+}
+#phone.in-app .nakula-page312-hint{
+ font-size:11px;line-height:1.5;color:#b6c5d8;
+ margin:0 3px 4px;
+}
+#phone.in-app .nakula-page312-capture,
+#phone.in-app .nakula-page312-found button{
+ width:100%;min-height:44px;
+ border:0;border-radius:12px;
+ font-size:12px;font-weight:750;
+ color:#fff;background:#367adf;
+ padding:10px;cursor:pointer;
+}
+#phone.in-app .nakula-page312-found{
+ display:flex;flex-direction:column;gap:8px;
+ padding:13px;border:1px solid #52647d;
+ border-radius:12px;background:#293c53;color:#dae7f6;
+}
+#phone.in-app .nakula-page312-found strong{font-size:12px}
+#phone.in-app .nakula-page312-found span{font-size:11px;line-height:1.45}
+#phone.in-app .nakula-page312-controls button:focus-visible,
+#phone.in-app .nakula-page312-capture:focus-visible,
+#phone.in-app .nakula-page312-found button:focus-visible{
+ outline:2px solid #95c8ff;outline-offset:2px;
+}
+#phone.in-app .nakula-page312-preview .nakula-files-preview-top{word-break:break-word}
+#phone .nakula-ch02-finale{
+ position:absolute;inset:0;z-index:250;
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ padding:25px;
+ background:#090b10;
+ color:#f8f8fa;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+ opacity:0;
+ transition:opacity 1000ms ease-in-out;
+}
+#phone .nakula-ch02-finale[hidden]{display:none!important}
+#phone .nakula-ch02-finale.visible{opacity:1}
+#phone .nakula-ch02-finale-inner{
+ display:flex;flex-direction:column;align-items:center;
+ gap:22px;text-align:center;max-width:320px;
+ width:100%;
+}
+#phone .nakula-ch02-finale-inner>small{
+ font-size:11px;color:#9097a6;letter-spacing:.23em;
+ font-weight:660;
+}
+#phone .nakula-ch02-finale-inner h2{
+ margin:0;font-weight:620;font-size:27px;line-height:1.1;
+ letter-spacing:.065em;color:#f6f7fb;
+}
+#phone .nakula-ch02-finale-rule{
+ width:62px;height:1px;background:#4a4e58;
+}
+#phone .nakula-ch02-finale-inner p{
+ color:#bdc6d5;font-size:14px;line-height:1.6;
+ font-style:italic;
+}
+#phone .nakula-ch02-finale-inner span{
+ color:#747e91;font-size:11px;letter-spacing:.025em;
+}
+#phone .nakula-ch02-finale-inner button{
+ margin-top:10px;width:100%;
+ padding:13px 12px;border:1px solid #495b76;
+ border-radius:13px;background:#28354c;
+ color:#f3f5fb;font-size:12px;font-weight:670;
+ cursor:pointer;
+}
+#phone .nakula-ch02-finale-inner button:focus-visible{
+ outline:2px solid #94beff;outline-offset:2px;
+}
+@media(max-width:385px){
+ #phone.in-app .nakula-page312-paper{padding:15px;min-height:300px}
+ #phone.in-app .nakula-page312-controls{gap:4px}
+ #phone.in-app .nakula-page312-jump{gap:3px;padding:3px}
+ #phone.in-app .nakula-page312-jump button{padding:8px 6px}
+ #phone.in-app .nakula-page312-controls>button{width:27px}
+}
+@media(prefers-reduced-motion:reduce){
+ #phone .nakula-ch02-finale{transition:none}
+}
