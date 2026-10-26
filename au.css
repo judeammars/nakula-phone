@@ -283,21 +283,7 @@
   background:#fff;
   border-bottom-left-radius:13px;
 }
-/* Leave the tail only on the last consecutive bubble from each sender. */
-@supports selector(.bubble-row:has(+ .bubble-row)){
-  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble{
-    border-bottom-right-radius:23px;
-  }
-  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble{
-    border-bottom-left-radius:23px;
-  }
-  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble::before,
-  #phone.in-app.harley-au-mode .bubble-row.me:has(+ .bubble-row.me) .bubble::after,
-  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble::before,
-  #phone.in-app.harley-au-mode .bubble-row.them:has(+ .bubble-row.them) .bubble::after{
-    display:none;
-  }
-}
+/* iMessage bubble grouping now uses explicit timestamp-aware classes from au.js. */
 @media(max-width:385px){
   #phone.in-app.harley-au-mode .convo-scroll{padding-left:14px;padding-right:14px}
   #phone.in-app.harley-au-mode .bubble{font-size:14px;padding:12px 14px;max-width:86%}
@@ -1300,4 +1286,72 @@
 }
 @media(prefers-reduced-motion:reduce){
  #lock-screen .nakula-day2-morning-notice:not([hidden]){animation:none}
+}
+
+
+/* iMessage conversation polish: native-style chronological separators and
+   tight, subtly connected message clusters. Timestamp-aware classes replace
+   :has() so an extended pause never accidentally joins unrelated bubbles. */
+#phone.in-app.harley-au-mode .convo-scroll .nakula-chat-time-divider{
+ display:block;
+ margin:29px auto 18px;
+ text-align:center;
+ font-size:12px;
+ line-height:1.4;
+ font-weight:650;
+ letter-spacing:0;
+ color:#8d8e95;
+}
+#phone.in-app.harley-au-mode .convo-scroll .nakula-chat-time-divider:first-child{
+ margin-top:8px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .nakula-chat-time-divider span{
+ font-weight:500;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row{
+ margin:0;
+ align-items:flex-end;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row + .bubble-row{
+ margin-top:10px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-follow{
+ margin-top:2px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row .bubble{
+ border-radius:24px;
+ padding:11px 15px;
+ line-height:1.4;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.them .bubble{
+ border-radius:24px 24px 24px 8px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.me .bubble{
+ border-radius:24px 24px 8px 24px;
+}
+/* The cluster's first/intermediate bubbles have no protruding iMessage tail.
+   Only the last bubble keeps it, including after refresh/re-render. */
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-has-next.me .bubble{
+ border-bottom-right-radius:9px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-has-next.them .bubble{
+ border-bottom-left-radius:9px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-follow.me .bubble{
+ border-top-right-radius:9px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-follow.them .bubble{
+ border-top-left-radius:9px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-has-next .bubble::before,
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-cluster-has-next .bubble::after{
+ display:none;
+}
+#phone.in-app.dark-ui.harley-au-mode .convo-scroll .nakula-chat-time-divider{
+ color:#91919a;
+}
+@media(max-width:385px){
+ #phone.in-app.harley-au-mode .convo-scroll .bubble-row .bubble{
+  padding:11px 13px;
+ }
 }
