@@ -101,6 +101,14 @@ let unknownQueued=false,unknownStage='idle',unknownAttempt=0,unknownInterrupted=
 let unknownCursor=1,aftermathTriggered=false,adnanIncidentPending=false,phoneRecentsFilter='all',callConnectedAt=0;
 const unknownMessageText='Saya rasa peringatan tadi sudah cukup jelas, Pak Nakula. Berhenti mengusut Zona B. Anda masih punya kesempatan untuk mundur.';
 const unknownTimeline=[{me:false,time:'23.57',text:unknownMessageText}];
+// Short, factual reporting in Nakula's professional tone.
+const conciseAngryAdnanText="Pak, saya menerima panggilan anonim terkait Zona B. Penelepon meminta saya menghentikan penyelidikan PBK Group. Saya akhiri sambungannya, tetapi ia menelepon kembali dengan nada mengancam. Sudah saya catat. Detailnya saya sampaikan besok pagi.";
+function migrateOldAngryAdnanMessage(message){
+ if(!message||message.me!==true||typeof message.text!=='string')return message;
+ const prior=message.text.startsWith('Pak, mohon maaf menghubungi selarut ini. Ada intimidasi terkait perkara Zona B.')
+  && message.text.includes('Besok pagi saya ingin membahas langkah perlindungan, Pak.');
+ return prior?{...message,text:conciseAngryAdnanText}:message;
+}
 /* Two incident accounts. A declined call does not mean the caller became angry:
    only hanging up on an answered call unlocks the angry callback. */
 function buildUnknownIncidentReport(){
@@ -131,7 +139,7 @@ function buildUnknownIncidentReport(){
    :'• Laporkan ancaman kepada Pak Adnan untuk evaluasi tindak lanjut.'
  );
  const adnanMessage=angry
-  ?'Pak, mohon maaf menghubungi selarut ini. Ada intimidasi terkait perkara Zona B. Penelepon anonim menyebut PBK Group dan meminta penyelidikan dihentikan.'+declinedAdnan+' Saya memutus sambungan pertama, tetapi ia menelepon lagi dengan nada jauh lebih agresif dan menyebut nama lengkap saya. Riwayat panggilan beserta pernyataannya sudah saya catat. Besok pagi saya ingin membahas langkah perlindungan, Pak.'
+  ?conciseAngryAdnanText
   :'Pak, mohon maaf menghubungi malam-malam. Saya baru menerima panggilan dari nomor tak dikenal terkait Zona B. Penelepon menyebut PBK Group dan meminta saya menghentikan penelusuran perkara.'+declinedAdnan+' Saya mendengarkan sampai percakapan selesai dan sudah mencatat waktu serta isi peringatannya. Identitas penelepon belum diketahui. Besok pagi akan saya laporkan kronologi lengkapnya, Pak.';
  return {branch:angry?'angry':'regular',declinedCalls,noteBody:noteBody.join('\n'),adnanMessage};
 }
@@ -415,8 +423,8 @@ function loadStoryState(){
   ||!saved.threads.every(t=>t&&typeof t.id==='string'&&Array.isArray(t.messages)&&t.messages.length<=80)
   ||!saved.threads.some(t=>t.id==='harley')||!saved.threads.some(t=>t.id==='adnan')
   ||!window.nakulaNarrativeClock.restore(saved.storyMinutes))return false;
- threads=saved.threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))}));
- adnanTimeline.splice(0,adnanTimeline.length,...saved.adnanTimeline.map(m=>({...m})));
+ threads=saved.threads.map(t=>({...t,messages:t.messages.map(m=>t.id==='adnan'?migrateOldAngryAdnanMessage({...m}):{...m})}));
+ adnanTimeline.splice(0,adnanTimeline.length,...saved.adnanTimeline.map(m=>migrateOldAngryAdnanMessage({...m})));
  unknownTimeline.splice(0,unknownTimeline.length,...saved.unknownTimeline.map(m=>({...m})));
  unknownCallHistory=saved.callLog.map(x=>({...x}));
  cursor=p.harleyCursor;adnanCursor=p.adnanCursor;unknownCursor=p.unknownCursor;
