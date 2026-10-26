@@ -2867,3 +2867,230 @@
 @media(prefers-reduced-motion:reduce){
  #phone .nakula-ch02-finale{transition:none}
 }
+
+/* CHAPTER 03 — EARLY MORNING CHECKLIST AND IN-GAME NEWS */
+/* Notes checklist, matching the dark iOS Notes palette. */
+#phone.in-app .nakula-day3-checklist{
+ padding:20px 19px 45px;
+ color:#202229;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-day3-check-head{
+ display:flex;justify-content:space-between;gap:8px;align-items:center;
+ color:#a48b3c;font-size:9px;letter-spacing:.07em;font-weight:750;
+}
+#phone.in-app .nakula-day3-check-head strong{font-size:9px;letter-spacing:.04em}
+#phone.in-app .nakula-day3-checklist h1{
+ margin:16px 0 9px;font-size:25px;line-height:1.2;
+ font-weight:760;letter-spacing:-.045em;
+}
+#phone.in-app .nakula-day3-check-sub{
+ margin:0;color:#657080;font-size:12px;line-height:1.6;
+}
+#phone.in-app .nakula-day3-check-clock{
+ display:flex;align-items:center;justify-content:space-between;gap:7px;
+ margin:22px 0 10px;
+ padding:15px;border-radius:15px;
+ background:#fff2c6;border:1px solid #ebd59a;
+}
+#phone.in-app .nakula-day3-check-clock>span:first-child{
+ display:flex;flex-direction:column;gap:4px;
+}
+#phone.in-app .nakula-day3-smallclock{
+ font-size:9px;font-weight:780;letter-spacing:.12em;
+ color:#9f7b2e;
+}
+#phone.in-app .nakula-day3-check-clock strong{
+ font-size:31px;font-weight:730;letter-spacing:-.05em;color:#382f1b;
+ font-variant-numeric:tabular-nums;
+}
+#phone.in-app .nakula-day3-check-clock>span:last-child{
+ color:#7e703e;font-size:11px;white-space:nowrap;
+}
+#phone.in-app .nakula-day3-progress{
+ height:5px;border-radius:5px;
+ background:#dadde4;overflow:hidden;
+}
+#phone.in-app .nakula-day3-progress>div{
+ height:100%;border-radius:5px;background:#e7b940;
+ transition:width 250ms ease;
+}
+#phone.in-app .nakula-day3-check-rows{
+ display:flex;flex-direction:column;margin:20px 0;
+ border-radius:16px;overflow:hidden;
+ border:1px solid #e0e3ea;
+}
+#phone.in-app .nakula-day3-check-row{
+ box-sizing:border-box;
+ appearance:none;
+ width:100%;text-align:left;
+ display:flex;align-items:center;gap:11px;
+ padding:13px 10px;
+ background:white;color:#242a32;
+ border:0;border-bottom:1px solid #ebeef1;
+ font-family:inherit;
+ cursor:pointer;
+}
+#phone.in-app .nakula-day3-check-row:last-child{border-bottom:0}
+#phone.in-app .nakula-day3-check-row.is-checked{background:#f7f7f4;cursor:default}
+#phone.in-app .nakula-day3-check-circle{
+ flex:none;
+ width:21px;height:21px;display:grid;place-items:center;
+ border:2px solid #d3b449;border-radius:50%;
+ color:white;box-sizing:border-box;
+ font-size:12px;font-weight:850;
+}
+#phone.in-app .nakula-day3-check-row.is-checked .nakula-day3-check-circle{
+ background:#d1a935;border-color:#d1a935;
+}
+#phone.in-app .nakula-day3-check-copy{
+ flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;
+}
+#phone.in-app .nakula-day3-check-copy strong{
+ font-size:12px;font-weight:680;
+}
+#phone.in-app .nakula-day3-check-row.is-checked strong{
+ color:#989da6;text-decoration:line-through;
+}
+#phone.in-app .nakula-day3-check-copy small{
+ color:#8b92a0;font-size:10px;line-height:1.45;
+}
+#phone.in-app .nakula-day3-check-time{
+ flex:none;color:#c4a342;font-size:10px;font-weight:700;
+ font-variant-numeric:tabular-nums;
+}
+#phone.in-app .nakula-day3-check-foot{
+ font-size:11px;line-height:1.65;color:#85919d;padding:0 2px;
+}
+#phone.in-app .nakula-day3-ready{
+ display:flex;flex-direction:column;gap:9px;
+ padding:15px;border:1px solid #ddcf9a;border-radius:14px;
+ background:#fff7df;
+}
+#phone.in-app .nakula-day3-ready strong{color:#7c6826;font-size:13px}
+#phone.in-app .nakula-day3-ready span{font-size:11px;color:#8c815c;line-height:1.45}
+#phone.in-app .nakula-day3-ready button{
+ width:100%;min-height:42px;border-radius:10px;
+ background:#edbd3a;color:#342a14;border:0;
+ font-size:12px;font-weight:720;
+}
+#phone.in-app .nakula-day3-ready button:disabled{opacity:.48}
+#phone.in-app .nakula-day3-list-row .row-main strong{font-weight:720}
+#phone.in-app .nakula-day3-required{
+ border-radius:7px;padding:5px 7px;
+ color:#836214;background:#fff1c4;
+ white-space:nowrap;font-weight:760;font-size:9px;
+}
+#phone.in-app.dark-ui .nakula-day3-checklist{color:#f4f4f5}
+#phone.in-app.dark-ui .nakula-day3-check-sub,
+#phone.in-app.dark-ui .nakula-day3-check-foot{color:#a5a8af}
+#phone.in-app.dark-ui .nakula-day3-check-clock{background:#352f22;border-color:#645533}
+#phone.in-app.dark-ui .nakula-day3-check-clock strong{color:#ffdf89}
+#phone.in-app.dark-ui .nakula-day3-check-clock>span:last-child{color:#b5a476}
+#phone.in-app.dark-ui .nakula-day3-check-rows{border-color:#3c3e45}
+#phone.in-app.dark-ui .nakula-day3-check-row{
+ background:#222329;color:#f3f4f8;border-color:#393c45;
+}
+#phone.in-app.dark-ui .nakula-day3-check-row.is-checked{background:#272822}
+#phone.in-app.dark-ui .nakula-day3-check-copy small{color:#969aa5}
+#phone.in-app.dark-ui .nakula-day3-ready{background:#2b2a23;border-color:#59503a}
+#phone.in-app.dark-ui .nakula-day3-ready strong{color:#f0d277}
+#phone.in-app.dark-ui .nakula-day3-ready span{color:#b4a98b}
+#phone.in-app.dark-ui .nakula-day3-required{background:#433a24;color:#eac966}
+#phone.in-app .nakula-day3-check-row:focus-visible,
+#phone.in-app .nakula-day3-ready button:focus-visible{
+ outline:2px solid #efbf49;outline-offset:-2px;
+}
+/* Safari fictional news article: simple newspaper editorial typography. */
+#phone.in-app .nakula-day3-news-link .nakula-file-attachment-icon{
+ width:40px;font-size:9px;font-weight:830;
+ background:#30476a;color:#edf3ff;
+}
+#phone.in-app .nakula-day3-safari-feature{
+ margin:10px 0 26px;padding:17px 15px;
+ border-radius:15px;
+ background:#17233a;color:#eaf0fb;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-day3-safari-feature>span{
+ font-size:9px;font-weight:770;letter-spacing:.1em;color:#91b6ef;
+}
+#phone.in-app .nakula-day3-safari-feature h2{
+ margin:12px 0 10px;font-size:17px;line-height:1.3;
+ font-weight:760;color:#fff;
+}
+#phone.in-app .nakula-day3-safari-feature p{
+ font-size:11px;line-height:1.6;color:#c2d0e5;
+}
+#phone.in-app .nakula-day3-safari-feature button{
+ min-height:39px;border:0;border-radius:10px;
+ padding:9px 13px;margin-top:10px;
+ background:#e4eaf5;color:#233756;
+ font-size:11px;font-weight:720;cursor:pointer;
+}
+#phone.in-app .nakula-day3-article{
+ box-sizing:border-box;
+ background:#f8f7f3;
+ color:#242830;
+ padding:19px 19px 30px;
+ font-family:Georgia,"Times New Roman",serif;
+ min-height:100%;
+}
+#phone.in-app .nakula-day3-browserline{
+ display:flex;flex-direction:column;gap:5px;
+ padding:0 0 12px;border-bottom:2px solid #25364d;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ font-size:9px;letter-spacing:.12em;
+}
+#phone.in-app .nakula-day3-browserline>span:first-child{
+ font-weight:850;font-size:15px;letter-spacing:.06em;
+}
+#phone.in-app .nakula-day3-browserline>span:last-child{color:#6a7381}
+#phone.in-app .nakula-day3-news-category{
+ margin-top:20px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ font-size:9px;font-weight:740;letter-spacing:.13em;color:#627c9d;
+}
+#phone.in-app .nakula-day3-article h1{
+ margin:10px 0 13px;
+ font-size:26px;line-height:1.15;letter-spacing:-.025em;
+ font-weight:740;
+}
+#phone.in-app .nakula-day3-news-lead{
+ color:#4f5966;
+ font-size:14px;line-height:1.5;font-weight:550;
+}
+#phone.in-app .nakula-day3-news-byline{
+ display:flex;flex-direction:column;gap:5px;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ margin:17px 0 16px;
+}
+#phone.in-app .nakula-day3-news-byline strong{
+ font-size:11px;color:#344a68;
+}
+#phone.in-app .nakula-day3-news-byline span{
+ font-size:10px;color:#9198a2;
+}
+#phone.in-app .nakula-day3-news-divider{
+ height:1px;background:#bec4ca;margin:14px 0 22px;
+}
+#phone.in-app .nakula-day3-article p{
+ font-size:13px;line-height:1.75;margin:0 0 19px;
+}
+#phone.in-app .nakula-day3-article h2{
+ font-size:18px;line-height:1.3;margin:27px 0 12px;
+ font-weight:720;
+}
+#phone.in-app .nakula-day3-news-footer{
+ border-top:1px solid #c5c8cf;margin-top:28px;padding-top:14px;
+ color:#8e919c;font:10px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+@media(max-width:385px){
+ #phone.in-app .nakula-day3-checklist{padding:17px 13px 37px}
+ #phone.in-app .nakula-day3-check-row{padding:11px 8px;gap:7px}
+ #phone.in-app .nakula-day3-check-time{font-size:9px}
+ #phone.in-app .nakula-day3-article{padding:16px 15px 28px}
+ #phone.in-app .nakula-day3-article h1{font-size:23px}
+}
+@media(prefers-reduced-motion:reduce){
+ #phone.in-app .nakula-day3-progress>div{transition:none}
+}
