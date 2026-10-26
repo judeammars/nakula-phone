@@ -2298,3 +2298,78 @@
  #phone .nakula-family-task-dialog{padding:20px 13px 11px;border-radius:24px}
  #phone .nakula-family-task-dialog h2{font-size:20px}
 }
+
+/* FILES — PHASE-LOCAL ACTIONS AND PERSISTENT READ STATES */
+/* Reading a document changes only its row; it never disables reopening. */
+#phone.in-app .nakula-files-row.is-read{
+ background:rgba(130,139,155,.055);
+}
+#phone.in-app .nakula-files-row.is-read .nakula-files-row-copy strong{
+ color:#878e99;
+ font-weight:500;
+}
+#phone.in-app .nakula-files-row.is-read .nakula-files-row-copy small{
+ color:#a3a8b1;
+}
+#phone.in-app .nakula-files-row.is-read .nakula-files-doc-icon{
+ background:#9298a1;
+ opacity:.69;
+}
+#phone.in-app .nakula-files-row.is-read .nakula-files-chevron{
+ color:#bfc3c9;
+}
+#phone.in-app .nakula-files-read-indicator{
+ flex:none;
+ font:600 10px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ letter-spacing:.01em;
+ color:#808a99;
+ white-space:nowrap;
+}
+#phone.in-app.dark-ui .nakula-files-row.is-read{
+ background:rgba(166,173,186,.035);
+}
+#phone.in-app.dark-ui .nakula-files-row.is-read .nakula-files-row-copy strong{
+ color:#9196a1;
+}
+#phone.in-app.dark-ui .nakula-files-row.is-read .nakula-files-row-copy small{
+ color:#777e8c;
+}
+#phone.in-app.dark-ui .nakula-files-read-indicator{color:#8998a8}
+#phone.in-app.dark-ui .nakula-files-row.is-read .nakula-files-doc-icon{
+ background:#767f90;opacity:.55;
+}
+#phone.in-app .nakula-files-row.is-read:active{
+ background:rgba(70,136,246,.13);
+}
+/* Only the currently actionable return appears, above the file list.
+   Old green status bars are no longer left behind as chapters progress. */
+#phone.in-app .nakula-files-active-action{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:9px;
+ padding:11px 12px;
+ margin:12px 15px 7px;
+ border-radius:13px;
+ background:#edf3ff;
+ border:1px solid rgba(94,150,242,.16);
+ color:#5f6d87;
+ font:500 11px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-files-active-action span{flex:1}
+#phone.in-app .nakula-files-active-action button{
+ border:0;border-radius:10px;padding:9px 11px;
+ background:#4489f4;color:#fff;
+ font:600 11px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;flex:none;
+}
+#phone.in-app.dark-ui .nakula-files-active-action{
+ background:#263246;border-color:#334b68;color:#bbcae0;
+}
+#phone.in-app .nakula-files-active-action button:focus-visible{
+ outline:2px solid #8bbdff;outline-offset:2px;
+}
+@media(max-width:385px){
+ #phone.in-app .nakula-files-active-action{margin-left:9px;margin-right:9px;flex-wrap:wrap}
+ #phone.in-app .nakula-files-active-action button{width:100%}
+}
