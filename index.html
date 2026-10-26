@@ -305,6 +305,66 @@ html,body{height:100%;background:#000;}
 @media(max-height:700px){#phone.nakula-calculator-mode .calculator-grid{height:min(390px,55dvh)}#phone.nakula-calculator-mode .nakula-calculator{padding-bottom:19px}}
 @media(max-width:360px){#phone.nakula-calculator-mode .calculator-grid{gap:7px}#phone.nakula-calculator-mode .calc-zero{padding-left:24%}}
 
+
+/* iOS Photos / Recents screen. Scoped to Photos, never other phone applications. */
+#phone.in-app.nakula-photos-mode .statusbar{color:#fff!important}
+#phone.in-app.nakula-photos-mode .home-bar{background:#fff!important}
+#phone.in-app.nakula-photos-mode #app-screen{background:#000!important;color:#fff!important}
+#phone.in-app.nakula-photos-mode #app-header{
+ background:#000!important;position:relative;z-index:5;color:#fff;
+ border:0;min-height:64px;padding:0 14px;display:flex;align-items:center
+}
+#phone.in-app.nakula-photos-mode #app-content{
+ padding:0!important;display:flex;flex-direction:column;min-height:0;
+ overflow:hidden!important;background:#000!important;color:#fff!important
+}
+#phone.in-app.nakula-photos-mode .np-nav{display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;position:relative}
+#phone.in-app.nakula-photos-mode .np-nav button{font-family:inherit;cursor:pointer;border:0;color:#0a84ff}
+#phone.in-app.nakula-photos-mode .np-back{display:inline-flex;align-items:center;gap:2px;background:transparent;padding:8px 2px;font-size:15px;min-width:0}
+#phone.in-app.nakula-photos-mode .np-chevron{font-size:36px;font-weight:280;line-height:18px;margin:-4px 2px 0 0}
+#phone.in-app.nakula-photos-mode .np-nav-actions{display:flex;align-items:center;gap:7px;flex:none}
+#phone.in-app.nakula-photos-mode .np-select{background:#202023;padding:9px 14px;border-radius:24px;font-size:13px;font-weight:620;min-height:34px}
+#phone.in-app.nakula-photos-mode .np-more{background:#202023;border-radius:50%;height:35px;width:35px;display:grid;place-items:center;font-size:21px;font-weight:750;line-height:0;letter-spacing:-1px;padding:0 0 8px}
+#phone.in-app.nakula-photos-mode .np-menu{position:absolute;z-index:15;top:42px;right:1px;width:185px;display:flex;flex-direction:column;background:#27272a;border:1px solid #3e3e42;border-radius:13px;box-shadow:0 8px 26px #0008;overflow:hidden}
+#phone.in-app.nakula-photos-mode .np-menu button{background:transparent;color:#fff;padding:12px 14px;font-size:12px;text-align:left;border-bottom:1px solid #48484a;border-radius:0}
+#phone.in-app.nakula-photos-mode .np-menu button:last-child{border-bottom:0}
+#phone.in-app.nakula-photos-mode .np-gallery-shell{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#000}
+#phone.in-app.nakula-photos-mode .np-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none}
+#phone.in-app.nakula-photos-mode .np-scroll::-webkit-scrollbar{display:none}
+#phone.in-app.nakula-photos-mode .np-title-area{padding:10px 21px 19px;background:#000}
+#phone.in-app.nakula-photos-mode .np-title-area h1{font-size:33px;letter-spacing:-.065em;font-weight:750;line-height:1.12;color:#fff;margin:0}
+#phone.in-app.nakula-photos-mode .np-title-area p{color:#8f9096;font-size:12px;margin:8px 0 0}
+#phone.in-app.nakula-photos-mode .np-grid{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;background:#000;align-content:start}
+#phone.in-app.nakula-photos-mode .np-tile{display:block;aspect-ratio:1/1;width:100%;height:auto;min-width:0;overflow:hidden;position:relative;border:0;border-radius:0;padding:0;background:#383a3c;cursor:pointer}
+#phone.in-app.nakula-photos-mode .np-tile img,#phone.in-app.nakula-photos-mode .np-tile-placeholder{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background-position:center;background-size:cover}
+#phone.in-app.nakula-photos-mode .np-tile img{transition:filter .2s}
+#phone.in-app.nakula-photos-mode .np-tile.is-selected img{filter:brightness(.7)}
+#phone.in-app.nakula-photos-mode .np-check{position:absolute;bottom:8px;right:8px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;border:2px solid #fff;background:#0006;color:#fff;font-size:14px;font-weight:800}
+#phone.in-app.nakula-photos-mode .np-tile.is-selected .np-check{background:#0a84ff;border-color:#fff}
+#phone.in-app.nakula-photos-mode .np-selection-info{font-size:13px;text-align:center;padding:7px;background:#18181b;color:#f3f3f5}
+#phone.in-app.nakula-photos-mode .np-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;flex:none;width:100%;padding:9px 5px 29px;background:#18191b;border-top:1px solid #37383b}
+#phone.in-app.nakula-photos-mode .np-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:52px;padding:2px 0;background:transparent;color:#8e9096;border:0;border-radius:0;cursor:pointer;font-family:inherit}
+#phone.in-app.nakula-photos-mode .np-tab.active{color:#0a84ff}
+#phone.in-app.nakula-photos-mode .np-tab svg{width:25px;height:25px}
+#phone.in-app.nakula-photos-mode .np-tab span{font-size:10px;white-space:nowrap;font-weight:530;line-height:1.1}
+#phone.in-app.nakula-photos-mode .np-section-title{font-size:15px;font-weight:700;padding:0 21px 14px}
+#phone.in-app.nakula-photos-mode .np-empty{color:#88898e;font-size:14px;text-align:center;padding:35px 15px}
+#phone.in-app.nakula-photos-mode .np-album-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;margin:0 21px;background:transparent;border:0;color:#fff;cursor:pointer}
+#phone.in-app.nakula-photos-mode .np-album-cover{display:block;width:142px;max-width:100%;aspect-ratio:1;border-radius:9px;overflow:hidden;background:#252525;margin-bottom:5px}
+#phone.in-app.nakula-photos-mode .np-album-cover img{width:100%;height:100%;object-fit:cover}
+#phone.in-app.nakula-photos-mode .np-album-card strong{font-size:15px}
+#phone.in-app.nakula-photos-mode .np-album-card small{font-size:12px;color:#8f9096}
+#phone.in-app.nakula-photos-mode .np-search-field{margin:0 15px 18px;padding:0 12px;border-radius:11px;display:flex;align-items:center;gap:7px;background:#222225;height:41px}
+#phone.in-app.nakula-photos-mode .np-search-field svg{width:19px;height:19px;color:#94959b}
+#phone.in-app.nakula-photos-mode .np-search-field input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:15px}
+#phone.in-app.nakula-photos-mode .np-search-field input::placeholder{color:#8f9094}
+#phone.in-app.nakula-photos-mode .np-viewer{width:100%;height:100%;min-height:0;background:#000;display:flex;flex-direction:column}
+#phone.in-app.nakula-photos-mode .np-viewer-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#phone.in-app.nakula-photos-mode .np-full-img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background-color:#000;background-size:contain;background-repeat:no-repeat;background-position:center}
+#phone.in-app.nakula-photos-mode .np-viewer-info{padding:13px 20px 42px;display:flex;flex-direction:column;align-items:center;gap:5px;flex:none;background:#121214}
+#phone.in-app.nakula-photos-mode .np-viewer-info strong{color:#f7f7f7;font-size:14px;font-weight:600}
+#phone.in-app.nakula-photos-mode .np-viewer-info span{color:#94949a;font-size:11px}
+
 </style>
 <link rel="stylesheet" href="./au.css">
 </head>
@@ -440,6 +500,7 @@ if(notesContentVersion<5){
  notes=Array.isArray(previousNotes)?previousNotes:structuredClone(defaults.notes);
 }
 let threads=getSaved('threads',defaults.threads),letters=getSaved('letters',[]),favorites=getSaved('favorites',[]),darkMode=getSaved('dark',false);
+let photoTab='albums',photoSection='recents',photoSelecting=false,photoSelected=new Set(),photoMenuOpen=false,photoSort='newest',photoSearch='';
 const photoItems=[
 {name:'After hours at work',src:'./gallery/workdesk.jpg'},
 {name:'Little companion',src:'./gallery/cat.jpg'},
@@ -454,7 +515,7 @@ let safariPeriod='daily';
 const state={screen:'lock',app:null,view:null,thread:null,note:null,photo:null};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function now(){let d=new Date();let status=$('status-time');if(status)status.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false});let lockClock=$('lock-clock');if(lockClock)lockClock.textContent=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}).replace(':','.');let lockDate=$('lock-date');if(lockDate)lockDate.textContent=d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'});let ww=$('widget-weekday'),wd=$('widget-day'),wm=$('widget-month');if(ww)ww.textContent=d.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase();if(wd)wd.textContent=d.getDate();if(wm)wm.textContent=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});const fmt=(tz)=>new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:tz}).format(d).replace(':','.');let cup=$('cup-time'),tok=$('tok-time'),syd=$('syd-time');if(cup)cup.textContent=fmt('America/Los_Angeles');if(tok)tok.textContent=fmt('Asia/Tokyo');if(syd)syd.textContent=fmt('Australia/Sydney');let cd=$('cal-icon-day'),cn=$('cal-icon-number');if(cd)cd.textContent=d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase();if(cn)cn.textContent=d.getDate();let hlt=$('home-live-time');if(hlt)hlt.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false})};now();setInterval(now,30000);
-function layer(which){state.screen=which;['lock','home','app'].forEach(n=>$(n+'-screen').classList.toggle('active',n===which));$('phone').classList.toggle('in-app',which==='app');$('phone').classList.toggle('dark-ui',which==='app'&&!!darkMode);$('phone').classList.toggle('nakula-calculator-mode',which==='app'&&state.app==='calculator')}
+function layer(which){state.screen=which;['lock','home','app'].forEach(n=>$(n+'-screen').classList.toggle('active',n===which));$('phone').classList.toggle('in-app',which==='app');$('phone').classList.toggle('dark-ui',which==='app'&&!!darkMode);$('phone').classList.toggle('nakula-calculator-mode',which==='app'&&state.app==='calculator');$('phone').classList.toggle('nakula-photos-mode',which==='app'&&state.app==='photos')}
 function unlock(){state.app=null;state.view=null;layer('home')}
 function goHome(){state.app=null;state.view=null;state.thread=null;layer('home')}
 function lock(){state.app=null;state.view=null;hidePasscode();layer('lock')}
@@ -467,7 +528,7 @@ function requestUnlock(){showPasscode()}
 function enterPasscodeDigit(d){ if(passcodeValue.length>=4) return; const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';} passcodeValue+=d; updatePasscodeDots(); if(passcodeValue.length===4){ if(passcodeValue===PHONE_PIN){ hidePasscode();  state.app=null; state.view=null; layer('home'); } else { const layerEl=$('passcode-layer'); if(layerEl){ layerEl.classList.remove('shake'); void layerEl.offsetWidth; layerEl.classList.add('shake'); setTimeout(()=>layerEl.classList.remove('shake'),320);} clearPasscode('Wrong PIN'); } }}
 function deletePasscodeDigit(){ if(!passcodeValue.length) return; passcodeValue=passcodeValue.slice(0,-1); updatePasscodeDots(); const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';}}
 
-function openApp(id){state.app=id;state.view=null;state.thread=null;state.photo=null;layer('app');render()}
+function openApp(id){state.app=id;state.view=null;state.thread=null;state.photo=null;if(id==='photos'){photoTab='albums';photoSection='recents';photoSelecting=false;photoSelected.clear();photoMenuOpen=false;photoSort='newest';photoSearch='';}layer('app');render()}
 function showToast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove('show'),1900)}
 function back(){if(state.app==='messages'&&state.view==='convo'){state.view=null;state.thread=null;render();return}if(state.app==='notes'&&state.view){state.view=null;state.note=null;render();return}if(state.app==='photos'&&state.view){state.view=null;state.photo=null;render();return}goHome()}
 function pageHeader(left,title,right=''){return `<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> ${esc(left)}</button><span class="app-title">${esc(title)}</span><span style="width:63px;display:flex;justify-content:flex-end">${right}</span>`}
@@ -512,6 +573,80 @@ function calculatorPress(key){
  if(['+','−','×','÷'].includes(key)){if(c.operator!==null&&c.accumulator!==null&&!c.waiting)c.entry=calculatorResult(calculatorCompute(c.accumulator,Number(c.entry),c.operator));if(c.entry==='Error'){c.accumulator=null;c.operator=null;return}c.accumulator=Number(c.entry);c.operator=key;c.waiting=true;c.lastOperator=null;c.lastOperand=null;return}
  if(key==='='){if(c.operator!==null&&c.accumulator!==null){const operand=c.waiting?c.accumulator:Number(c.entry);c.entry=calculatorResult(calculatorCompute(c.accumulator,operand,c.operator));c.lastOperator=c.operator;c.lastOperand=operand;c.accumulator=null;c.operator=null;c.waiting=true}else if(c.lastOperator!==null&&c.lastOperand!==null){c.entry=calculatorResult(calculatorCompute(Number(c.entry),c.lastOperand,c.lastOperator));c.waiting=true}}
 }
+
+/* Native-like dark Photos interface with functioning tabs, selection and search. */
+const npIcons={
+ library:'<rect x="3" y="6" width="15" height="13" rx="1.5"/><path d="M7 3h13v13"/><circle cx="9" cy="11" r="1.2"/><path d="m5 17 4-4 3 3 3-4 3 4"/>',
+ foryou:'<rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M12 16.4 7.4 12C4.3 8.9 8.8 6.6 12 9.8c3.2-3.2 7.7-.9 4.6 2.2z"/>',
+ albums:'<rect x="3" y="8" width="18" height="13" rx="1.8"/><path d="M5 5h14M7 2h10"/>',
+ search:'<circle cx="10.8" cy="10.8" r="6.7"/><path d="m16 16 5 5"/>'
+};
+function npIcon(name){
+ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(npIcons[name]||'')+'</svg>';
+}
+function npItems(){
+ const arr=photoItems.map((p,i)=>({p,i}));
+ return photoSort==='oldest'?arr.reverse():arr;
+}
+function npGrid(items){
+ if(!items.length)return '<div class="np-empty">No Photos Found</div>';
+ return '<div class="np-grid">'+items.map(({p,i})=>{
+  const marked=photoSelected.has(i);
+  const photo=p.src?'<img src="'+esc(p.src)+'" alt="" loading="lazy" decoding="async">':
+   '<div class="np-tile-placeholder '+esc(p.cls||'')+'"></div>';
+  return '<button type="button" class="np-tile'+(marked?' is-selected':'')+'" data-photo="'+i+'" aria-label="'+esc(p.name)+(photoSelecting?(marked?', selected':', not selected'):'')+'" aria-pressed="'+(photoSelecting?marked:'false')+'">'+photo+
+    (photoSelecting?'<span class="np-check">'+(marked?'✓':'')+'</span>':'')+'</button>';
+ }).join('')+'</div>';
+}
+function npTabBar(){
+ const tabs=[['library','Library'],['foryou','For You'],['albums','Albums'],['search','Search']];
+ return '<nav class="np-tabs" aria-label="Photos tabs">'+tabs.map(([id,label])=>
+  '<button type="button" class="np-tab'+(photoTab===id?' active':'')+'" data-photos-tab="'+id+'" aria-current="'+(photoTab===id?'page':'false')+'">'+npIcon(id)+'<span>'+label+'</span></button>'
+ ).join('')+'</nav>';
+}
+function renderPhotosHeader(){
+ const single=state.view==='photo',recents=photoTab==='albums'&&photoSection==='recents';
+ const label=single?'Recents':recents?'Albums':'Home';
+ const backAction=single?'close-photo':recents?'albums-home':'home';
+ const left='<button class="np-back" type="button" data-photos-action="'+backAction+'"><span aria-hidden="true" class="np-chevron">‹</span>'+label+'</button>';
+ const actions=single?'<button class="np-more" type="button" data-photos-action="menu" aria-label="Photo options">•••</button>':
+  (photoTab==='albums'&&photoSection==='albums-home'?'':(photoTab==='search'?'':'<button class="np-select" data-photos-action="select" type="button">'+(photoSelecting?'Done':'Select')+'</button>'))+
+  '<button class="np-more" data-photos-action="menu" type="button" aria-label="Photo options" aria-expanded="'+photoMenuOpen+'">•••</button>';
+ const menu=photoMenuOpen?'<div class="np-menu" role="menu"><button type="button" role="menuitem" data-photos-action="sort">'+(photoSort==='newest'?'Sort: Oldest First':'Sort: Newest First')+'</button><button type="button" role="menuitem" data-photos-action="menu">Close</button></div>':'';
+ return '<div class="np-nav">'+left+'<div class="np-nav-actions">'+actions+'</div>'+menu+'</div>';
+}
+function renderPhotosContent(){
+ if(state.view==='photo'){
+  const p=photoItems[Number(state.photo)];
+  if(!p){state.view=null;return renderPhotosContent()}
+  const image=p.src?'<img src="'+esc(p.src)+'" alt="'+esc(p.name)+'" class="np-full-img">':
+   '<div class="np-full-img np-image-placeholder '+esc(p.cls||'')+'" role="img" aria-label="'+esc(p.name)+'"></div>';
+  return '<div class="np-viewer"><div class="np-viewer-stage">'+image+'</div><div class="np-viewer-info"><strong>'+esc(p.name)+'</strong><span>'+(Number(state.photo)+1)+' of '+photoItems.length+'</span></div></div>';
+ }
+ let panel='';
+ const items=npItems();
+ if(photoTab==='albums'){
+  if(photoSection==='albums-home'){
+   const cover=photoItems[0];
+   panel='<div class="np-title-area"><h1>Albums</h1><p>My Albums</p></div>'+
+    '<button type="button" data-photos-action="open-recents" class="np-album-card"><span class="np-album-cover"><img src="'+esc(cover.src)+'" alt="" loading="lazy"></span><strong>Recents</strong><small>'+photoItems.length+' Photos</small></button>';
+  }else{
+   panel='<div class="np-title-area"><h1>Recents</h1></div>'+npGrid(items);
+  }
+ }else if(photoTab==='library'){
+  panel='<div class="np-title-area"><h1>Library</h1><p>All Photos · '+photoItems.length+' items</p></div>'+npGrid(items);
+ }else if(photoTab==='foryou'){
+  panel='<div class="np-title-area"><h1>For You</h1><p>From Nakula’s camera roll</p></div>'+
+   '<div class="np-section-title">Featured Photos</div>'+npGrid(items);
+ }else{
+  panel='<div class="np-title-area"><h1>Search</h1></div>'+
+   '<label class="np-search-field">'+npIcon('search')+'<input id="np-search" type="search" value="'+esc(photoSearch)+'" placeholder="Photos" autocomplete="off" aria-label="Search photos"></label>'+
+   '<div class="np-search-results">'+npGrid(items.filter(({p})=>p.name.toLowerCase().includes(photoSearch.toLowerCase().trim())))+'</div>';
+ }
+ const selectedText=photoSelecting?'<div class="np-selection-info">'+photoSelected.size+' Selected</div>':'';
+ return '<div class="np-gallery-shell"><div class="np-scroll">'+selectedText+panel+'</div>'+npTabBar()+'</div>';
+}
+
 function render(){if(state.screen!=='app'){return;}let h='',content='',app=state.app;const b='<span class="chev-left">‹</span> Home';
 if(app==='messages'){
  if(state.view==='convo'){
@@ -528,15 +663,7 @@ if(app==='messages'){
  else if(state.view==='editor'){let n=notes.find(x=>String(x.id)===String(state.note));content=`<form id="note-form"><input class="note-title-input" name="title" maxlength="85" placeholder="Title" value="${esc(n?.title||'')}" required><textarea class="note-editor" name="body" placeholder="Write something…" maxlength="5000">${esc(n?.body||'')}</textarea><button class="ios-btn" type="submit">Save Note</button></form><p class="field-note">Notes are stored on this device only.</p>`;}
  else content=`<div class="large-title">Notes</div><p class="smallcaps yellow">All Notes · ${notes.length}</p><div class="ios-list">${notes.map(n=>`<button class="ios-row" data-note="${esc(n.id)}"><span class="row-main"><strong>${esc(n.title)}</strong><span class="row-sub">${esc(n.date)} &nbsp; ${esc(n.body).replace(/\n/g,' ')}</span></span><span class="end">›</span></button>`).join('')}</div>`;
 }else if(app==='photos'){
- h=pageHeader('Home',state.view==='photo'?'Photo':'Photos');
- if(state.view==='photo'){
-  const p=photoItems[Number(state.photo)];
-  if(!p){state.view=null;return render()}
-  const photoStyle=p.src?'style="background-image:url('+esc(p.src)+')"':'';
-  content=`<div class="photo-detail"><div class="photo-full ${esc(p.cls||'')}" ${photoStyle}></div><div class="photo-label">${esc(p.name)}</div></div>`;
- }else{
-  content=`<div class="photos-header"><div><div class="large-title" style="margin-bottom:7px">Library</div><p class="fine-title">Recent photos</p></div><span class="smallcaps">${photoItems.length} items</span></div><div class="gallery">${photoItems.map((p,i)=>`<button class="photo-cell" data-photo="${i}" aria-label="Open ${esc(p.name)}"><div class="photo-thumb ${esc(p.cls||'')}" ${p.src?'style="background-image:url('+esc(p.src)+')"':''}></div></button>`).join('')}</div>`;
- }
+ h=renderPhotosHeader();content=renderPhotosContent();
 }else if(app==='music'){
  h=pageHeader('Home','Music');content=`<p class="smallcaps red" style="margin-top:8px">LIBRARY</p><div class="large-title">Music</div><div class="playlist-header"><div><strong>After Hours</strong><span>Nakula's rotation · ${nakulaPlaylist.length} songs</span></div></div><div class="smallcaps" style="margin-top:23px">SONGS</div>${nakulaPlaylist.map((song,i)=>`<div class="song-row nakula-curated-row"><span class="nakula-song-number">${String(i+1).padStart(2,'0')}</span><span class="track-info"><strong>${esc(song.title)}</strong><span>${esc(song.artist)}</span></span><span class="nakula-song-more" aria-hidden="true">···</span></div>`).join('')}`;
 }else if(app==='calculator'){
@@ -557,15 +684,40 @@ if(app==='messages'){
 }else if(app==='settings'){
  h=pageHeader('Home','Settings');content=`<div class="large-title">Settings</div><div class="profile-banner"><span class="profile-silhouette">${svg('about')}</span><div><h2>Nakula's Phone</h2><p>AU archive settings</p></div></div><div class="list-group"><div class="ios-row"><span class="row-main"><strong>Wallpaper</strong><span class="row-sub">New York City · Chrysler Building</span></span></div><div class="ios-row"><span class="row-main"><strong>Appearance</strong><span class="row-sub">Dark mode for app pages</span></span><button class="switch ${darkMode?'on':''}" data-action="dark-mode" role="switch" aria-checked="${darkMode}" aria-label="Toggle app dark mode"></button></div><button class="ios-row" data-action="lock"><span class="row-main"><strong>Lock Screen</strong><span class="row-sub">Return to the wallpaper</span></span><span class="end">›</span></button></div><button class="warn" data-action="clear-demo">Reset local demo data</button><p class="fine-title">All messages, edits, and favorites are stored locally. Nothing here accesses a real iPhone.</p>`;
 }
-$('app-header').innerHTML=h;$('app-content').innerHTML=content;$('app-screen').classList.toggle('in-conversation',app==='messages'&&state.view==='convo');$('app-content').style.padding=(app==='messages'&&state.view==='convo')?'0':'16px 21px 37px';if(app==='messages'&&state.view==='convo'){$('app-content').style.overflow='hidden';let el=$('chat-scroll');if(el)el.scrollTop=el.scrollHeight}else{$('app-content').style.overflowY='auto';$('app-content').scrollTop=0}
+$('app-header').innerHTML=h;$('app-content').innerHTML=content;const inConvo=app==='messages'&&state.view==='convo';const inPhotos=app==='photos';$('app-screen').classList.toggle('in-conversation',inConvo);$('app-screen').classList.toggle('np-photo-page',inPhotos);$('app-content').style.padding=(inConvo||inPhotos)?'0':'16px 21px 37px';if(inConvo){$('app-content').style.overflow='hidden';let el=$('chat-scroll');if(el)el.scrollTop=el.scrollHeight}else if(inPhotos){$('app-content').style.overflow='hidden';$('app-content').style.overflowY='hidden';}else{$('app-content').style.overflow='';$('app-content').style.overflowY='auto';$('app-content').scrollTop=0}
 }
 function threadMarkup(arr){return arr.map((t,i)=>`<button class="thread" data-thread="${esc(t.id)}">${i===0?'<span class="thread-unread"></span>':''}<span class="avatar ${esc(t.id)}">${esc(t.initials)}</span><span class="thread-main"><span class="thread-line"><span class="thread-name">${esc(t.name)}</span><span class="thread-date">${esc(t.date)}</span></span><span class="thread-preview">${esc(t.messages[t.messages.length-1]?.text||'')}</span></span><span class="thread-arrow">›</span></button>`).join('')}
 
 $('unlock')?.addEventListener('click',requestUnlock);$('home-button')?.addEventListener('click',()=>state.screen==='lock'?requestUnlock():goHome());$('desktop-lock')?.addEventListener('click',lock);
 let touchY=null;$('lock-screen')?.addEventListener('pointerdown',e=>{if($('passcode-layer')?.classList.contains('show')) return; touchY=e.clientY});$('lock-screen')?.addEventListener('pointerup',e=>{if($('passcode-layer')?.classList.contains('show')) return; if(touchY!==null&&touchY-e.clientY>48)requestUnlock();touchY=null});
-document.addEventListener('click',e=>{const cb=e.target.closest('[data-calc-key]');if(cb&&state.screen==='app'&&state.app==='calculator'){calculatorPress(cb.dataset.calcKey);render();return;}const newsTab=e.target.closest('[data-safari-period]');if(newsTab&&state.screen==='app'&&state.app==='safari'){safariPeriod=newsTab.dataset.safariPeriod==='weekly'?'weekly':'daily';render();return;}const digitBtn=e.target.closest('[data-passcode-digit]'); if(digitBtn){enterPasscodeDigit(String(digitBtn.dataset.passcodeDigit)); return;} const passAction=e.target.closest('[data-passcode-action]'); if(passAction){ if(passAction.dataset.passcodeAction==='delete') deletePasscodeDigit(); else hidePasscode(); return;} let target=e.target.closest('[data-app],[data-open],[data-action],[data-thread],[data-note],[data-photo],[data-entry],[data-favorite]');if(!target)return;
-if(target.dataset.app){openApp(target.dataset.app);return}if(target.dataset.open){openApp(target.dataset.open);return}if(target.hasAttribute('data-thread')){state.thread=target.dataset.thread;state.view='convo';render();return}if(target.hasAttribute('data-note')){state.note=target.dataset.note;state.view='note';render();return}if(target.hasAttribute('data-photo')){state.photo=Number(target.dataset.photo);state.view='photo';render();return}if(target.hasAttribute('data-favorite')){let i=Number(target.dataset.favorite);favorites=favorites.includes(i)?favorites.filter(n=>n!==i):[...favorites,i];setSaved('favorites',favorites);render();return}
+document.addEventListener('click',e=>{
+ const photoTabButton=e.target.closest('[data-photos-tab]');
+ if(photoTabButton&&state.screen==='app'&&state.app==='photos'){
+  photoTab=photoTabButton.dataset.photosTab;
+  if(photoTab==='albums')photoSection='albums-home';
+  photoSelecting=false;photoSelected.clear();photoMenuOpen=false;state.view=null;state.photo=null;render();return;
+ }
+ const photoActionButton=e.target.closest('[data-photos-action]');
+ if(photoActionButton&&state.screen==='app'&&state.app==='photos'){
+  const action=photoActionButton.dataset.photosAction;
+  if(action==='close-photo'){state.view=null;state.photo=null;}
+  else if(action==='albums-home'){photoSection='albums-home';}
+  else if(action==='open-recents'){photoSection='recents';}
+  else if(action==='home'){goHome();return;}
+  else if(action==='select'){photoSelecting=!photoSelecting;photoSelected.clear();photoMenuOpen=false;}
+  else if(action==='menu'){photoMenuOpen=!photoMenuOpen;}
+  else if(action==='sort'){photoSort=photoSort==='newest'?'oldest':'newest';photoMenuOpen=false;}
+  render();return;
+ }
+ const cb=e.target.closest('[data-calc-key]');if(cb&&state.screen==='app'&&state.app==='calculator'){calculatorPress(cb.dataset.calcKey);render();return;}const newsTab=e.target.closest('[data-safari-period]');if(newsTab&&state.screen==='app'&&state.app==='safari'){safariPeriod=newsTab.dataset.safariPeriod==='weekly'?'weekly':'daily';render();return;}const digitBtn=e.target.closest('[data-passcode-digit]'); if(digitBtn){enterPasscodeDigit(String(digitBtn.dataset.passcodeDigit)); return;} const passAction=e.target.closest('[data-passcode-action]'); if(passAction){ if(passAction.dataset.passcodeAction==='delete') deletePasscodeDigit(); else hidePasscode(); return;} let target=e.target.closest('[data-app],[data-open],[data-action],[data-thread],[data-note],[data-photo],[data-entry],[data-favorite]');if(!target)return;
+if(target.dataset.app){openApp(target.dataset.app);return}if(target.dataset.open){openApp(target.dataset.open);return}if(target.hasAttribute('data-thread')){state.thread=target.dataset.thread;state.view='convo';render();return}if(target.hasAttribute('data-note')){state.note=target.dataset.note;state.view='note';render();return}if(target.hasAttribute('data-photo')){const i=Number(target.dataset.photo);if(state.app==='photos'&&photoSelecting){if(photoSelected.has(i))photoSelected.delete(i);else photoSelected.add(i);render();return}state.photo=i;state.view='photo';render();return}if(target.hasAttribute('data-favorite')){let i=Number(target.dataset.favorite);favorites=favorites.includes(i)?favorites.filter(n=>n!==i):[...favorites,i];setSaved('favorites',favorites);render();return}
 let action=target.dataset.action;if(action==='back'){back()}else if(action==='new-note'){state.note=null;state.view='editor';render()}else if(action==='edit-note'){state.view='editor';render()}else if(action==='lock'){lock()}else if(action==='dark-mode'){darkMode=!darkMode;setSaved('dark',darkMode);layer('app');render()}else if(action==='clear-demo'){if(confirm('Reset all demo messages, notes, and favorites on this device?')){notes=structuredClone(defaults.notes);threads=structuredClone(defaults.threads);letters=[];favorites=[];['notes','threads','letters','favorites'].forEach(k=>setSaved(k,({notes,threads,letters,favorites})[k]));render();showToast('Local demo data reset.')}}else if(action==='compose'){showToast('Select a conversation to send a local message.')}else if(action==='music-info'){showToast('This is a visual playlist preview, without audio.')}else if(action==='camera-lock'){requestUnlock()}else if(action==='torch'){showToast('Flashlight simulation only.')}else if(action==='attach'){showToast('Attachments are not enabled in this demo.')}});
+document.addEventListener('input',e=>{
+ if(e.target?.id!=='np-search'||state.screen!=='app'||state.app!=='photos')return;
+ photoSearch=e.target.value;
+ const slot=document.querySelector('.np-search-results');
+ if(slot)slot.innerHTML=npGrid(npItems().filter(({p})=>p.name.toLowerCase().includes(photoSearch.toLowerCase().trim())));
+});
 document.addEventListener('submit',e=>{if(e.target.id==='chat-form'){e.preventDefault();let field=$('chat-input');if(!field)return;let value=field.value.trim();if(!value)return;let t=threads.find(x=>x.id===state.thread);if(!t)return;t.messages.push({me:true,text:value});t.date='now';setSaved('threads',threads);render();$('chat-input')?.focus();return}if(e.target.id==='letter-form'){e.preventDefault();let d=new FormData(e.target);let name=String(d.get('name')||'').trim(),message=String(d.get('message')||'').trim();if(!name||!message)return;letters.unshift({name,message,date:new Date().toLocaleDateString('en-US')});letters=letters.slice(0,30);setSaved('letters',letters);render();showToast('Saved on this device');return}if(e.target.id==='note-form'){e.preventDefault();let d=new FormData(e.target),title=String(d.get('title')||'').trim(),body=String(d.get('body')||'').trim();if(!title)return;if(state.note!==null){let n=notes.find(x=>String(x.id)===String(state.note));if(n){n.title=title;n.body=body;n.date='Edited now'}}else{state.note=Date.now();notes.unshift({id:state.note,title,body,date:'Just now'})}setSaved('notes',notes);state.view='note';render();showToast('Note saved');return}});
 document.addEventListener('input',e=>{if(e.target.id==='message-search'){let query=e.target.value.trim().toLowerCase();$('thread-list').innerHTML=threadMarkup(threads.filter(t=>t.name.toLowerCase().includes(query)||t.messages.some(m=>m.text.toLowerCase().includes(query))))}});
 document.addEventListener('keydown',e=>{if(state.screen==='app'&&state.app==='calculator'){const km={'/':'÷','*':'×','-':'−','+':'+','Enter':'=','=':'=','%':'%','Backspace':'Backspace',',':'.','Escape':'AC'};const k=Object.prototype.hasOwnProperty.call(km,e.key)?km[e.key]:e.key;if(/^\d$/.test(k)||['.','÷','×','−','+','=','%','Backspace','AC'].includes(k)){e.preventDefault();calculatorPress(k);render();return;}}if($('passcode-layer')?.classList.contains('show')){if(/^\d$/.test(e.key)){enterPasscodeDigit(e.key);return;} if(e.key==='Backspace'){deletePasscodeDigit(); return;} if(e.key==='Escape'){hidePasscode(); return;}} if(e.key==='Escape'){if(state.screen==='app')back();else if(state.screen==='home')lock()}if(e.key==='Enter'&&e.target.id==='chat-input'&&!e.shiftKey){e.preventDefault();$('chat-form')?.requestSubmit()}});
