@@ -499,7 +499,12 @@ if(notesContentVersion<5){
 }else{
  notes=Array.isArray(previousNotes)?previousNotes:structuredClone(defaults.notes);
 }
-let threads=getSaved('threads',defaults.threads),letters=getSaved('letters',[]),favorites=getSaved('favorites',[]),darkMode=getSaved('dark',false);
+let threads=getSaved('threads',defaults.threads),letters=getSaved('letters',[]),favorites=getSaved('favorites',[]),darkMode=getSaved('dark',true);
+if(!getSaved('dark-theme-default-v1',false)){
+ darkMode=true;
+ setSaved('dark',true);
+ setSaved('dark-theme-default-v1',true);
+}
 let photoTab='albums',photoSection='recents',photoSelecting=false,photoSelected=new Set(),photoMenuOpen=false,photoSort='newest',photoSearch='';
 const photoItems=[
 {name:'After hours at work',src:'./gallery/workdesk.jpg'},
