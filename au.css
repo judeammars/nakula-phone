@@ -750,3 +750,195 @@
 #phone.dark-ui .nakula-recents-main strong{color:#fff}
 #phone.dark-ui .nakula-recents-main strong.missed{color:#ff635b}
 #phone.dark-ui .nakula-recents-avatar{background:#494a54}
+
+
+/* ==========================================================
+   Nakula Phone: unified iOS Dark Appearance (default)
+   Scope: dark-ui ONLY. Appearance can still switch to Light.
+   Photos and Calculator preserve their established black UIs.
+   ========================================================== */
+#phone.in-app.dark-ui:not(.nakula-photos-mode):not(.nakula-calculator-mode) #app-screen,
+#phone.in-app.dark-ui:not(.nakula-photos-mode):not(.nakula-calculator-mode) #app-content {
+  background:#000!important;
+  color:#f5f5f7;
+  color-scheme:dark;
+}
+#phone.in-app.dark-ui:not(.nakula-photos-mode):not(.nakula-calculator-mode) #app-header{
+  background:#101012;
+  color:#f6f6f8;
+  border-color:#2c2c30;
+}
+#phone.in-app.dark-ui .statusbar{color:#fff!important}
+#phone.in-app.dark-ui .home-bar{background:#fff!important}
+#phone.in-app.dark-ui .page-head .app-title{color:#f4f4f6}
+#phone.in-app.dark-ui .page-head .plain-btn,
+#phone.in-app.dark-ui .page-head .round-action{color:#0a84ff}
+#phone.in-app.dark-ui .large-title,
+#phone.in-app.dark-ui .thread-name,
+#phone.in-app.dark-ui .row-main strong{color:#f8f8fa}
+#phone.in-app.dark-ui .fine-title,
+#phone.in-app.dark-ui .row-sub,
+#phone.in-app.dark-ui .thread-date,
+#phone.in-app.dark-ui .thread-preview,
+#phone.in-app.dark-ui .smallcaps:not(.red):not(.yellow){color:#a0a0aa}
+#phone.in-app.dark-ui .ios-search{background:#232326;color:#a9a9b2}
+#phone.in-app.dark-ui .ios-search input,
+#phone.in-app.dark-ui input:not([type=checkbox]):not([type=radio]),
+#phone.in-app.dark-ui textarea{
+  color:#f6f6f8;
+  caret-color:#0a84ff;
+}
+#phone.in-app.dark-ui input::placeholder,
+#phone.in-app.dark-ui textarea::placeholder{color:#878791}
+#phone.in-app.dark-ui .ios-row,
+#phone.in-app.dark-ui .thread{background:#1c1c1e;color:#f7f7f8;border-color:#313136}
+#phone.in-app.dark-ui .ios-row:hover,
+#phone.in-app.dark-ui .thread:hover{background:#29292d}
+#phone.in-app.dark-ui .ios-list,
+#phone.in-app.dark-ui .list-group{background:#000}
+#phone.in-app.dark-ui .list-group .ios-row{background:#1c1c1e;border-color:#313136}
+#phone.in-app.dark-ui .thread::after{background:#313136}
+#phone.in-app.dark-ui .profile-banner{background:linear-gradient(140deg,#292b32,#1d1f25);color:#fff;border:1px solid #393b45}
+#phone.in-app.dark-ui .profile-banner h2{color:#fff}
+#phone.in-app.dark-ui .profile-banner p{color:#afb1bf}
+#phone.in-app.dark-ui .profile-silhouette{background:linear-gradient(145deg,#535765,#373a46)}
+#phone.in-app.dark-ui .muted-btn{background:#2c2c2e;color:#e4e4e8}
+#phone.in-app.dark-ui .note-title-input,
+#phone.in-app.dark-ui .note-editor,
+#phone.in-app.dark-ui .note-text{background:transparent;color:#f6f6f8}
+#phone.in-app.dark-ui .field-note{color:#a3a3ac}
+#phone.in-app.dark-ui .playlist-header{background:#1c1c1e;border:1px solid #303035}
+#phone.in-app.dark-ui .playlist-header strong{color:#f7f7f8}
+#phone.in-app.dark-ui .playlist-header span{color:#acaeb8}
+#phone.in-app.dark-ui .nakula-curated-row{border-bottom:1px solid #303036}
+#phone.in-app.dark-ui .nakula-curated-row .track-info strong{color:#f8f8fa}
+#phone.in-app.dark-ui .nakula-curated-row .track-info span{color:#a7a7b0}
+#phone.in-app.dark-ui .nakula-song-more{color:#858591}
+#phone.in-app.dark-ui .nakula-safari-news,
+#phone.in-app.dark-ui #app-screen .nakula-safari-news{background:#000;color:#f5f5f7}
+#phone.in-app.dark-ui .nakula-news-issue,
+#phone.in-app.dark-ui .nakula-news-story{border-color:#313137}
+#phone.in-app.dark-ui .nakula-news-tabs{background:#222227}
+#phone.in-app.dark-ui .nakula-news-tabs button{color:#a9a9b3}
+#phone.in-app.dark-ui .nakula-news-tabs button.is-selected{background:#3e3e44;color:#fff}
+#phone.in-app.dark-ui .nakula-news-story h3{color:#f6f6f8}
+#phone.in-app.dark-ui .nakula-news-story p{color:#a0a0aa}
+#phone.in-app.dark-ui .nakula-news-meta span:first-child{color:#a2c7ff}
+#phone.in-app.dark-ui .nakula-call-filter{background:#28282d}
+#phone.in-app.dark-ui .nakula-call-filter button{color:#b7b7bf}
+#phone.in-app.dark-ui .nakula-call-filter button.selected{background:#47474e;color:#fff}
+#phone.in-app.dark-ui .nakula-recents-main strong{color:#f7f7f9}
+#phone.in-app.dark-ui .nakula-recents-main strong.missed{color:#ff6961}
+#phone.in-app.dark-ui .nakula-call-history,
+#phone.in-app.dark-ui .nakula-call-history-row{border-color:#333338}
+#phone.in-app.dark-ui .nakula-phone-recents{color:#f7f7f8}
+
+/* iMessage list and conversation: override the old explicit light stylesheet. */
+#phone.in-app.dark-ui.harley-au-mode #app-screen,
+#phone.in-app.dark-ui.harley-au-mode #app-content,
+#phone.in-app.dark-ui.harley-au-mode .conversation,
+#phone.in-app.dark-ui.harley-au-mode .convo-scroll{
+  background:#000!important;color:#f8f8fa;
+}
+#phone.in-app.dark-ui.harley-au-mode .page-head{
+  background:#101012;
+  color:#f7f7f9;
+  border-bottom:1px solid #2c2c30;
+}
+#phone.in-app.dark-ui.harley-au-mode .large-title{color:#f8f8fa}
+#phone.in-app.dark-ui.harley-au-mode .ios-search{background:#242427;color:#94949d}
+#phone.in-app.dark-ui.harley-au-mode .ios-search input{color:#fff}
+#phone.in-app.dark-ui.harley-au-mode .smallcaps{color:#a0a0a9}
+#phone.in-app.dark-ui.harley-au-mode .thread{background:#000;color:#f8f8fa}
+#phone.in-app.dark-ui.harley-au-mode .thread:hover{background:#171719}
+#phone.in-app.dark-ui.harley-au-mode .thread::after,
+#phone.in-app.dark-ui.harley-au-mode .thread:after{background:#303034}
+#phone.in-app.dark-ui.harley-au-mode .thread .thread-name,
+#phone.in-app.dark-ui.harley-au-mode .thread.is-unread .thread-name{color:#f8f8f9}
+#phone.in-app.dark-ui.harley-au-mode .thread .thread-preview,
+#phone.in-app.dark-ui.harley-au-mode .thread.is-unread .thread-date,
+#phone.in-app.dark-ui.harley-au-mode .thread .thread-date{color:#96969f}
+#phone.in-app.dark-ui.harley-au-mode .thread.is-unread .thread-preview{color:#e6e6e9}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-head-name{color:#f8f8fa}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-chevron{color:#8f8f98}
+#phone.in-app.dark-ui.harley-au-mode .date-divider{color:#9999a3}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.them .bubble{
+  color:#fff;background:#2c2c2e;
+}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.them .bubble::before{background:#2c2c2e}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.them .bubble::after{background:#000}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.me .bubble{
+  background:#0a84ff;color:#fff;
+}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.me .bubble::before{background:#0a84ff}
+#phone.in-app.dark-ui.harley-au-mode .bubble-row.me .bubble::after{background:#000}
+#phone.in-app.dark-ui.harley-au-mode .convo-foot,
+#phone.in-app.dark-ui.harley-au-mode .harley-au-composer{
+  background:#000;border-top-color:#232328;
+}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-textbox{
+  background:#1c1c1e;border-color:#3a3a3e;
+}
+#phone.in-app.dark-ui.harley-au-mode .chat-input{background:transparent;color:#fff}
+#phone.in-app.dark-ui.harley-au-mode .chat-input::placeholder{color:#8e8e98}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-plus{background:#303035;color:#b6b6bf}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-camera,
+#phone.in-app.dark-ui.harley-au-mode .harley-au-mic{color:#93939d}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-composer .send-btn{background:#0a84ff}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-composer .send-btn:disabled{background:#345b93;color:#e9edf9}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-dots{background:#2c2c2e}
+#phone.in-app.dark-ui.harley-au-mode .harley-au-dots i{background:#9e9ea8}
+#phone.in-app.dark-ui.harley-au-mode .nakula-incident-cta button{
+  background:#1b2c40;border-color:#29435d;color:#69aeff;
+}
+#phone.in-app.dark-ui.harley-au-mode .nakula-incident-cta small,
+#phone.in-app.dark-ui.harley-au-mode .nakula-message-delivered{color:#9696a0}
+
+/* Liquid-glass chat header keeps the same translucent behavior on dark. */
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head{
+  background:linear-gradient(180deg,rgba(22,22,27,.94) 0%,rgba(18,19,24,.83) 56%,rgba(20,22,28,.67) 100%);
+  border-bottom:1px solid rgba(148,151,170,.19);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 24px rgba(0,0,0,.22);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  backdrop-filter:blur(20px) saturate(150%);
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
+  background:linear-gradient(115deg,rgba(255,255,255,.075),transparent 55%,rgba(255,255,255,.025));
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::after{
+  background:linear-gradient(to bottom,rgba(21,23,29,.55),rgba(0,0,0,0));
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-content{
+  background:#000!important;
+}
+/* Match the dark iOS software keyboard when Nakula auto-types. */
+#phone.in-app.dark-ui.harley-au-mode .au-visual-keyboard{
+  background:#24262c;
+  color:#fff;
+  border-top-color:#32343b;
+}
+#phone.in-app.dark-ui.harley-au-mode .au-key{
+  background:#4b4c52;
+  color:#fff;
+  box-shadow:0 1px 0 rgba(0,0,0,.65);
+}
+#phone.in-app.dark-ui.harley-au-mode .au-key.au-key-pressed,
+#phone.in-app.dark-ui.harley-au-mode .au-key:active{
+  background:#747780;box-shadow:inset 0 1px 2px #1b1c22aa;
+}
+#phone.in-app.dark-ui.harley-au-mode .au-key-modifier,
+#phone.in-app.dark-ui.harley-au-mode .au-key-row-bottom .au-key-return,
+#phone.in-app.dark-ui.harley-au-mode .au-key-row-bottom .au-key-numbers,
+#phone.in-app.dark-ui.harley-au-mode .au-key-row-bottom .au-key-globe{
+  background:#36383f;color:#ebebee;
+}
+#phone.in-app.dark-ui.harley-au-mode .au-key-row-bottom .au-key-space{background:#4b4c52;color:#fff}
+#phone.in-app.dark-ui.harley-au-mode .keyboard-visible .harley-au-composer{border-top-color:#33343b}
+
+/* Keep dark even when OS accessibility disables transparency. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head{background:#1d1e23}
+}
+@media(prefers-reduced-transparency:reduce){
+  #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head{background:#1d1e23}
+}
