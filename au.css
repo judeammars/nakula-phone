@@ -2044,3 +2044,97 @@
 #phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .nakula-file-attachment{
  align-self:flex-start;margin-top:5px;
 }
+
+/* CHAPTER 02.3 & 02.4 — PBK BRIEFING / FAMILY RECORDS */
+#phone.in-app .nakula-case-calendar{
+ margin:24px 0 32px;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+ color:#1c2537;
+}
+#phone.in-app .nakula-case-kicker{
+ margin:5px 2px 14px;
+ font-size:10px;letter-spacing:.09em;font-weight:700;color:#868a94;
+}
+#phone.in-app .nakula-calendar-event{
+ display:flex;align-items:stretch;gap:12px;
+ margin:0 0 15px;padding:15px 13px;
+ border-radius:15px;
+ border:1px solid rgba(99,142,209,.16);
+ background:#f0f4fc;
+}
+#phone.in-app .nakula-calendar-event.family{background:#f0f4f9}
+#phone.in-app .nakula-calendar-event-time{
+ flex:none;width:43px;font-size:14px;font-weight:750;
+ color:#3985ef;line-height:1.35;
+}
+#phone.in-app .nakula-calendar-event-time span{
+ display:block;color:#9097a3;font-size:11px;font-weight:500;
+}
+#phone.in-app .nakula-calendar-event-body{
+ display:flex;flex-direction:column;gap:7px;
+ border-left:3px solid #4e94ef;padding-left:10px;flex:1;min-width:0;
+}
+#phone.in-app .nakula-calendar-event.family .nakula-calendar-event-body{border-color:#bc6475}
+#phone.in-app .nakula-calendar-event-body strong{
+ font-size:14px;line-height:1.4;font-weight:700;
+}
+#phone.in-app .nakula-calendar-event-body small{
+ color:#7a8190;font-size:11px;line-height:1.4;
+}
+#phone.in-app .nakula-calendar-event-body p{
+ margin:1px 0 4px;
+ color:#626c80;font-size:12px;line-height:1.5;
+}
+#phone.in-app .nakula-calendar-event-body button,
+#phone.in-app .nakula-calendar-meeting button{
+ display:block;border:0;border-radius:10px;
+ width:100%;min-height:39px;
+ padding:9px 10px;
+ text-align:center;
+ font:650 12px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ color:#fff;background:#438bf5;cursor:pointer;
+}
+#phone.in-app .nakula-calendar-event-body button:active,
+#phone.in-app .nakula-calendar-meeting button:active{opacity:.7}
+#phone.in-app .nakula-calendar-complete{
+ display:inline-block;margin-top:4px;font-size:11px;
+ font-weight:650;color:#568777;
+}
+#phone.in-app .nakula-calendar-meeting{
+ display:flex;flex-direction:column;gap:13px;
+ padding:18px 16px;margin:16px 0 22px;
+ border-radius:16px;border:1px solid rgba(84,133,198,.22);
+ background:#f5f7fc;
+}
+#phone.in-app .nakula-calendar-meeting>small{
+ color:#7b8798;font-size:10px;font-weight:700;letter-spacing:.075em;
+}
+#phone.in-app .nakula-calendar-meeting h3{
+ margin:0;color:#202d45;font-size:19px;line-height:1.25;
+}
+#phone.in-app .nakula-calendar-meeting p{
+ color:#38485e;font-size:13px;line-height:1.55;margin:0;
+}
+#phone.in-app .nakula-case-muted{font-size:12px;color:#8b91a0}
+#phone.in-app.dark-ui .nakula-case-calendar{color:#f0f3f8}
+#phone.in-app.dark-ui .nakula-calendar-event{
+ background:#222936;border-color:#3a4557;
+}
+#phone.in-app.dark-ui .nakula-calendar-event.family{background:#272b35}
+#phone.in-app.dark-ui .nakula-calendar-event-body p{color:#bac1cf}
+#phone.in-app.dark-ui .nakula-calendar-event-body small{color:#959ead}
+#phone.in-app.dark-ui .nakula-calendar-meeting{
+ background:#242c39;border-color:#3c4c61;
+}
+#phone.in-app.dark-ui .nakula-calendar-meeting h3{color:#f3f5fc}
+#phone.in-app.dark-ui .nakula-calendar-meeting p{color:#d6dce8}
+#phone.in-app.dark-ui .nakula-calendar-complete{color:#9fc9b2}
+#phone.in-app .nakula-calendar-event button:focus-visible,
+#phone.in-app .nakula-calendar-meeting button:focus-visible{
+ outline:2px solid #4394ff;outline-offset:2px;
+}
+@media(max-width:385px){
+ #phone.in-app .nakula-calendar-event{gap:8px;padding:12px 9px}
+ #phone.in-app .nakula-calendar-event-time{width:38px;font-size:13px}
+ #phone.in-app .nakula-calendar-event-body{padding-left:8px}
+}
