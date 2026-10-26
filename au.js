@@ -863,6 +863,267 @@ function hideDay2ChapterFinale(){
  goHome();
 }
 
+
+/* CHAPTER 03 — 04.30 / NEWS BEFORE SUNRISE.
+   The alarm is stopped by the player, and their five-item Notes checklist
+   moves narrative time forward to 05.00 before Harley can interrupt.
+   The news article exists ONLY in this fictional phone's Safari. */
+const DAY3_MORNING_MINUTES=2*1440+4*60+30;
+const DAY3_CHECKLIST_ID=99303;
+const DAY3_CHECKLIST_ITEMS=Object.freeze([
+ {time:'04.36',label:'Minum air putih',detail:'Bangun sepenuhnya. Tidak langsung mencari kopi.'},
+ {time:'04.42',label:'Merapikan tempat tidur dan bersiap',detail:'Mandi, berpakaian, dan mulai hari dengan tenang.'},
+ {time:'04.48',label:'Sarapan ringan',detail:'Makan sebelum jadwal kantor mulai padat.'},
+ {time:'04.54',label:'Periksa Daily Case Notes',detail:'Ingat temuan Zona B, hak keluarga korban, dan tawaran PBK.'},
+ {time:'05.00',label:'Periksa agenda pertemuan',detail:'Baca kembali undangan Damar dan susun catatan untuk pukul 10.00.'}
+]);
+let day3Stage='none',day3TransitionDueAt=0,day3TransitionTimer=null,day3TransitionRunning=false;
+let day3ChecklistChecks=[false,false,false,false,false],day3ChecklistPresented=false;
+let day3HarleyDelivered=0,day3HarleyTimer=null,day3ArticleOpened=false;
+const DAY3_HARLEY_MESSAGES=Object.freeze([
+ {me:false,dayOffset:2,time:'05.00',day3Harley:true,
+  text:'NAKULA. Gue tahu ini jam lima pagi, but you need to see this.'},
+ {me:false,dayOffset:2,time:'05.00',day3Harley:true,
+  text:'Pertemuan lo sama Damar hari ini udah sampai ke telinga reporter. Kasus PBK ini terlalu besar buat tetap sepi. Belum tentu semua yang beredar akurat, Na.'},
+ {me:false,dayOffset:2,time:'05.01',day3Harley:true,day3NewsLink:true,
+  text:'Baca dulu. Ada yang mulai menghubungkan tawaran settlement dengan agenda pertemuan kalian. Gue kirim link beritanya.'}
+]);
+function ensureDay3ChecklistNote(){
+ if(day3Stage==='none'||day3Stage==='transition')return;
+ let note=notes.find(n=>Number(n.id)===DAY3_CHECKLIST_ID);
+ if(note)return note;
+ note={id:DAY3_CHECKLIST_ID,title:'27 OKT · CHECKLIST PAGI',date:'27 Oktober 2026 · 04.30',
+  body:'DAILY ROUTINE · NAKULA\n\n'+DAY3_CHECKLIST_ITEMS.map(x=>'□ '+x.time+' · '+x.label).join('\n'),
+  day3Checklist:true};
+ notes.unshift(note);
+ return note;
+}
+function day3ChecklistHtml(){
+ const completed=day3ChecklistChecks.filter(Boolean).length;
+ return '<section class="nakula-day3-checklist">'+
+  '<div class="nakula-day3-check-head"><span>NAKULA · DAILY ROUTINE</span><strong>27 OKTOBER 2026</strong></div>'+
+  '<h1>Morning Checklist</h1>'+
+  '<p class="nakula-day3-check-sub">Hari ini ada pertemuan penting. Selesaikan rutinitas pagi sebelum memulai pekerjaan.</p>'+
+  '<div class="nakula-day3-check-clock"><span><span class="nakula-day3-smallclock">CLOCK</span><strong>'+day3ChecklistClockText()+'</strong></span><span>'+completed+' / 5 selesai</span></div>'+
+  '<div class="nakula-day3-progress"><div style="width:'+(completed*20)+'%"></div></div>'+
+  '<div class="nakula-day3-check-rows">'+DAY3_CHECKLIST_ITEMS.map((x,i)=>
+   '<button type="button" class="nakula-day3-check-row'+(day3ChecklistChecks[i]?' is-checked':'')+'" data-day3-check="'+i+'" '+
+    (day3Stage!=='checklist'||day3ChecklistChecks[i]?'disabled':'')+
+    ' aria-pressed="'+(!!day3ChecklistChecks[i])+'">'+
+    '<span class="nakula-day3-check-circle">'+(day3ChecklistChecks[i]?'✓':'')+'</span>'+
+    '<span class="nakula-day3-check-copy"><strong>'+x.label+'</strong><small>'+x.detail+'</small></span>'+
+    '<span class="nakula-day3-check-time">'+x.time+'</span></button>'
+  ).join('')+'</div>'+
+  (completed===5?
+   '<div class="nakula-day3-ready"><strong>✓ Pagi selesai · 05.00</strong><span>Agenda sudah dicatat. Periksa pesan masuk.</span><button type="button" data-day3-open-harley '+(day3HarleyDelivered?'':'disabled')+'>Buka Chat Harley</button></div>':
+   '<p class="nakula-day3-check-foot">Centang setiap kegiatan yang sudah dilakukan. Waktu cerita akan bergerak hingga pukul 05.00.</p>')+
+  '</section>';
+}
+function day3ChecklistClockText(){
+ const count=day3ChecklistChecks.filter(Boolean).length;
+ return count?DAY3_CHECKLIST_ITEMS[count-1].time:'04.30';
+}
+function renderDay3Checklist(){
+ if(state.screen!=='app'||state.app!=='notes')return;
+ ensureDay3ChecklistNote();
+ const content=$au('app-content');if(!content)return;
+ const row=content.querySelector('[data-note="'+DAY3_CHECKLIST_ID+'"]');
+ if(row){
+  row.classList.add('nakula-day3-list-row');
+  if(day3Stage==='checklist'){
+   const dot=document.createElement('span');
+   dot.className='nakula-day3-required';
+   dot.textContent='TO DO';
+   row.querySelector('.end')?.before(dot);
+  }
+ }
+ if(state.view==='note'&&Number(state.note)===DAY3_CHECKLIST_ID){
+  content.innerHTML=day3ChecklistHtml();
+  content.style.padding='0';
+  content.style.overflowY='auto';
+ }
+}
+function checkDay3Item(index){
+ if(day3Stage!=='checklist'||!Number.isInteger(index)||index<0||index>=5||day3ChecklistChecks[index])return;
+ day3ChecklistChecks[index]=true;
+ const count=day3ChecklistChecks.filter(Boolean).length;
+ const minute=DAY3_MORNING_MINUTES+count*6;
+ window.nakulaNarrativeClock.restore(minute);
+ if(count===5)day3Stage='harley';
+ saveStoryState('CP03-checklist-'+count);
+ if(state.screen==='app'&&state.app==='notes')render();
+ if(count===5)scheduleDay3Harley();
+}
+function enterDay3Checklist(){
+ if(day3Stage!=='checklist'||day3ChecklistPresented||state.screen!=='home')return;
+ day3ChecklistPresented=true;
+ ensureDay3ChecklistNote();
+ saveStoryState('CP03-checklist-shown');
+ setTimeout(()=>{
+  if(day3Stage!=='checklist'||state.screen!=='home')return;
+  openApp('notes');state.view='note';state.note=DAY3_CHECKLIST_ID;
+  render();
+ },280);
+}
+function startDay3(){
+ if(!day2Chapter2Completed||day3Stage!=='none'||currentStoryEnding)return;
+ day3Stage='transition';
+ day3TransitionDueAt=Date.now()+850;
+ saveStoryState('CP03-transition-queued');
+ scheduleDay3Transition();
+}
+function scheduleDay3Transition(){
+ if(day3Stage!=='transition'||day3TransitionRunning||day3TransitionTimer||currentStoryEnding||state.screen==='lock')return;
+ if(!day3TransitionDueAt)day3TransitionDueAt=Date.now()+500;
+ day3TransitionTimer=setTimeout(()=>{
+  day3TransitionTimer=null;
+  beginDay3Fade();
+ },Math.max(0,day3TransitionDueAt-Date.now()));
+}
+function beginDay3Fade(){
+ if(day3Stage!=='transition'||day3TransitionRunning||currentStoryEnding||state.screen==='lock')return;
+ day3TransitionRunning=true;
+ hideNotif();hideDay2OfferNotice();
+ day2Curtain.querySelector('.nakula-day2-title').textContent='DAY 3';
+ day2Curtain.hidden=false;day2Curtain.setAttribute('aria-hidden','false');
+ requestAnimationFrame(()=>day2Curtain.classList.add('is-dark'));
+ setTimeout(()=>day2Curtain.classList.add('show-title'),480);
+ setTimeout(()=>{
+  if(day3Stage!=='transition')return;
+  window.nakulaNarrativeClock.restore(DAY3_MORNING_MINUTES);
+  day3Stage='alarm';day3TransitionDueAt=0;
+  state.app=null;state.view=null;state.thread=null;
+  hidePasscode();
+  ensureDay3ChecklistNote();
+  layer('lock');
+  saveStoryState('CP03-day3-0430');
+  day2Curtain.classList.remove('show-title');
+ },2600);
+ setTimeout(()=>day2Curtain.classList.remove('is-dark'),3050);
+ setTimeout(()=>{
+  day2Curtain.hidden=true;day2Curtain.setAttribute('aria-hidden','true');
+  day3TransitionRunning=false;
+  showDay3Alarm();
+ },3600);
+}
+function showDay3Alarm(){
+ if(day3Stage!=='alarm'||currentStoryEnding)return;
+ const clock=day2Alarm.querySelector('.nakula-day2-alarm-time');
+ const name=day2Alarm.querySelector('.nakula-day2-alarm-name');
+ const hint=day2Alarm.querySelector('.nakula-day2-alarm-hint');
+ if(clock)clock.textContent='04:30';
+ if(name)name.textContent='Early Workday';
+ if(hint)hint.textContent='Matikan alarm untuk membuka Notes';
+ day2Alarm.setAttribute('aria-label','Alarm pukul 04.30. Matikan untuk melanjutkan');
+ day2Alarm.hidden=false;day2MorningNotice.hidden=true;
+ if(!day2AlarmSoundTimer){
+  playDay2AlarmChime();
+  day2AlarmSoundTimer=setInterval(playDay2AlarmChime,2800);
+ }
+}
+function stopDay3Alarm(){
+ if(day3Stage!=='alarm')return;
+ stopDay2AlarmAudio();
+ day2Alarm.hidden=true;
+ day3Stage='checklist';
+ ensureDay3ChecklistNote();
+ saveStoryState('CP03-alarm-stopped');
+ // Stay on the Lock Screen: unlocking naturally opens the Notes checklist.
+}
+function scheduleDay3Harley(){
+ if(day3Stage!=='harley'||day3HarleyDelivered>=DAY3_HARLEY_MESSAGES.length||day3HarleyTimer)return;
+ day3HarleyTimer=setTimeout(()=>{
+  day3HarleyTimer=null;
+  deliverNextDay3Harley();
+ },day3HarleyDelivered===0?900:1550);
+}
+function deliverNextDay3Harley(){
+ if(day3Stage!=='harley'||day3HarleyDelivered>=DAY3_HARLEY_MESSAGES.length)return;
+ const t=threadById('harley');if(!t)return;
+ const index=day3HarleyDelivered;
+ const m=DAY3_HARLEY_MESSAGES[index];
+ if(!t.messages.some(x=>x.day3Harley&&x.text===m.text))
+  t.messages.push({...m});
+ t.date=m.time;
+ day3HarleyDelivered=index+1;
+ harleyUnread=true;
+ const ti=threads.findIndex(x=>x.id==='harley');
+ if(ti>0)threads.unshift(...threads.splice(ti,1));
+ if(index===0)window.nakulaNarrativeClock.set(5,0,2);
+ if(index===2)window.nakulaNarrativeClock.set(5,1,2);
+ saveStoryState('CP03-Harley-'+(index+1));
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen!=='lock'){
+  setNotification('harley');notif.classList.add('show');
+  sound();
+ }
+ scheduleDay3Harley();
+}
+function openDay3Harley(){
+ if(!day3HarleyDelivered)return;
+ openApp('messages');state.thread='harley';state.view='convo';
+ markHarleyRead();
+ render();
+}
+function renderDay3Article(){
+ const header=$au('app-header'),content=$au('app-content');
+ if(!header||!content||state.app!=='safari')return;
+ header.innerHTML='<button type="button" class="plain-btn" data-day3-safari-back>‹ <span>Safari</span></button><span class="app-title">The Civic Ledger</span><span style="width:54px"></span>';
+ content.innerHTML='<article class="nakula-day3-article">'+
+  '<div class="nakula-day3-browserline"><span>THE CIVIC LEDGER</span><span>INVESTIGASI · 27 OKT 2026</span></div>'+
+  '<div class="nakula-day3-news-category">HUKUM & AKUNTABILITAS</div>'+
+  '<h1>Kasus Zona B: Pertemuan Pengacara PBK dan Keluarga Korban Jadi Sorotan</h1>'+
+  '<p class="nakula-day3-news-lead">Rencana pertemuan antara Nakula Shankara Bumi dan Damar dikabarkan beredar di kalangan peliput perkara PBK Group. Pertanyaan mengenai penyelesaian dan tanggung jawab operasional belum terjawab.</p>'+
+  '<div class="nakula-day3-news-byline"><strong>Harley Mahira</strong><span>Selasa, 27 Oktober 2026 · 04.58 WIB · Jakarta</span></div>'+
+  '<div class="nakula-day3-news-divider"></div>'+
+  '<p><strong>JAKARTA.</strong> Perkembangan penanganan longsor di area Zona B yang dikaitkan dengan operasi PBK Group kembali menarik perhatian publik setelah kabar mengenai agenda pertemuan antar-kuasa hukum beredar sejak malam sebelumnya.</p>'+
+  '<p>Dua nama yang disebut dalam agenda tersebut adalah Nakula Shankara Bumi, kuasa hukum keluarga korban, dan Damar, pengacara yang mewakili kepentingan PBK Group. Pertemuan disebut dijadwalkan berlangsung hari ini. Hingga berita ini disusun, belum ada konfirmasi publik mengenai hasil atau ruang lingkup pembahasan.</p>'+
+  '<h2>Tawaran penyelesaian belum berarti kesepakatan</h2>'+
+  '<p>Informasi yang beredar juga menyinggung suatu usulan penyelesaian bernilai besar. Namun, besaran angka yang dibicarakan tidak dengan sendirinya menunjukkan adanya persetujuan dari keluarga korban, pengakuan tanggung jawab, atau penyelesaian perkara.</p>'+
+  '<p>Sejumlah pertanyaan masih mengemuka, termasuk keaslian dokumen operasional, pihak yang memiliki kewenangan memberikan persetujuan, serta bagaimana hak keluarga terdampak akan dilindungi dalam proses hukum maupun perundingan.</p>'+
+  '<h2>Publik menanti kejelasan</h2>'+
+  '<p>Perkara Zona B menjadi perhatian luas karena menyangkut keselamatan, tata kelola perusahaan, dan akses korban terhadap informasi. Semua klaim yang belum diverifikasi perlu dipisahkan dari fakta yang telah diperiksa secara independen.</p>'+
+  '<p>Redaksi masih berupaya memperoleh tanggapan resmi dari perwakilan terkait. Pemberitaan akan diperbarui apabila terdapat konfirmasi yang dapat dipertanggungjawabkan.</p>'+
+  '<div class="nakula-day3-news-footer">THE CIVIC LEDGER · Laporan fiktif dalam cerita Nakula Phone. Bukan berita atau situs nyata.</div>'+
+ '</article>';
+ content.style.padding='0';content.style.overflow='auto';content.style.overflowY='auto';content.scrollTop=0;
+}
+function decorateDay3Safari(){
+ if(state.screen!=='app'||state.app!=='safari')return;
+ if(state.view==='day3-article'){renderDay3Article();return}
+ if(day3HarleyDelivered!==DAY3_HARLEY_MESSAGES.length)return;
+ const content=$au('app-content');if(!content||content.querySelector('[data-day3-safari-article]'))return;
+ const featured='<section class="nakula-day3-safari-feature"><span>THE CIVIC LEDGER · 27 OKTOBER 2026</span>'+
+  '<h2>Kasus Zona B: Pertemuan Pengacara PBK dan Keluarga Korban Jadi Sorotan</h2>'+
+  '<p>Rencana pertemuan Nakula dan Damar beredar di kalangan jurnalis.</p>'+
+  '<button type="button" data-day3-safari-article>Baca berita lengkap</button></section>';
+ content.insertAdjacentHTML('afterbegin',featured);
+}
+function openDay3Article(){
+ if(day3HarleyDelivered!==DAY3_HARLEY_MESSAGES.length)return;
+ day3ArticleOpened=true;
+ saveStoryState('CP03-Harley-article-opened');
+ openApp('safari');state.view='day3-article';render();
+}
+document.addEventListener('click',e=>{
+ const row=e.target.closest('[data-day3-check]');
+ if(row&&state.screen==='app'&&state.app==='notes'){
+  e.preventDefault();e.stopImmediatePropagation();
+  checkDay3Item(Number(row.dataset.day3Check));return;
+ }
+ const chat=e.target.closest('[data-day3-open-harley]');
+ if(chat){e.preventDefault();e.stopImmediatePropagation();openDay3Harley();return}
+ const article=e.target.closest('[data-day3-article], [data-day3-safari-article]');
+ if(article){e.preventDefault();e.stopImmediatePropagation();openDay3Article();return}
+ const back=e.target.closest('[data-day3-safari-back]');
+ if(back&&state.app==='safari'){
+  e.preventDefault();e.stopImmediatePropagation();
+  state.view=null;render();return;
+ }
+},true);
+day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay3Alarm);
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
