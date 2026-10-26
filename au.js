@@ -689,6 +689,156 @@ function renderDay2Mail(){
  content.style.padding='0';content.style.overflowY='auto';content.scrollTop=0;
 }
 
+
+/* CHAPTER 02.7 — PAGE 312.
+   A page-search puzzle precedes a new Mail invitation from Damar.
+   No legal culpability is inferred from Jenoah's appearance in an annex. */
+let day2Page312Stage='none',day2Page312DueAt=0,day2Page312Timer=null;
+let day2Page312CurrentPage=1,day2Page312Viewed=false,day2Page312FindingSaved=false;
+let day2InvitationDelivered=false,day2InvitationOpened=false,day2InvitationUnread=false;
+let day2Chapter2Completed=false,day2Chapter2Finale=null;
+const DAY2_PAGE312_FILE='PBK_Operational_Addendum.pdf';
+const DAY2_PAGE312_MAX_PAGE=487;
+function day2Page312Ready(){
+ const a=threadById('adnan');
+ return day2OfferChoice&&!!a?.messages.some(m=>m.day2OfferAdvice);
+}
+function queueDay2Page312(){
+ if(day2Page312Stage!=='none'||!day2Page312Ready()||currentStoryEnding)return;
+ day2Page312Stage='queued';
+ day2Page312DueAt=Date.now()+2200;
+ saveStoryState('CP02-07-Nirmala-queued');
+ scheduleDay2Page312();
+}
+function scheduleDay2Page312(){
+ if(day2Page312Stage!=='queued'||day2Page312Timer||currentStoryEnding)return;
+ if(!day2Page312DueAt)day2Page312DueAt=Date.now()+1800;
+ day2Page312Timer=setTimeout(()=>{
+  day2Page312Timer=null;
+  if(day2Page312Stage==='queued')deliverDay2Page312Nirmala();
+ },Math.max(0,day2Page312DueAt-Date.now()));
+}
+function deliverDay2Page312Nirmala(){
+ if(day2Page312Stage!=='queued'||!day2Page312Ready())return;
+ const n=threadById('nirmala');if(!n)return;
+ const existing=n.messages.some(m=>m.day2Page312Lead);
+ if(!existing){
+  n.messages.push({me:false,time:'11.02',dayOffset:1,day2Page312Lead:true,
+   text:'Mas Nakula, ada satu rujukan silang yang tertinggal di adendum operasional PBK. Halaman 312. Saya sudah kirim salinannya ke Files. Tolong lihat bagian kewenangan penandatangan sebelum menarik kesimpulan.'});
+  n.date='11.02';
+ }
+ day2Page312Stage='file';
+ nirmalaUnread=true;
+ const i=threads.findIndex(t=>t.id==='nirmala');
+ if(i>0)threads.unshift(...threads.splice(i,1));
+ window.nakulaNarrativeClock.set(11,2,1);
+ saveStoryState('CP02-07-paper-trail-arrived');
+ syncHarleyBadge();
+ if(state.screen!=='lock'){
+  if(!(state.screen==='app'&&state.app==='messages'&&state.thread==='nirmala'&&state.view==='convo')){
+   setNotification('nirmala');notif.classList.add('show');
+  }
+  sound();
+ }
+ if(state.screen==='app'&&state.app==='files')render();
+}
+function day2Page312PreviewHtml(){
+ const page=day2Page312CurrentPage,found=day2Page312Viewed;
+ const documentPage=page===312?
+  '<div class="nakula-page312-page-title">SECTION 14.3 · DELEGATION OF OPERATIONAL AUTHORITY</div>'+
+  '<h2>Pendelegasian Kewenangan Operasional</h2>'+
+  '<p>Persetujuan teknis dan pelaksanaan kegiatan pada Zona B harus ditelusuri melalui <strong>Lampiran IV: Matriks Kewenangan Penandatangan</strong>. Pencantuman nama pada matriks tidak dengan sendirinya membuktikan siapa yang memberikan instruksi, menandatangani dokumen tertentu, atau mengawasi pelaksanaannya.</p>'+
+  '<div class="nakula-page312-highlight">Refer to Annex IV · Delegated Signatory Authority and Approval Matrix</div>'+
+  '<p>Ruang lingkup delegasi, tanggal efektif, dan catatan persetujuan individu memerlukan pencocokan dengan dokumen primer.</p>'+
+  '<div class="nakula-page312-mention">Nama tercantum dalam rujukan matriks: <strong>Jenoah Arthur Pangestu</strong>. Status persetujuan aktual: <strong>belum terverifikasi</strong>.</div>':
+  '<div class="nakula-page312-page-title">PBK GROUP · OPERATIONAL ADDENDUM</div>'+
+  '<h2>'+(page===1?'Adendum Operasional Zona B':'Ketentuan Operasional · Zona B')+'</h2>'+
+  '<p>'+(page===1?'Dokumen internal yang diserahkan untuk pemeriksaan awal, berisi ketentuan operasional dan lampiran kewenangan.':'Halaman ini memuat ketentuan operasional umum. Rujukan tentang delegasi kewenangan terdapat pada bagian yang ditandai oleh Nirmala.')+'</p>'+
+  '<p>Konten lain dalam dokumen belum tersedia untuk pemeriksaan dalam salinan ini. Hindari menyimpulkan tanggung jawab hukum dari halaman yang belum diverifikasi.</p>';
+ return '<section class="nakula-page312-reader" aria-label="Pembaca dokumen interaktif 487 halaman">'+
+  '<div class="nakula-page312-overline">PBK GROUP · ARCHIVED ADDENDUM</div>'+
+  '<div class="nakula-page312-paper">'+documentPage+
+    '<div class="nakula-page312-paper-footer">PBK GROUP · RESTRICTED <span>'+page+' / '+DAY2_PAGE312_MAX_PAGE+'</span></div>'+
+  '</div>'+
+  '<div class="nakula-page312-controls">'+
+   '<button type="button" data-day2-page-nav="-1" '+(page<=1?'disabled':'')+' aria-label="Halaman sebelumnya">‹</button>'+
+   '<form class="nakula-page312-jump" data-day2-page-jump><label for="nakula-page312-number">Halaman</label><input id="nakula-page312-number" name="page" type="number" inputmode="numeric" min="1" max="'+DAY2_PAGE312_MAX_PAGE+'" value="'+page+'" required aria-label="Nomor halaman"><span>/ '+DAY2_PAGE312_MAX_PAGE+'</span><button type="submit">Buka</button></form>'+
+   '<button type="button" data-day2-page-nav="1" '+(page>=DAY2_PAGE312_MAX_PAGE?'disabled':'')+' aria-label="Halaman berikutnya">›</button>'+
+  '</div>'+
+  '<p class="nakula-page312-hint">'+(page===312?
+   'Halaman yang disebut Nirmala ditemukan. Catat rujukan matriks kewenangan sebelum melanjutkan.':
+   'Petunjuk Nirmala: halaman 312. Masukkan nomor halaman untuk melompat.')+'</p>'+
+  (page===312?
+   (day2Page312FindingSaved?
+    '<div class="nakula-page312-found"><strong>✓ Temuan disimpan</strong><span>Matriks otorisasi memerlukan verifikasi lanjutan. Undangan pertemuan dapat diperiksa di Mail.</span>'+
+     (day2InvitationDelivered?'<button type="button" data-day2-invite-goto>Buka Undangan Damar</button>':'')+'</div>':
+    '<button class="nakula-page312-capture" type="button" data-day2-page-record>Catat Temuan & Lanjutkan</button>'):
+   found&&!day2Page312FindingSaved?
+    '<p class="nakula-page312-hint">Kembali ke halaman 312 untuk mencatat temuan.</p>':'')+
+  '</section>';
+}
+function setDay2Page312Page(request){
+ if(!['file','found','invitation','complete'].includes(day2Page312Stage))return;
+ const page=Math.floor(Number(request));
+ if(!Number.isFinite(page)||page<1||page>DAY2_PAGE312_MAX_PAGE)return;
+ day2Page312CurrentPage=page;
+ if(page===312)day2Page312Viewed=true;
+ saveStoryState('CP02-07-page-navigation');
+ if(state.screen==='app'&&state.app==='files')render();
+}
+function recordDay2Page312Finding(){
+ if(day2Page312CurrentPage!==312||!day2Page312Viewed||day2Page312FindingSaved)return;
+ day2Page312FindingSaved=true;day2Page312Stage='found';
+ day2ReadFileIds.add('operational_addendum');
+ window.nakulaNarrativeClock.set(11,17,1);
+ saveStoryState('CP02-07-page-312-found');
+ if(state.screen==='app'&&state.app==='files')render();
+ // A short beat gives the player time to notice their discovery.
+ setTimeout(()=>{if(day2Page312FindingSaved&&!day2InvitationDelivered)deliverDay2Invitation()},1800);
+}
+function deliverDay2Invitation(){
+ if(!day2Page312FindingSaved||day2InvitationDelivered)return;
+ day2InvitationDelivered=true;day2InvitationUnread=true;
+ day2Page312Stage='invitation';
+ window.nakulaNarrativeClock.set(11,20,1);
+ saveStoryState('CP02-07-Damar-invitation');
+ if(state.screen!=='lock'){showDay2OfferNotice();sound()}
+ if(state.screen==='app'&&state.app==='mail')render();
+ if(state.screen==='app'&&state.app==='files')render();
+}
+function openDay2Invitation(){
+ if(!day2InvitationDelivered)return;
+ openDay2OfferMail('invitation');
+}
+function renderDay2ChapterFinale(){
+ if(!day2Chapter2Finale){
+  day2Chapter2Finale=document.createElement('section');
+  day2Chapter2Finale.className='nakula-ch02-finale';
+  day2Chapter2Finale.hidden=true;
+  day2Chapter2Finale.setAttribute('role','dialog');
+  day2Chapter2Finale.setAttribute('aria-modal','true');
+  day2Chapter2Finale.setAttribute('aria-label','Chapter 02 selesai');
+  day2Chapter2Finale.innerHTML='<div class="nakula-ch02-finale-inner"><small>CHAPTER 02 COMPLETE</small><h2>THE PAPER TRAIL</h2><div class="nakula-ch02-finale-rule"></div>'+
+   '<p>Every signature has a name. Not every name tells the truth.</p>'+
+   '<span>Progres tersimpan · Chapter 03 berikutnya</span><button type="button" data-day2-chapter-close>Kembali ke Home</button></div>';
+  $au('phone').appendChild(day2Chapter2Finale);
+ }
+ day2Chapter2Finale.hidden=false;
+ requestAnimationFrame(()=>day2Chapter2Finale?.classList.add('visible'));
+}
+function finishDay2Chapter2(){
+ if(!day2InvitationOpened||!day2Page312FindingSaved)return;
+ day2Chapter2Completed=true;day2Page312Stage='complete';
+ saveStoryState('CP02-CHAPTER-COMPLETE');
+ renderDay2ChapterFinale();
+}
+function hideDay2ChapterFinale(){
+ if(!day2Chapter2Finale)return;
+ day2Chapter2Finale.classList.remove('visible');
+ day2Chapter2Finale.hidden=true;
+ goHome();
+}
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
