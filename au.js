@@ -455,6 +455,10 @@ function resumePendingStoryCall(){
  },1100);
 }
 function startFreshStory(){
+ // Disable pagehide autosave before reload, or the old game would be
+ // immediately written back over the newly cleared slot.
+ storySaveReady=false;
+ storyNeedsCallResume=false;
  try{localStorage.removeItem('myphone-ios-'+STORY_SLOT_KEY)}catch(e){}
  try{window.location.reload()}catch(e){}
 }
