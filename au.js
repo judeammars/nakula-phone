@@ -588,8 +588,13 @@ function ensureDay2OfferNotice(){
  $au('phone').appendChild(el);day2OfferNotice=el;return el;
 }
 function showDay2OfferNotice(){
- if(state.screen==='lock'||!day2OfferUnread)return;
- ensureDay2OfferNotice().hidden=false;
+ if(state.screen==='lock'||(!day2OfferUnread&&!day2InvitationUnread))return;
+ const el=ensureDay2OfferNotice();
+ const head=el.querySelector('.nakula-offer-notice-text strong');
+ const sub=el.querySelector('.nakula-offer-notice-text small');
+ if(head)head.textContent=day2InvitationUnread?'MAIL · Damar':'MAIL · HHP Legal Counsel';
+ if(sub)sub.textContent=day2InvitationUnread?'Undangan pertemuan · Jenoah A. Pangestu':'Usulan penyelesaian perkara Zona B';
+ el.hidden=false;
 }
 function hideDay2OfferNotice(){if(day2OfferNotice)day2OfferNotice.hidden=true}
 function scheduleDay2Offer(){
@@ -610,8 +615,11 @@ function deliverDay2Offer(){
 }
 function openDay2OfferMail(view='inbox'){
  if(!day2OfferDelivered)return;
- hideDay2OfferNotice();day2OfferView=view==='offer'?'offer':'inbox';
- if(day2OfferView==='offer'){
+ hideDay2OfferNotice();day2OfferView=['offer','invitation'].includes(view)?view:'inbox';
+ if(day2OfferView==='invitation'&&day2InvitationDelivered){
+  day2InvitationOpened=true;day2InvitationUnread=false;
+  saveStoryState('CP02-07-invitation-opened');
+ }else if(day2OfferView==='offer'){
   day2OfferOpened=true;day2OfferUnread=false;
   saveStoryState('CP02-06-offer-opened');
  }
@@ -661,9 +669,13 @@ function renderDay2Mail(){
  const content=$au('app-content'),head=$au('app-header');
  if(!content||!head)return;
  hideDay2OfferNotice();
- const legacy=content.innerHTML,opened=day2OfferView==='offer';
- head.innerHTML='<button type="button" class="plain-btn" data-day2-mail-back>‹ <span>'+(opened?'Kotak Masuk':'Home')+'</span></button><span class="app-title">'+(opened?'Pesan':'Mail')+'</span><span style="width:56px"></span>';
- const inbox='<div class="nakula-mail-case-head"><span>KOTAK MASUK · 26 OKTOBER 2026</span><h1>Mail</h1><small>1 pesan perkara</small></div>'+
+ const legacy=content.innerHTML,opened=day2OfferView==='offer',inviteOpen=day2OfferView==='invitation'&&day2InvitationDelivered;
+ head.innerHTML='<button type="button" class="plain-btn" data-day2-mail-back>‹ <span>'+(opened||inviteOpen?'Kotak Masuk':'Home')+'</span></button><span class="app-title">'+(opened||inviteOpen?'Pesan':'Mail')+'</span><span style="width:56px"></span>';
+ const inbox='<div class="nakula-mail-case-head"><span>KOTAK MASUK · 26 OKTOBER 2026</span><h1>Mail</h1><small>'+(day2InvitationDelivered?'2':'1')+' pesan perkara</small></div>'+
+  (day2InvitationDelivered?
+    '<button type="button" class="nakula-mail-offer-row" data-day2-invite-open>'+
+      (day2InvitationUnread?'<span class="nakula-mail-unread-dot"></span>':'<span class="nakula-mail-unread-placeholder"></span>')+
+      '<span class="nakula-mail-offer-row-copy"><strong>Damar · Kuasa Hukum PBK</strong><b>Undangan Pertemuan · 27 Oktober</b><small>Agenda diskusi resmi, perwakilan PBK dan daftar peserta…</small></span><time>11.20</time></button>':'')+
   '<button type="button" class="nakula-mail-offer-row" data-day2-mail-open>'+
     (day2OfferUnread?'<span class="nakula-mail-unread-dot"></span>':'<span class="nakula-mail-unread-placeholder"></span>')+
     '<span class="nakula-mail-offer-row-copy"><strong>HHP Legal Counsel</strong><b>'+DAY2_OFFER_SUBJECT+'</b><small>Usulan skema penyelesaian sengketa, termasuk pagu indikatif Rp150 miliar…</small></span><time>10.45</time></button>'+
@@ -685,7 +697,19 @@ function renderDay2Mail(){
      '<div class="nakula-mail-decision-complete"><span>✓ Keputusan tersimpan</span><strong>'+DAY2_OFFER_CHOICES[day2OfferChoice].label+'</strong>'+
      '<p>Ringkasan tindak lanjut sudah dikirim kepada Adnan. Keputusan akhir atas tawaran tetap berada pada para klien.</p>'+
      '<button type="button" data-day2-offer-adnan>Buka Chat Adnan</button></div>')+'</div>';
- content.innerHTML='<div class="nakula-mail-case">'+(opened?offer:inbox)+'</div>';
+ const invitation='<div class="nakula-mail-letter"><div class="nakula-mail-letter-top"><small>DITERIMA · 11.20</small><h2>Undangan Pertemuan · Perkara Zona B</h2>'+
+  '<div class="nakula-mail-sender"><span class="nakula-mail-sender-avatar">D</span><span><strong>Damar</strong><small>Kuasa hukum PBK Group · Kepada Nakula Shankara Bumi</small></span></div></div>'+
+  '<div class="nakula-mail-letter-body"><p>Nakula,</p>'+
+  '<p>Menindaklanjuti pembicaraan awal antara para kuasa hukum, kami mengusulkan pertemuan resmi dengan perwakilan PBK Group untuk membahas perkara Zona B dan ruang lingkup dokumen operasional yang diminta tim Anda.</p>'+
+  '<p><strong>Selasa, 27 Oktober 2026</strong><br>10.00 WIB · Ruang pertemuan pihak PBK (detail menyusul).</p>'+
+  '<p>Perwakilan yang dijadwalkan hadir termasuk <strong>Jenoah Arthur Pangestu</strong>. Kehadirannya tidak dimaksudkan sebagai pengakuan atas isi maupun otorisasi dokumen yang masih diperiksa.</p>'+
+  '<p>Mohon konfirmasi jadwal melalui korespondensi resmi. Seluruh hak para pihak tetap dilindungi.</p>'+
+  '<p>Damar<br>Kuasa Hukum PBK Group</p></div>'+
+  (day2Chapter2Completed?
+    '<div class="nakula-mail-decision-complete"><span>✓ Chapter 02 selesai</span><button type="button" data-day2-finish-ch02>Lihat Penutup Chapter</button></div>':
+    '<div class="nakula-mail-decision"><small>PERTEMUAN BESOK · DAY 3</small><h3>Satu nama dari matriks kewenangan.</h3><p>Catat bahwa identitas dan tanggung jawab Jenoah masih harus diverifikasi.</p><button type="button" data-day2-finish-ch02><strong>Selesaikan Chapter 02</strong><span>Progress tersimpan, Chapter 03 menyusul</span></button></div>')+
+  '</div>';
+ content.innerHTML='<div class="nakula-mail-case">'+(opened?offer:inviteOpen?invitation:inbox)+'</div>';
  content.style.padding='0';content.style.overflowY='auto';content.scrollTop=0;
 }
 
@@ -1411,6 +1435,8 @@ function makeStorySnapshot(reason='progress'){
    day2MentariPhotoDelivered,day2MentariPhotoDueAt,
    day2MentariPhotoOpened,day2MentariEvidenceSaved,
    day2OfferDueAt,day2OfferDelivered,day2OfferOpened,day2OfferDocRead,day2OfferChoice,day2OfferUnread,
+   day2Page312Stage,day2Page312DueAt,day2Page312CurrentPage,day2Page312Viewed,
+   day2Page312FindingSaved,day2InvitationDelivered,day2InvitationOpened,day2InvitationUnread,day2Chapter2Completed,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -1486,6 +1512,7 @@ function loadStoryState(){
  if(day2FamilyDocsRead.statements)day2ReadFileIds.add('family_statements');
  if(day2FamilyDocsRead.client)day2ReadFileIds.add('family_intake');
  if(day2OfferDocRead)day2ReadFileIds.add('settlement');
+ if(day2Page312FindingSaved)day2ReadFileIds.add('operational_addendum');
  day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
  day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
  day2FamilyTaskDismissed=!!p.day2FamilyTaskDismissed||!!day2FamilyPriority;
@@ -1502,6 +1529,20 @@ function loadStoryState(){
  day2OfferDocRead=!!p.day2OfferDocRead;
  day2OfferChoice=['breakdown','consult','review'].includes(p.day2OfferChoice)?p.day2OfferChoice:null;
  day2OfferUnread=!!p.day2OfferUnread&&!day2OfferOpened;
+ day2Page312Stage=['none','queued','file','found','invitation','complete'].includes(p.day2Page312Stage)?p.day2Page312Stage:'none';
+ day2Page312DueAt=Number.isFinite(p.day2Page312DueAt)?p.day2Page312DueAt:0;
+ day2Page312CurrentPage=Number.isInteger(p.day2Page312CurrentPage)&&p.day2Page312CurrentPage>=1&&p.day2Page312CurrentPage<=487?p.day2Page312CurrentPage:1;
+ day2Page312Viewed=!!p.day2Page312Viewed;
+ day2Page312FindingSaved=!!p.day2Page312FindingSaved;
+ day2InvitationDelivered=!!p.day2InvitationDelivered;
+ day2InvitationOpened=!!p.day2InvitationOpened;
+ day2InvitationUnread=!!p.day2InvitationUnread&&!day2InvitationOpened;
+ day2Chapter2Completed=!!p.day2Chapter2Completed;
+ if(day2Chapter2Completed)day2Page312Stage='complete';
+ if(day2InvitationDelivered&&day2Page312Stage!=='complete')day2Page312Stage='invitation';
+ if(day2Page312FindingSaved&&day2Page312Stage==='found'&&!day2InvitationDelivered){
+  day2Page312DueAt=0;
+ }
  if(day2OfferChoice){day2OfferOpened=true;day2OfferUnread=false}
  if(day2MentariPhotoDelivered&&!day2OfferDelivered&&!day2OfferDueAt)
   day2OfferDueAt=Date.now()+1300;
@@ -1673,6 +1714,9 @@ function initializeStorySave(){
  if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
  if(day2MentariCallStage==='done'&&!day2MentariPhotoDelivered&&day2MentariCallOutcome)scheduleDay2MentariPhoto();
  if(day2MentariPhotoDelivered&&!day2OfferDelivered)scheduleDay2Offer();
+ if(day2Page312Stage==='none'&&day2Page312Ready())queueDay2Page312();
+ if(day2Page312Stage==='queued')scheduleDay2Page312();
+ if(day2Page312Stage==='found'&&!day2InvitationDelivered)deliverDay2Invitation();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -2079,7 +2123,7 @@ layer=function(which){
   renderDay2MorningNotice();
   resumePendingStoryCall();
   if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
-  if(day2OfferUnread)showDay2OfferNotice();
+  if(day2OfferUnread||day2InvitationUnread)showDay2OfferNotice();
   if(day2Stage==='transition')scheduleDay2Transition();
  }
  if(which==='lock'){
@@ -2434,6 +2478,7 @@ function receive(id=state.thread){
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
   if(id==='nirmala'&&next.unlockFiles)day2FilesReceived=true;
   saveStoryState('incoming-message');
+  if(id==='adnan'&&next.day2OfferAdvice)queueDay2Page312();
   if(inScripted()&&state.thread===id){render();sound()}
   else if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
   setTimeout(one,next.text.length>160?1800:1250);
@@ -2799,13 +2844,13 @@ back=function(){
 };
 document.addEventListener('click',e=>{
  const offerNotice=e.target.closest('[data-day2-offer-open]');
- if(offerNotice){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('inbox');return}
+ if(offerNotice){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail(day2InvitationUnread?'invitation':'inbox');return}
  const offerRow=e.target.closest('[data-day2-mail-open]');
  if(offerRow){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('offer');return}
  const mailBack=e.target.closest('[data-day2-mail-back]');
  if(mailBack){
   e.preventDefault();e.stopImmediatePropagation();
-  if(day2OfferView==='offer'){day2OfferView='inbox';render()}else goHome();
+  if(day2OfferView==='offer'||day2OfferView==='invitation'){day2OfferView='inbox';render()}else goHome();
   return;
  }
  const mailAttachment=e.target.closest('[data-day2-offer-attachment]');
@@ -2824,6 +2869,12 @@ document.addEventListener('click',e=>{
   openDay2OfferAdnanChat();
   return;
  }
+ const inviteOpen=e.target.closest('[data-day2-invite-open], [data-day2-invite-goto]');
+ if(inviteOpen){e.preventDefault();e.stopImmediatePropagation();openDay2Invitation();return}
+ const finishChapter=e.target.closest('[data-day2-finish-ch02]');
+ if(finishChapter){e.preventDefault();e.stopImmediatePropagation();finishDay2Chapter2();return}
+ const closeChapter=e.target.closest('[data-day2-chapter-close]');
+ if(closeChapter){e.preventDefault();e.stopImmediatePropagation();hideDay2ChapterFinale();return}
  const mentariView=e.target.closest('[data-day2-mentari-view]');
  if(mentariView){e.preventDefault();e.stopImmediatePropagation();openDay2MentariPhoto();return}
  const mentariSave=e.target.closest('[data-day2-mentari-save]');
