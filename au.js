@@ -1313,9 +1313,26 @@ function buildDailyCaseNoteBody(dayIndex){
     :'Sebuah email baru dari kuasa hukum PBK masuk ke Mail. Isinya belum diperiksa secara lengkap.');
    if(day2OfferChoice)parts.push('Langkah yang saya pilih: '+DAY2_OFFER_CHOICES[day2OfferChoice].label.toLowerCase()+'.');
   }
+  if(day2Page312Stage!=='none'&&day2Page312Stage!=='queued'){
+   parts.push('','ADENDUM OPERASIONAL');
+   if(day2Page312FindingSaved){
+    parts.push('Pada halaman 312 ditemukan rujukan ke Lampiran IV mengenai matriks otorisasi. Nama Jenoah Arthur Pangestu tercantum, tetapi persetujuan aktual dan kewenangannya belum terbukti. Cocokkan catatan delegasi dengan dokumen primer.');
+   }else if(day2Page312Viewed){
+    parts.push('Halaman 312 sempat diperiksa. Rujukan kewenangan operasional masih perlu dicatat dan diuji.');
+   }else{
+    parts.push('Nirmala mengirim adendum operasional 487 halaman. Pemeriksaan halaman 312 belum diselesaikan.');
+   }
+  }
+  if(day2InvitationDelivered){
+   parts.push('','UNDANGAN PERTEMUAN');
+   parts.push(day2InvitationOpened
+    ?'Damar mengundang tim bertemu perwakilan PBK pada 27 Oktober, termasuk Jenoah Arthur Pangestu. Identitas dalam dokumen tidak dapat langsung disamakan dengan tanggung jawab hukum.'
+    :'Sebuah undangan resmi dari pihak kuasa hukum PBK telah masuk ke Mail, tetapi belum diperiksa.');
+  }
   parts.push('','BELUM TERJAWAB',
    '• Siapa yang mengotorisasi keputusan operasional Zona B?',
    '• Sejauh mana dokumen dan kesaksian yang sudah diterima dapat diverifikasi?');
+  if(day2Page312FindingSaved)parts.push('• Siapa yang benar-benar menyetujui kegiatan Zona B di balik nama dalam matriks kewenangan?');
   if(day2MentariPhotoDelivered)parts.push('• Bagaimana penelepon anonim memperoleh materi pribadi tersebut?');
  }else{
   parts.push('TINDAK LANJUT',
