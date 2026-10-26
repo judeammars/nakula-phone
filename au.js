@@ -67,7 +67,7 @@ function setNotification(id){
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
 }
 
@@ -354,6 +354,9 @@ callScreen.addEventListener('click',e=>{
  const button=e.target.closest('[data-nakula-call]');
  if(!button)return;
  const action=button.dataset.nakulaCall;
+ if(['queued','ringing','answered'].includes(day2MentariCallStage)){
+  handleDay2MentariCallButton(action);return;
+ }
  if(action==='decline'&&unknownStage==='ringing'){
   // Refusing five times unlocks an OPTIONAL noncanon ending; answering remains possible.
   recordUnknownCall('Declined');
@@ -383,6 +386,169 @@ callScreen.addEventListener('click',e=>{
  }else if(action==='hangup'&&unknownStage==='answered')retryUnknownAfterHangup();
 });
 
+
+
+/* CHAPTER 02.5 — SOMEONE YOU REMEMBER.
+   The first Unknown caller is complete before this second encounter.
+   Existing call UI and the existing Mentari gallery photo are reused. */
+let day2MentariCallStage='none',day2MentariCallDueAt=0,day2MentariCallTimer=null;
+let day2MentariLineIndex=0,day2MentariCallOutcome=null;
+let day2MentariPhotoDelivered=false,day2MentariPhotoDueAt=0,day2MentariPhotoTimer=null;
+let day2MentariPhotoOpened=false,day2MentariEvidenceSaved=false;
+const MENTARI_PHOTO_SRC='./gallery/portrait.jpg';
+const DAY2_MENTARI_LINES=[
+ 'UNKNOWN: Selamat pagi, Pak Nakula. Rupanya peringatan saya semalam belum cukup.',
+ 'NAKULA: Kalau Anda ingin membicarakan Zona B, silakan melalui kuasa hukum perusahaan Anda.',
+ 'UNKNOWN: Anda selalu bicara soal hukum. Bukti. Prosedur. Seolah semuanya bisa diselesaikan dengan begitu.',
+ 'NAKULA: Silakan langsung pada intinya.',
+ 'UNKNOWN: Apa Anda memang selalu sesulit ini ketika diminta melepaskan sesuatu?',
+ 'UNKNOWN: Bahkan setelah bertahun-tahun?',
+ 'NAKULA: Get to the point.',
+ 'UNKNOWN: Mentari.',
+ 'UNKNOWN: Masih menyimpan fotonya, ya?',
+ 'NAKULA: Apa yang Anda mau?',
+ 'UNKNOWN: Check your messages, Pak Nakula.'
+];
+function queueDay2MentariCall(){
+ if(!day2FamilyPriority||day2MentariCallStage!=='none'||currentStoryEnding)return;
+ day2MentariCallStage='queued';
+ day2MentariCallDueAt=Date.now()+6500;
+ saveStoryState('CP02-05-call-queued');
+ scheduleDay2MentariCall();
+}
+function scheduleDay2MentariCall(){
+ if(!['queued','ringing'].includes(day2MentariCallStage)||day2MentariCallTimer
+  ||currentStoryEnding||state.screen==='lock')return;
+ const delay=day2MentariCallStage==='ringing'
+  ?650:Math.max(200,(day2MentariCallDueAt||Date.now()+650)-Date.now());
+ day2MentariCallTimer=setTimeout(()=>{
+  day2MentariCallTimer=null;
+  if(state.screen==='lock')return;
+  if(!['queued','ringing'].includes(day2MentariCallStage))return;
+  if(day2FamilyTaskModal&&!day2FamilyTaskModal.hidden){day2MentariCallTimer=setTimeout(()=>{day2MentariCallTimer=null;scheduleDay2MentariCall()},600);return}
+  showDay2MentariCall();
+ },delay);
+}
+function showDay2MentariCall(){
+ if(!['queued','ringing'].includes(day2MentariCallStage)||state.screen==='lock')return;
+ hideNotif();
+ day2MentariCallStage='ringing';
+ callConnectedAt=0;
+ callLineIndex=0;
+ window.nakulaNarrativeClock.set(10,24,1);
+ callScreen.hidden=false;
+ callScreen.classList.remove('is-connected','is-angry');
+ callCaption.classList.remove('is-visible');
+ callCaption.textContent='';
+ callStatus.textContent='incoming call…';
+ callScreen.querySelector('.nakula-call-actions').hidden=false;
+ callScreen.querySelector('.nakula-call-hangup').hidden=true;
+ ringPulse();
+ clearInterval(callRingTimer);
+ callRingTimer=setInterval(ringPulse,2700);
+ saveStoryState('CP02-05-ringing');
+}
+function scheduleDay2MentariPhoto(){
+ if(day2MentariPhotoDelivered||day2MentariPhotoTimer||!day2MentariCallOutcome)return;
+ const remaining=Math.max(200,(day2MentariPhotoDueAt||Date.now()+2200)-Date.now());
+ day2MentariPhotoTimer=setTimeout(()=>{
+  day2MentariPhotoTimer=null;
+  deliverDay2MentariPhoto();
+ },remaining);
+}
+function finishDay2MentariCall(outcome){
+ if(!['ringing','answered'].includes(day2MentariCallStage)||day2MentariCallOutcome)return;
+ const answered=day2MentariCallStage==='answered';
+ day2MentariCallOutcome=outcome;
+ recordUnknownCall(answered?'Answered':'Declined');
+ clearUnknownTimers();
+ callScreen.hidden=true;
+ callScreen.classList.remove('is-connected','is-angry');
+ callCaption.textContent='';
+ callCaption.classList.remove('is-visible');
+ day2MentariCallStage='done';
+ window.nakulaNarrativeClock.set(10,28,1);
+ day2MentariPhotoDueAt=Date.now()+(outcome==='declined'?3000:1700);
+ saveStoryState('CP02-05-call-'+outcome);
+ scheduleDay2MentariPhoto();
+}
+function nextDay2MentariSubtitle(){
+ if(day2MentariCallStage!=='answered')return;
+ if(day2MentariLineIndex>=DAY2_MENTARI_LINES.length){
+  callSubtitleTimer=setTimeout(()=>finishDay2MentariCall('answered'),1150);
+  return;
+ }
+ callCaption.classList.remove('is-visible');
+ callSubtitleTimer=setTimeout(()=>{
+  if(day2MentariCallStage!=='answered')return;
+  const index=day2MentariLineIndex++;
+  callCaption.textContent=DAY2_MENTARI_LINES[index];
+  callCaption.classList.add('is-visible');
+  // A longer beat before the name Mentari is spoken.
+  callSubtitleTimer=setTimeout(nextDay2MentariSubtitle,index===7?2900:2500);
+ },210);
+}
+function handleDay2MentariCallButton(action){
+ if(action==='decline'&&day2MentariCallStage==='ringing'){
+  finishDay2MentariCall('declined');
+ }else if(action==='accept'&&day2MentariCallStage==='ringing'){
+  clearUnknownTimers();
+  day2MentariCallStage='answered';
+  callConnectedAt=Date.now();
+  day2MentariLineIndex=0;
+  callScreen.classList.add('is-connected');
+  callScreen.classList.remove('is-angry');
+  callStatus.textContent='00:00 · connected';
+  callScreen.querySelector('.nakula-call-actions').hidden=true;
+  callScreen.querySelector('.nakula-call-hangup').hidden=false;
+  saveStoryState('CP02-05-answered');
+  callSubtitleTimer=setTimeout(nextDay2MentariSubtitle,850);
+ }else if(action==='hangup'&&day2MentariCallStage==='answered'){
+  finishDay2MentariCall('ended-early');
+ }
+}
+function deliverDay2MentariPhoto(){
+ if(day2MentariPhotoDelivered||!day2MentariCallOutcome)return;
+ const t=threadById('unknown');
+ if(!t)return;
+ if(!t.messages.some(m=>m.day2MentariPhoto)){
+  t.messages.push({me:false,time:'10.28',dayOffset:1,day2MentariPhoto:true,
+   text:day2MentariCallOutcome==='declined'
+    ?'Masih menyimpannya, ya?'
+    :'Some people are harder to let go of, aren’t they, Mr. Bumi?'});
+ }
+ t.date='10.28';
+ day2MentariPhotoDelivered=true;
+ unknownUnread=true;
+ const i=threads.findIndex(t=>t.id==='unknown');
+ if(i>0)threads.unshift(...threads.splice(i,1));
+ saveStoryState('CP02-05-mentari-photo');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
+ if(state.screen!=='lock'){
+  setNotification('unknown');notif.classList.add('show');sound();
+ }
+}
+function openDay2MentariPhoto(){
+ if(!day2MentariPhotoDelivered)return;
+ day2MentariPhotoOpened=true;
+ saveStoryState('CP02-05-mentari-photo-opened');
+ const index=photoItems.findIndex(p=>p.src===MENTARI_PHOTO_SRC);
+ if(index<0)return;
+ openApp('photos');
+ state.view='photo';state.photo=index;
+ render();
+}
+function preserveDay2MentariEvidence(){
+ if(!day2MentariPhotoDelivered||day2MentariEvidenceSaved)return;
+ day2MentariEvidenceSaved=true;
+ const incident=notes.find(n=>Number(n.id)===9901);
+ if(incident&&!incident.body.includes('FOTO DARI PENELEPON · 26 OKTOBER')){
+  incident.body+='\n\nFOTO DARI PENELEPON · 26 OKTOBER\nPukul 10.28, nomor anonim mengirim foto pribadi setelah panggilan. Foto dan isi pesan disimpan sebagai bagian dari kronologi. Sumber foto, identitas pengirim, serta kaitannya dengan PBK belum dapat dipastikan.';
+ }
+ saveStoryState('CP02-05-photo-preserved');
+ render();
+}
 
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
@@ -632,6 +798,7 @@ function chooseDay2FamilyPriority(choice){
   n.date='10.20';
  }
  day2FamilyFollowup=true;nirmalaUnread=true;
+ queueDay2MentariCall();
  const i=threads.findIndex(t=>t.id==='nirmala');
  if(i>0)threads.unshift(...threads.splice(i,1));
  window.nakulaNarrativeClock.set(10,20,1);
@@ -771,6 +938,9 @@ function makeStorySnapshot(reason='progress'){
    day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
    day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,day2FamilyTaskDismissed,
    day2ReadFileIds:[...day2ReadFileIds],
+   day2MentariCallStage,day2MentariCallDueAt,day2MentariCallOutcome,
+   day2MentariPhotoDelivered,day2MentariPhotoDueAt,
+   day2MentariPhotoOpened,day2MentariEvidenceSaved,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -839,6 +1009,19 @@ function loadStoryState(){
  day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
  day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
  day2FamilyTaskDismissed=!!p.day2FamilyTaskDismissed||!!day2FamilyPriority;
+ day2MentariCallStage=['none','queued','ringing','answered','done'].includes(p.day2MentariCallStage)?p.day2MentariCallStage:'none';
+ day2MentariCallDueAt=Number(p.day2MentariCallDueAt)||0;
+ day2MentariCallOutcome=['declined','answered','ended-early'].includes(p.day2MentariCallOutcome)?p.day2MentariCallOutcome:null;
+ day2MentariPhotoDelivered=!!p.day2MentariPhotoDelivered||saved.threads.some(t=>t.id==='unknown'&&t.messages.some(m=>m.day2MentariPhoto));
+ day2MentariPhotoDueAt=Number(p.day2MentariPhotoDueAt)||0;
+ day2MentariPhotoOpened=!!p.day2MentariPhotoOpened;
+ day2MentariEvidenceSaved=!!p.day2MentariEvidenceSaved;
+ if(day2MentariCallStage==='answered')day2MentariCallStage='ringing';
+ // Saves from before 02.5 still enter the new chapter normally.
+ if(day2FamilyPriority&&day2MentariCallStage==='none'){
+  day2MentariCallStage='queued';day2MentariCallDueAt=Date.now()+1100;
+ }
+ if(day2MentariPhotoDelivered)day2MentariCallStage='done';
  if(day2InvestigationChoice)applyDay2InvestigationChoice(day2InvestigationChoice);
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
  // Older CH02 saves have no Adnan auto-play flag, but their first Adnan
@@ -998,6 +1181,8 @@ function initializeStorySave(){
  if(day2Stage==='morning')renderDay2MorningNotice();
  if(day2Stage==='complete'&&day2BriefPrepared&&adnanCursor>=adnanTimeline.length&&!day2NirmalaDelivered)finishDay2MorningBrief();
  if(day2Stage==='complete'&&day2FilesReviewed()&&!day2RedFolderDelivered&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
+ if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
+ if(day2MentariCallStage==='done'&&!day2MentariPhotoDelivered&&day2MentariCallOutcome)scheduleDay2MentariPhoto();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -1403,6 +1588,7 @@ layer=function(which){
   renderReturningStoryNotice();
   renderDay2MorningNotice();
   resumePendingStoryCall();
+  if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
   if(day2Stage==='transition')scheduleDay2Transition();
  }
  if(which==='lock'){
@@ -1570,8 +1756,12 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket)?' chat-has-attachment':'');
-  const attachment=m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto)?' chat-has-attachment':'');
+  const attachment=m.day2MentariPhoto?
+   '<div class="nakula-mentari-photo-block"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
+    '<div class="nakula-mentari-actions"><button type="button" data-day2-mentari-view>Lihat di Foto</button>'+
+     '<button type="button" data-day2-mentari-save>'+(day2MentariEvidenceSaved?'✓ Bukti tersimpan':'Simpan sebagai Bukti')+'</button></div></div>':
+   m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
    m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
@@ -1618,7 +1808,7 @@ render=function(){
    '<button type="button" data-day2-brief-choice="evidence">Verify the evidence <small>Cross-check PBK documents</small></button>'+
    '<button type="button" data-day2-brief-choice="safety">Address the threat <small>Request a safety protocol</small></button>'+
   '</div>':'';
- const aftermathCta=state.thread==='unknown'&&aftermathTriggered?
+ const aftermathCta=state.thread==='unknown'&&aftermathTriggered&&!day2MentariPhotoDelivered?
   '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
  const filesCta=state.thread==='nirmala'&&day2FilesReceived&&!day2FilesReviewed()
   ?'<div class="nakula-files-review-callout"><span>CASE EVIDENCE · ACTION REQUIRED</span><strong>Examine the PBK documents</strong><small>Open the approval and the signature report in Files to continue.</small><button type="button" data-nakula-files-open="1">Open Files</button></div>':'';
@@ -2097,6 +2287,10 @@ back=function(){
  nakulaPriorBack();
 };
 document.addEventListener('click',e=>{
+ const mentariView=e.target.closest('[data-day2-mentari-view]');
+ if(mentariView){e.preventDefault();e.stopImmediatePropagation();openDay2MentariPhoto();return}
+ const mentariSave=e.target.closest('[data-day2-mentari-save]');
+ if(mentariSave){e.preventDefault();e.stopImmediatePropagation();preserveDay2MentariEvidence();return}
  const taskOpen=e.target.closest('[data-nakula-family-task-open]');
  if(taskOpen){e.preventDefault();e.stopImmediatePropagation();openDay2FamilyTask();return}
  const taskChoice=e.target.closest('[data-nakula-family-task-choice]');
