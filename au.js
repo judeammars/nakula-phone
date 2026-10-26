@@ -692,7 +692,7 @@ layer=function(which){
  if(which!=='home')hideNotif();
  syncHarleyBadge();
  if(which==='home')resumePendingStoryCall();
- if(which==='lock')renderStoryEndingMenu();
+ if(which==='lock'){silenceSheet.hidden=true;renderStoryEndingMenu();}
  if(which==='home')restoreStoryOverlay();
 };
 // A chat read clears the unread badge, including when Harley is opened from the Messages list.
