@@ -1357,7 +1357,7 @@
 }
 
 
-/* FAKECHAT SOCIAL MAKER — MATCH REFERENCE A
+/* FAKECHAT SOCIAL MAKER — MATCH REFERENCE A (refined bubble width + smooth tails)
    Styling calibrated against the supplied A/B screenshots; bubble only.
    Does not change iMessage liquid glass, story logic or other app views. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll{
@@ -1369,8 +1369,8 @@
  --nakula-reference-cutout:#000;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
- box-sizing:border-box;width:max-content;max-width:84%;
- padding:10px 12px;
+ box-sizing:border-box;width:fit-content;max-width:79%;
+ padding:10px 11px;
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
  font-size:17px;font-weight:500;line-height:1.32;letter-spacing:-.012em;
  border-radius:23px;box-shadow:none;overflow-wrap:anywhere;word-break:normal;
@@ -1388,25 +1388,31 @@
 }
 /* Smaller, more curved tails, with the user's reference color palette. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before{
- width:15px;height:17px;bottom:0;
+ width:14px;height:20px;bottom:-1px;pointer-events:none;
+ /* A single continuous tail removes the square bump introduced by a cutout. */
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
- width:9px;height:19px;bottom:0;background:var(--nakula-reference-cutout);
+ display:none!important;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::before{
- right:-6px;background:var(--nakula-reference-blue);border-bottom-left-radius:14px;
+ right:-10px;
+ background:var(--nakula-reference-blue);
+ -webkit-clip-path:path("M 0 0 C 0 8 1 14 5 17 C 8 18 11 18 14 17 C 11 20 5 20 0 19 Z");
+ clip-path:path("M 0 0 C 0 8 1 14 5 17 C 8 18 11 18 14 17 C 11 20 5 20 0 19 Z");
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::after{
- right:-10px;border-bottom-left-radius:12px;
+ right:-10px;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
- left:-6px;border-bottom-right-radius:14px;
+ left:-10px;
+ -webkit-clip-path:path("M 14 0 C 14 8 13 14 9 17 C 6 18 3 18 0 17 C 3 20 9 20 14 19 Z");
+ clip-path:path("M 14 0 C 14 8 13 14 9 17 C 6 18 3 18 0 17 C 3 20 9 20 14 19 Z");
 }
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
  background:var(--nakula-reference-gray);
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::after{
- left:-10px;border-bottom-right-radius:12px;
+ left:-10px;
 }
 /* Consecutive messages remain visually clustered at the existing 2px gap. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next.me .bubble{border-bottom-right-radius:8px}
@@ -1421,6 +1427,6 @@
 @media(max-width:385px){
  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll{padding-left:17px;padding-right:17px}
  #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
-  font-size:16.5px;max-width:85%;padding:10px 12px;
+  font-size:16.5px;max-width:79%;padding:10px 11px;
  }
 }
