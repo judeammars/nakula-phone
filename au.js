@@ -1327,7 +1327,8 @@ function nakulaRenderChatBubbles(messages){
   const joinsNext=!!next&&!nakulaChatHasPause(m,next)&&nakulaChatSameCluster(m,next);
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
-   (joinsNext?' chat-cluster-has-next':'');
+   (joinsNext?' chat-cluster-has-next':'')+
+   (m.unlockFiles?' chat-has-attachment':'');
   const attachment=m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
