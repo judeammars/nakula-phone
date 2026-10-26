@@ -638,6 +638,7 @@ function renderDay2Mail(){
  if(state.screen!=='app'||state.app!=='mail'||!day2OfferDelivered)return;
  const content=$au('app-content'),head=$au('app-header');
  if(!content||!head)return;
+ hideDay2OfferNotice();
  const legacy=content.innerHTML,opened=day2OfferView==='offer';
  head.innerHTML='<button type="button" class="plain-btn" data-day2-mail-back>‹ <span>'+(opened?'Kotak Masuk':'Home')+'</span></button><span class="app-title">'+(opened?'Pesan':'Mail')+'</span><span style="width:56px"></span>';
  const inbox='<div class="nakula-mail-case-head"><span>KOTAK MASUK · 26 OKTOBER 2026</span><h1>Mail</h1><small>1 pesan perkara</small></div>'+
@@ -2436,6 +2437,32 @@ back=function(){
  nakulaPriorBack();
 };
 document.addEventListener('click',e=>{
+ const offerNotice=e.target.closest('[data-day2-offer-open]');
+ if(offerNotice){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('inbox');return}
+ const offerRow=e.target.closest('[data-day2-mail-open]');
+ if(offerRow){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('offer');return}
+ const mailBack=e.target.closest('[data-day2-mail-back]');
+ if(mailBack){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(day2OfferView==='offer'){day2OfferView='inbox';render()}else goHome();
+  return;
+ }
+ const mailAttachment=e.target.closest('[data-day2-offer-attachment]');
+ if(mailAttachment&&day2OfferDelivered){
+  e.preventDefault();e.stopImmediatePropagation();
+  nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument('settlement');
+  return;
+ }
+ const returnOffer=e.target.closest('[data-day2-offer-from-files]');
+ if(returnOffer){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('offer');return}
+ const decision=e.target.closest('[data-day2-offer-choice]');
+ if(decision){e.preventDefault();e.stopImmediatePropagation();chooseDay2Offer(decision.dataset.day2OfferChoice);return}
+ const offerAdnan=e.target.closest('[data-day2-offer-adnan]');
+ if(offerAdnan){
+  e.preventDefault();e.stopImmediatePropagation();
+  openApp('messages');state.view='convo';state.thread='adnan';markAdnanRead();render();
+  return;
+ }
  const mentariView=e.target.closest('[data-day2-mentari-view]');
  if(mentariView){e.preventDefault();e.stopImmediatePropagation();openDay2MentariPhoto();return}
  const mentariSave=e.target.closest('[data-day2-mentari-save]');
