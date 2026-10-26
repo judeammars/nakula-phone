@@ -1328,7 +1328,8 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'');
-  return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div></div>';
+  const attachment=m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
+  return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
 }
 
@@ -1493,6 +1494,7 @@ function receive(id=state.thread){
    if(inScripted()&&state.thread===id)render();
    if(id==='harley'&&current>=script.length)queueUnknownCall();
    if(id==='adnan'&&day2BriefPrepared&&day2Stage==='complete'&&current>=script.length)finishDay2MorningBrief();
+   if(id==='nirmala'&&current>=script.length)scheduleDay2RedFolder();
    saveStoryState('incoming-sequence-finished');
    return;
   }
@@ -1531,6 +1533,7 @@ function sendScripted(){
   }
  }
  if(script[current+1]&&!script[current+1].me)receive(id);
+ if(id==='nirmala'&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
 }
 /* Morning Brief reply selection. The selected version is the exact message
    the scripted keyboard types, with its consequence saved immediately. */
@@ -1735,9 +1738,13 @@ function renderNakulaFilesApp(){
    '<nav class="nakula-files-tabs" aria-label="Files navigation"><button type="button" data-nakula-files-tab="recents" class="'+(nakulaFilesTab==='recents'?'active':'')+'"><span>◷</span>Recents</button>'+
    '<button type="button" data-nakula-files-tab="browse" class="'+(nakulaFilesTab==='browse'?'active':'')+'"><span>▦</span>Browse</button></nav>';
  }
+ const investigationChoice=day2FilesInspectedCore()&&!day2InvestigationChoice&&day2FilesReceived?
+  '<section class="nakula-files-decision" role="group" aria-label="Evidence investigation choice"><small>07.35 · CASE DECISION</small><h2>What should Nakula do?</h2><p>Both paths can progress. Choose which evidence trail to prioritize.</p>'+
+  '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
+  '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
  const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
   '<div class="nakula-files-return-bar"><span>✓ Documents reviewed</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
- content.innerHTML='<div class="nakula-files-screen">'+body+callout+'</div>';
+ content.innerHTML='<div class="nakula-files-screen">'+body+investigationChoice+callout+'</div>';
 }
 function nakulaOpenFilesDocument(id){
  const doc=nakulaFilesDocs.find(d=>d.id===id);
@@ -1761,6 +1768,12 @@ back=function(){
 document.addEventListener('click',e=>{
  const open=e.target.closest('[data-nakula-files-open]');
  if(open){e.preventDefault();e.stopImmediatePropagation();if(nakulaFilesReady()){nakulaFilesPath='pbk';openApp('files')}return}
+ const choice=e.target.closest('[data-nakula-investigation-choice]');
+ if(choice&&state.screen==='app'&&state.app==='files'){
+  e.preventDefault();e.stopImmediatePropagation();
+  selectDay2Investigation(choice.dataset.nakulaInvestigationChoice);
+  return;
+ }
  const returnToNirmala=e.target.closest('[data-nakula-files-return]');
  if(returnToNirmala){e.preventDefault();e.stopImmediatePropagation();openStoryThread('nirmala');return}
  if(state.screen!=='app'||state.app!=='files')return;
