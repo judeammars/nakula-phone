@@ -523,6 +523,7 @@ function deliverDay2MentariPhoto(){
  const i=threads.findIndex(t=>t.id==='unknown');
  if(i>0)threads.unshift(...threads.splice(i,1));
  saveStoryState('CP02-05-mentari-photo');
+ scheduleDay2Offer();
  syncHarleyBadge();
  if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
  if(state.screen!=='lock'){
@@ -1056,6 +1057,7 @@ function makeStorySnapshot(reason='progress'){
    day2MentariCallStage,day2MentariCallDueAt,day2MentariCallOutcome,
    day2MentariPhotoDelivered,day2MentariPhotoDueAt,
    day2MentariPhotoOpened,day2MentariEvidenceSaved,
+   day2OfferDueAt,day2OfferDelivered,day2OfferOpened,day2OfferDocRead,day2OfferChoice,day2OfferUnread,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -1122,6 +1124,7 @@ function loadStoryState(){
  if(day2CaseBriefRead)day2ReadFileIds.add('casebrief');
  if(day2FamilyDocsRead.statements)day2ReadFileIds.add('family_statements');
  if(day2FamilyDocsRead.client)day2ReadFileIds.add('family_intake');
+ if(day2OfferDocRead)day2ReadFileIds.add('settlement');
  day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
  day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
  day2FamilyTaskDismissed=!!p.day2FamilyTaskDismissed||!!day2FamilyPriority;
@@ -1132,6 +1135,15 @@ function loadStoryState(){
  day2MentariPhotoDueAt=Number(p.day2MentariPhotoDueAt)||0;
  day2MentariPhotoOpened=!!p.day2MentariPhotoOpened;
  day2MentariEvidenceSaved=!!p.day2MentariEvidenceSaved;
+ day2OfferDueAt=Number(p.day2OfferDueAt)||0;
+ day2OfferDelivered=!!p.day2OfferDelivered;
+ day2OfferOpened=!!p.day2OfferOpened;
+ day2OfferDocRead=!!p.day2OfferDocRead;
+ day2OfferChoice=['breakdown','consult','review'].includes(p.day2OfferChoice)?p.day2OfferChoice:null;
+ day2OfferUnread=!!p.day2OfferUnread&&!day2OfferOpened;
+ if(day2OfferChoice){day2OfferOpened=true;day2OfferUnread=false}
+ if(day2MentariPhotoDelivered&&!day2OfferDelivered&&!day2OfferDueAt)
+  day2OfferDueAt=Date.now()+1300;
  if(day2MentariCallStage==='answered')day2MentariCallStage='ringing';
  // Saves from before 02.5 still enter the new chapter normally.
  if(day2FamilyPriority&&day2MentariCallStage==='none'){
@@ -1299,6 +1311,7 @@ function initializeStorySave(){
  if(day2Stage==='complete'&&day2FilesReviewed()&&!day2RedFolderDelivered&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
  if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
  if(day2MentariCallStage==='done'&&!day2MentariPhotoDelivered&&day2MentariCallOutcome)scheduleDay2MentariPhoto();
+ if(day2MentariPhotoDelivered&&!day2OfferDelivered)scheduleDay2Offer();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -1705,9 +1718,11 @@ layer=function(which){
   renderDay2MorningNotice();
   resumePendingStoryCall();
   if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
+  if(day2OfferUnread)showDay2OfferNotice();
   if(day2Stage==='transition')scheduleDay2Transition();
  }
  if(which==='lock'){
+  hideDay2OfferNotice();
   silenceSheet.hidden=true;
   renderReturningStoryNotice();
   renderStoryEndingMenu();
@@ -1907,6 +1922,7 @@ render=function(){
    oldRender();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
    if(state.screen==='app'&&state.app==='calendar')renderDay2Calendar();
+   if(state.screen==='app'&&state.app==='mail')renderDay2Mail();
    if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
    if(state.screen==='app'&&state.app==='messages'){
      const oldCaption=document.querySelector('#app-content .convo-local');
@@ -2247,6 +2263,18 @@ function nakulaAdditionalDocs(){
     ['NEXT STEP','Rumuskan prioritas tindak lanjut bersama klien sebelum menggunakan pernyataan dalam berkas resmi.']
    ]}
  );
+ if(day2OfferDelivered)files.push({
+  id:'settlement',name:'PBK_Settlement_Framework.pdf',kind:'PDF Document',size:'480 KB',folder:'PBK Group',
+  title:'USULAN KERANGKA PENYELESAIAN ZONA B',badge:'PROPOSAL NEGOSIASI · BELUM DISETUJUI',
+  metadata:[['Disampaikan oleh','HHP Legal Counsel (kuasa hukum PBK)'],['Diterima','26 October 2026 · 10.45'],['Nilai indikatif','Maksimum agregat Rp150 miliar'],['Status','Penawaran awal, belum mengikat']],
+  body:[
+   ['PENAWARAN AWAL','PBK membuka diskusi mengenai kompensasi agregat hingga Rp150.000.000.000. Nilai ini belum mencantumkan pembagian per keluarga.'],
+   ['PENERIMA DAN PERHITUNGAN','Daftar penerima, kategori kerugian, verifikasi klaim, tenggat pembayaran, dan sumber dana belum dilampirkan secara lengkap.'],
+   ['SYARAT YANG PERLU DIUJI','Ada rujukan pada penyelesaian klaim dan kemungkinan klausul pelepasan tuntutan; ruang lingkup, pengecualian, dan perlindungan hak pihak ketiga harus dijelaskan secara tertulis.'],
+   ['STATUS HUKUM','Proposal ini bukan pengakuan kesalahan atau penyelesaian yang diterima. Persetujuan harus diperoleh dari masing-masing klien yang berwenang.'],
+   ['PENILAIAN INTERNAL','Jangan menyatakan menerima ataupun menolak atas nama klien. Konfirmasi rincian, informasikan pilihan kepada keluarga, dan kaji implikasi hukum bersama Adnan.']
+  ]
+ });
  if(day2FamilyPriority)files.push({
   id:'family_action',name:'Family_Followup_Plan.pdf',kind:'PDF Document',size:'230 KB',folder:'PBK Group',
   title:'ZONA B · FOLLOW-UP STRATEGY',badge:'WORKING PLAN · 10.20',
@@ -2323,7 +2351,9 @@ function renderNakulaFilesApp(){
    '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Back to Preview':'Get Info')+'</button>'+
     (current.id==='casebrief'&&day2CaseBriefRead&&!day2BriefingDone
      ?'<button type="button" data-nakula-files-start-briefing>Mulai Briefing</button>'
-     :'<button type="button" data-nakula-files-back>Back to PBK Group</button>')+'</div></div>';
+     :current.id==='settlement'
+      ?'<button type="button" data-day2-offer-from-files>Kembali ke Tawaran</button>'
+      :'<button type="button" data-nakula-files-back>Back to PBK Group</button>')+'</div></div>';
  }else if(nakulaFilesPath==='pbk'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>PBK Group</h1>'+
@@ -2379,6 +2409,7 @@ function nakulaOpenFilesDocument(id){
  if(id==='approval')day2FilesInspected.approval=true;
  if(id==='signature')day2FilesInspected.metadata=true;
  if(id==='casebrief')day2CaseBriefRead=true;
+ if(id==='settlement')day2OfferDocRead=true;
  if(id==='family_statements')day2FamilyDocsRead.statements=true;
  if(id==='family_intake')day2FamilyDocsRead.client=true;
  saveStoryState(id==='casebrief'?'CP02-03-case-brief-read':id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
