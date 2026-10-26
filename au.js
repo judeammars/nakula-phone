@@ -448,6 +448,7 @@ function selectDay2Investigation(choice){
  if(day2InvestigationChoice||!day2FilesReceived||!day2FilesInspectedCore()||!applyDay2InvestigationChoice(choice))return;
  day2InvestigationChoice=choice;
  saveStoryState('CP02-investigation-choice');
+ if(nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
  render();
 }
 function deliverDay2RedFolder(){
@@ -1744,7 +1745,7 @@ function renderNakulaFilesApp(){
   '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
   '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
  const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
-  '<div class="nakula-files-return-bar"><span>✓ Documents reviewed</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
+  '<div class="nakula-files-return-bar"><span>✓ '+(day2InvestigationChoice==='verify'?'Digital signature verification':'Original-document provenance')+' prioritized</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
  content.innerHTML='<div class="nakula-files-screen">'+body+investigationChoice+callout+'</div>';
 }
 function nakulaOpenFilesDocument(id){
