@@ -1495,44 +1495,69 @@
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-follow.them .bubble{
  border-radius:23px;
 }
-#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before{
+/* RESTORED ORIGINAL iMESSAGE TAILS (only tails, all bubble bodies retained)
+   The geometry below is copied from the original Nakula iMessage tail
+   styling: 17x19 colored hook + 11x21 cutout at -7/-11 px.
+   Clear newer mask and clipping overrides before restoring two layers. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
  content:"";
  display:block;
  position:absolute;
- width:32px;
- height:30px;
- bottom:-1px;
- right:-6px;
- left:auto;
- border:0;
- border-radius:0;
- background:var(--nakula-ios-sent);
+ bottom:0;
  pointer-events:none;
+ transform:none;
+ -webkit-mask:none;
+ mask:none;
+ -webkit-mask-image:none;
+ mask-image:none;
  -webkit-clip-path:none;
  clip-path:none;
- -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H13%20C13%2013%2014%2020%2019%2024%20C22%2026%2027%2027%2031%2024%20C31%2028%2026%2030%2020%2030%20C13%2030%207%2027%200%2024%20Z%22%2F%3E%3C%2Fsvg%3E");
- mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H13%20C13%2013%2014%2020%2019%2024%20C22%2026%2027%2027%2031%2024%20C31%2028%2026%2030%2020%2030%20C13%2030%207%2027%200%2024%20Z%22%2F%3E%3C%2Fsvg%3E");
- -webkit-mask-position:center;
- mask-position:center;
- -webkit-mask-repeat:no-repeat;
- mask-repeat:no-repeat;
- -webkit-mask-size:100% 100%;
- mask-size:100% 100%;
+ border:0;
+ border-radius:0;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
+ left:-7px;
  right:auto;
- left:-6px;
+ width:17px;
+ height:19px;
  background:#e5e5e7;
- transform:scaleX(-1);
+ border-bottom-right-radius:15px;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::after{
+ left:-11px;
+ right:auto;
+ width:11px;
+ height:21px;
+ background:#fff;
+ border-bottom-right-radius:13px;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::before{
+ right:-7px;
+ left:auto;
+ width:17px;
+ height:19px;
+ background:var(--nakula-ios-sent,#4688f6);
+ border-bottom-left-radius:15px;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble::after{
+ right:-11px;
+ left:auto;
+ width:11px;
+ height:21px;
+ background:#fff;
+ border-bottom-left-radius:13px;
 }
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
- background:var(--nakula-ios-received);
+ background:var(--nakula-ios-received,#26252b);
 }
-#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
- content:none!important;
- display:none!important;
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
+ background:#000;
 }
-#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next .bubble::before{
+/* Retain the existing timestamp-aware grouping: only the final bubble
+   in a group gets its original curved tail. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next .bubble::before,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next .bubble::after{
  display:none!important;
 }
 @media(max-width:385px){
