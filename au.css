@@ -2373,3 +2373,76 @@
  #phone.in-app .nakula-files-active-action{margin-left:9px;margin-right:9px;flex-wrap:wrap}
  #phone.in-app .nakula-files-active-action button{width:100%}
 }
+
+/* CHAPTER 02.5 — UNKNOWN MENTARI PHOTO */
+/* The image is the exact portrait already present in Nakula's gallery.
+   Only the Chapter 02.5 incoming attachment uses these rules. */
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .nakula-mentari-photo-block{
+ align-self:flex-start;
+ display:flex;
+ flex-direction:column;
+ gap:9px;
+ margin:7px 0 12px 3px;
+ width:min(80%,280px);
+ max-width:calc(100% - 18px);
+}
+#phone.in-app.harley-au-mode .nakula-mentari-image{
+ appearance:none;
+ -webkit-appearance:none;
+ display:block;
+ width:100%;
+ overflow:hidden;
+ border:1px solid rgba(190,202,227,.28);
+ border-radius:18px;
+ padding:0;
+ background:#171719;
+ cursor:pointer;
+ box-shadow:0 3px 13px rgba(0,0,0,.18);
+}
+#phone.in-app.harley-au-mode .nakula-mentari-image img{
+ display:block;
+ width:100%;
+ max-height:270px;
+ aspect-ratio:4/5;
+ object-fit:cover;
+ object-position:center;
+ border-radius:inherit;
+}
+#phone.in-app.harley-au-mode .nakula-mentari-actions{
+ display:flex;align-items:stretch;gap:8px;
+}
+#phone.in-app.harley-au-mode .nakula-mentari-actions button{
+ border:0;
+ border-radius:12px;
+ padding:10px 9px;
+ min-height:40px;
+ background:#2d3e5a;
+ color:#e0ebfc;
+ text-align:center;
+ flex:1;
+ font:600 12px/1.25 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app.harley-au-mode .nakula-mentari-actions button:last-child{
+ background:#26332e;
+ color:#b6d4c2;
+}
+#phone.in-app.harley-au-mode .nakula-mentari-image:focus-visible,
+#phone.in-app.harley-au-mode .nakula-mentari-actions button:focus-visible{
+ outline:2px solid #7aafff;
+ outline-offset:2px;
+}
+#phone.in-app.harley-au-mode .nakula-mentari-actions button:active{
+ transform:scale(.985);
+ opacity:.77;
+}
+#phone.in-app.harley-au-mode:not(.dark-ui) .nakula-mentari-actions button{
+ background:#e7effc;color:#3675c6;
+}
+#phone.in-app.harley-au-mode:not(.dark-ui) .nakula-mentari-actions button:last-child{
+ background:#edf4eb;color:#4b8869;
+}
+@media(max-width:385px){
+ #phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .nakula-mentari-photo-block{width:min(83%,256px)}
+ #phone.in-app.harley-au-mode .nakula-mentari-image img{max-height:245px}
+}
