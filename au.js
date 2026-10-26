@@ -429,7 +429,52 @@ const nirmalaTimeline=[
 ].map(m=>({...m,dayOffset:1,day2NirmalaScript:true}));
 let nirmalaCursor=0,nirmalaAutoplayStarted=false,nirmalaNextTimer=null,nirmalaAutoSendTimer=null;
 let day2FilesReceived=false,day2FilesInspected={approval:false,metadata:false};
-const day2FilesReviewed=()=>!!(day2FilesInspected.approval&&day2FilesInspected.metadata);
+let day2InvestigationChoice=null,day2RedFolderDelivered=false,day2RedFolderTimer=null;
+const day2FilesInspectedCore=()=>!!(day2FilesInspected.approval&&day2FilesInspected.metadata);
+const day2FilesReviewed=()=>day2FilesInspectedCore()&&!!day2InvestigationChoice;
+function applyDay2InvestigationChoice(choice){
+ if(!['verify','source'].includes(choice))return false;
+ const outgoing=nirmalaTimeline.find(m=>m.requiresFilesReview);
+ const incoming=nirmalaTimeline.find(m=>m.time==='07.34');
+ if(outgoing)outgoing.text=choice==='verify'
+  ?'Saya sudah cocokkan tanggalnya. Prioritaskan validasi sertifikat dan tanda tangan digital, Nirmala. Jangan menuduh ada pemalsuan sebelum ada laporan ahli.'
+  :'Saya sudah cocokkan tanggalnya. Prioritaskan asal salinan dari pihak asuransi dan riwayat email vendor. Kita harus menjaga rantai penguasaan dokumen.';
+ if(incoming)incoming.text=choice==='verify'
+  ?'Siap, Mas. Tim forensik akan memeriksa validitas sertifikat, timestamp, dan tanda tangan secara independen. Kejanggalan ini belum cukup untuk menetapkan pelakunya.'
+  :'Siap, Mas. Kami akan meminta konfirmasi email asli, riwayat lampiran, dan catatan penerimaan asuransi. Salinan sumber tetap kami amankan tanpa perubahan.';
+ return true;
+}
+function selectDay2Investigation(choice){
+ if(day2InvestigationChoice||!day2FilesReceived||!day2FilesInspectedCore()||!applyDay2InvestigationChoice(choice))return;
+ day2InvestigationChoice=choice;
+ saveStoryState('CP02-investigation-choice');
+ render();
+}
+function deliverDay2RedFolder(){
+ if(day2RedFolderDelivered||nirmalaCursor<nirmalaTimeline.length||!day2FilesReviewed())return;
+ const adnan=threadById('adnan');
+ if(!adnan)return;
+ const text='Na, Nirmala sudah menyiapkan map merah. Bawa salinan email sumber dan hasil pemeriksaan ke ruangan saya pukul 09.00. I want to see what we can actually prove.';
+ if(!adnan.messages.some(m=>m.day2RedFolder)){
+  adnan.messages.push({me:false,time:'08.00',dayOffset:1,day2RedFolder:true,text});
+  adnan.date='08.00';
+ }
+ day2RedFolderDelivered=true;
+ adnanUnread=true;
+ const idx=threads.findIndex(t=>t.id==='adnan');
+ if(idx>0)threads.unshift(...threads.splice(idx,1));
+ window.nakulaNarrativeClock.set(8,0,1);
+ saveStoryState('CP02-red-folder-ready');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
+ if(state.screen==='home'||state.screen==='app'){
+  setNotification('adnan');notif.classList.add('show');sound();
+ }
+}
+function scheduleDay2RedFolder(){
+ if(day2RedFolderDelivered||day2RedFolderTimer||nirmalaCursor<nirmalaTimeline.length||!day2FilesReviewed())return;
+ day2RedFolderTimer=setTimeout(()=>{day2RedFolderTimer=null;deliverDay2RedFolder()},1500);
+}
 
 function day2BriefMessage(me,time,text,extra={}){
  return {me,time,text,dayOffset:1,day2Brief:true,...extra};
@@ -521,7 +566,7 @@ function makeStorySnapshot(reason='progress'){
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,nirmalaCursor,nirmalaAutoplayStarted,
-   day2FilesReceived,day2FilesInspected,
+   day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -572,6 +617,9 @@ function loadStoryState(){
  nirmalaAutoplayStarted=!!p.nirmalaAutoplayStarted;
  day2FilesReceived=!!p.day2FilesReceived||!!saved.threads.find(t=>t.id==='nirmala')?.messages.some(m=>m.unlockFiles);
  day2FilesInspected={approval:!!p.day2FilesInspected?.approval,metadata:!!p.day2FilesInspected?.metadata};
+ day2InvestigationChoice=['verify','source'].includes(p.day2InvestigationChoice)?p.day2InvestigationChoice:null;
+ day2RedFolderDelivered=!!p.day2RedFolderDelivered||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2RedFolder));
+ if(day2InvestigationChoice)applyDay2InvestigationChoice(day2InvestigationChoice);
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
  // Older CH02 saves have no Adnan auto-play flag, but their first Adnan
  // reply was already tapped and sent in Chapter 01. Respect that one tap.
@@ -722,6 +770,7 @@ function initializeStorySave(){
  if(day2Stage==='alarm')showDay2Alarm();
  if(day2Stage==='morning')renderDay2MorningNotice();
  if(day2Stage==='complete'&&day2BriefPrepared&&adnanCursor>=adnanTimeline.length&&!day2NirmalaDelivered)finishDay2MorningBrief();
+ if(day2Stage==='complete'&&day2FilesReviewed()&&!day2RedFolderDelivered&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
