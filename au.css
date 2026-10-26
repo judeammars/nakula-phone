@@ -1958,3 +1958,77 @@
 #phone.in-app.dark-ui .nakula-files-folder strong,
 #phone.in-app.dark-ui .nakula-files-row strong{color:#f3f3f6}
 #phone.in-app.dark-ui .nakula-files-return-bar{color:#204e30}
+
+/* CHAPTER 02.2 — INVESTIGATION CHOICE AND ATTACHMENT */
+/* Preserve the iMessage bubble dimensions, typography and restored tails. */
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row .nakula-file-attachment{
+ display:flex;align-items:center;gap:9px;box-sizing:border-box;
+ max-width:min(80%,340px);width:260px;margin-top:5px;padding:10px 11px;
+ border-radius:14px;border:1px solid rgba(122,156,212,.22);
+ background:#eceef5;color:#1f2938;text-align:left;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.them .nakula-file-attachment{
+ margin-right:auto;margin-left:2px;
+}
+#phone.in-app.dark-ui.harley-au-mode .convo-scroll .bubble-row .nakula-file-attachment{
+ background:#252c38;color:#f2f4f8;border-color:rgba(157,180,226,.22);
+}
+#phone.in-app.harley-au-mode .nakula-file-attachment-icon{
+ display:flex;align-items:center;justify-content:center;flex:none;
+ width:32px;height:38px;border-radius:6px;background:#e96468;color:white;
+ font-size:10px;font-weight:750;
+}
+#phone.in-app.harley-au-mode .nakula-file-attachment>span:nth-child(2){
+ display:flex;flex:1;flex-direction:column;min-width:0;gap:3px;
+}
+#phone.in-app.harley-au-mode .nakula-file-attachment strong{
+ font-size:13px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#phone.in-app.harley-au-mode .nakula-file-attachment small{
+ font-size:11px;color:#687b97;
+}
+#phone.in-app.dark-ui.harley-au-mode .nakula-file-attachment small{color:#a4b3d0}
+#phone.in-app.harley-au-mode .nakula-file-attachment>span:last-child{
+ color:#438cf4;font-size:23px;
+}
+#phone.in-app .nakula-files-decision{
+ display:flex;flex-direction:column;gap:10px;margin:20px 13px 25px;padding:18px 14px;
+ border-radius:18px;border:1px solid rgba(83,135,210,.19);
+ background:#ebf2fc;color:#182538;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-files-decision small{
+ font-size:10px;font-weight:700;letter-spacing:.08em;color:#5d7396;
+}
+#phone.in-app .nakula-files-decision h2{
+ font-size:18px;line-height:1.25;font-weight:700;margin:0;
+}
+#phone.in-app .nakula-files-decision p{
+ font-size:12px;line-height:1.45;margin:0 0 4px;color:#556980;
+}
+#phone.in-app .nakula-files-decision button{
+ display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;
+ padding:13px;border-radius:13px;text-align:left;
+ background:white;border:1px solid #d4dff0;color:#225ba0;cursor:pointer;
+ font-family:inherit;
+}
+#phone.in-app .nakula-files-decision button strong{font-size:13px;font-weight:650}
+#phone.in-app .nakula-files-decision button span{font-size:11px;color:#6c778e}
+#phone.in-app .nakula-files-decision button:active{opacity:.7}
+#phone.in-app .nakula-files-decision button:focus-visible,
+#phone.in-app .nakula-file-attachment:focus-visible{outline:2px solid #438cf4;outline-offset:2px}
+#phone.in-app.dark-ui .nakula-files-decision{
+ background:#202936;color:#f0f3fa;border-color:#35465d;
+}
+#phone.in-app.dark-ui .nakula-files-decision small,
+#phone.in-app.dark-ui .nakula-files-decision p{color:#b3c1d3}
+#phone.in-app.dark-ui .nakula-files-decision button{
+ background:#2a374a;border-color:#40536d;color:#f0f4fd;
+}
+#phone.in-app.dark-ui .nakula-files-decision button span{color:#b2c2d9}
+@media(max-width:385px){
+ #phone.in-app.harley-au-mode .convo-scroll .bubble-row .nakula-file-attachment{width:238px;padding:9px;gap:7px}
+ #phone.in-app .nakula-files-decision{margin-left:8px;margin-right:8px}
+}
