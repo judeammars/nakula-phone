@@ -1446,3 +1446,58 @@
   font-size:16.5px;max-width:79%;padding:10px 11px;
  }
 }
+
+/* FINAL iMESSAGE TAIL — seamless single-vector curve */
+/* One Safari-compatible mask, rather than two overlapping pseudo-elements.
+   Tail's top 9px stay INSIDE the bubble and curve out only near its bottom;
+   there can be no exposed square at the tail attachment. Both receive the
+   same flat color, avoiding the gradient-on-solid seam in older versions. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble{
+ background:#4488f7;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
+ position:relative;
+ overflow:visible;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before{
+ content:"";
+ display:block;
+ position:absolute;
+ width:26px;
+ height:30px;
+ bottom:-1px;
+ right:-11px;
+ left:auto;
+ border:0;
+ border-radius:0;
+ background:#4488f7;
+ pointer-events:none;
+ -webkit-clip-path:none;
+ clip-path:none;
+ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2026%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H9%20C9%2010%209.2%2016%2012.6%2020.1%20C16.1%2023.8%2020.6%2024%2024.2%2022.7%20C25.5%2022.3%2025.8%2023.8%2024.5%2025%20C20.1%2028.5%2014.1%2029%208.5%2028.5%20H0%20Z%22%2F%3E%3C%2Fsvg%3E");
+ mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2026%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H9%20C9%2010%209.2%2016%2012.6%2020.1%20C16.1%2023.8%2020.6%2024%2024.2%2022.7%20C25.5%2022.3%2025.8%2023.8%2024.5%2025%20C20.1%2028.5%2014.1%2029%208.5%2028.5%20H0%20Z%22%2F%3E%3C%2Fsvg%3E");
+ -webkit-mask-position:center;
+ mask-position:center;
+ -webkit-mask-repeat:no-repeat;
+ mask-repeat:no-repeat;
+ -webkit-mask-size:100% 100%;
+ mask-size:100% 100%;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
+ right:auto;
+ left:-11px;
+ background:var(--nakula-reference-gray,#26252b);
+ transform:scaleX(-1);
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
+ content:none!important;
+ display:none!important;
+}
+/* Non-final messages in a cluster never grow tails. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next .bubble::before{
+ display:none!important;
+}
+/* Light appearance keeps the tail and incoming bubble the exact same shade. */
+#phone.in-app.harley-au-mode:not(.dark-ui) #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
+ background:#e5e5e7;
+}
