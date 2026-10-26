@@ -491,7 +491,7 @@ const getSaved=(key,fallback)=>{try{let value=localStorage.getItem('myphone-ios-
 // restart these without erasing any personal writing.
 const isTemporaryUnknownIncidentNote=n=>n&&Number(n.id)===9901;
 const isStoryCaseSummaryNote=n=>n&&(n.dailyCase===true||Number(n.id)>=99201&&Number(n.id)<=99299);
-const isStoryOnlyNote=n=>isTemporaryUnknownIncidentNote(n)||isStoryCaseSummaryNote(n);
+const isStoryOnlyNote=n=>isTemporaryUnknownIncidentNote(n)||isStoryCaseSummaryNote(n)||(n&&(n.day3Checklist===true||Number(n.id)===99303));
 const setSaved=(key,value)=>{
  try{
   const stored=key==='notes'&&Array.isArray(value)
