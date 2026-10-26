@@ -2446,3 +2446,182 @@
  #phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .nakula-mentari-photo-block{width:min(83%,256px)}
  #phone.in-app.harley-au-mode .nakula-mentari-image img{max-height:245px}
 }
+
+/* CHAPTER 02.6 — THE SETTLEMENT OFFER IN MAIL */
+#phone .nakula-offer-notification{
+ position:absolute;z-index:222;top:54px;left:12px;right:12px;
+ display:flex;align-items:center;gap:10px;padding:11px;
+ background:rgba(39,44,58,.91);color:#fff;
+ border-radius:18px;border:1px solid rgba(255,255,255,.12);
+ box-shadow:0 8px 32px rgba(0,0,0,.28);
+ -webkit-backdrop-filter:blur(17px);
+ backdrop-filter:blur(17px);
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ text-align:left;cursor:pointer;
+}
+#phone .nakula-offer-notification[hidden]{display:none!important}
+#phone .nakula-offer-icon{
+ width:39px;height:39px;display:grid;place-items:center;flex:none;
+ background:linear-gradient(150deg,#579eff,#216edd);border-radius:11px;
+ color:white;font-size:23px;
+}
+#phone .nakula-offer-notice-text{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+#phone .nakula-offer-notice-text strong{font-size:11px;font-weight:720;letter-spacing:.01em}
+#phone .nakula-offer-notice-text small{font-size:12px;color:#dae1ef}
+#phone .nakula-offer-notice-time{font-size:10px;color:#afbbcc;align-self:flex-start}
+#phone .nakula-offer-notification:focus-visible{outline:2px solid #92c8ff;outline-offset:2px}
+#phone.in-app .nakula-mail-case{
+ padding:5px 0 25px;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+ color:#1c2839;
+}
+#phone.in-app .nakula-mail-case-head{padding:25px 20px 16px}
+#phone.in-app .nakula-mail-case-head span{
+ font-size:10px;font-weight:650;color:#8594a8;letter-spacing:.08em;
+}
+#phone.in-app .nakula-mail-case-head h1{
+ font-size:30px;font-weight:750;margin:5px 0 2px;letter-spacing:-.035em;
+}
+#phone.in-app .nakula-mail-case-head small{font-size:11px;color:#8490a2}
+#phone.in-app .nakula-mail-offer-row{
+ width:100%;display:flex;align-items:start;gap:9px;
+ border:0;border-block:1px solid #e3e8f0;
+ background:#fff;text-align:left;
+ padding:14px 15px;min-height:100px;
+ font:inherit;color:#1b2738;cursor:pointer;
+}
+#phone.in-app .nakula-mail-unread-dot{
+ flex:none;width:8px;height:8px;margin-top:9px;
+ border-radius:50%;background:#3585f9;
+}
+#phone.in-app .nakula-mail-unread-placeholder{width:8px;flex:none}
+#phone.in-app .nakula-mail-offer-row-copy{
+ display:flex;flex:1;flex-direction:column;gap:4px;min-width:0;
+}
+#phone.in-app .nakula-mail-offer-row-copy strong{font-size:15px;font-weight:710}
+#phone.in-app .nakula-mail-offer-row-copy b{font-size:13px;font-weight:610}
+#phone.in-app .nakula-mail-offer-row-copy small{
+ color:#7e8898;font-size:11px;line-height:1.45;
+}
+#phone.in-app .nakula-mail-offer-row time{
+ flex:none;color:#477dca;font-size:11px;margin-top:3px;
+}
+#phone.in-app .nakula-mail-offer-row:active{opacity:.76}
+#phone.in-app .nakula-mail-personal{
+ margin:28px 18px 0;border-top:1px solid #d7dce5;
+}
+#phone.in-app .nakula-mail-personal>summary{
+ cursor:pointer;color:#6e7d90;
+ font-size:12px;font-weight:650;padding:16px 0;
+}
+#phone.in-app .nakula-mail-personal>div,
+#phone.in-app .nakula-mail-personal>p,
+#phone.in-app .nakula-mail-personal>form{max-width:100%;box-sizing:border-box}
+#phone.in-app .nakula-mail-letter{padding:0 0 24px}
+#phone.in-app .nakula-mail-letter-top{padding:20px 18px 15px;border-bottom:1px solid #dfe3ea}
+#phone.in-app .nakula-mail-letter-top>small{
+ font-size:10px;letter-spacing:.08em;color:#8693a8;font-weight:680;
+}
+#phone.in-app .nakula-mail-letter-top h2{
+ font-size:20px;line-height:1.27;letter-spacing:-.02em;
+ font-weight:750;margin:10px 0 16px;
+}
+#phone.in-app .nakula-mail-sender{display:flex;align-items:center;gap:10px}
+#phone.in-app .nakula-mail-sender-avatar{
+ flex:none;width:37px;height:37px;display:grid;place-items:center;
+ border-radius:50%;background:#515d74;color:white;font-size:18px;font-weight:710;
+}
+#phone.in-app .nakula-mail-sender>span:last-child{min-width:0;display:flex;flex-direction:column;gap:3px}
+#phone.in-app .nakula-mail-sender strong{font-size:13px;font-weight:710}
+#phone.in-app .nakula-mail-sender small{font-size:11px;color:#8794a6}
+#phone.in-app .nakula-mail-letter-body{
+ padding:15px 20px 7px;
+ font-size:13px;line-height:1.7;color:#333f52;
+}
+#phone.in-app .nakula-mail-letter-body p{margin:0 0 17px}
+#phone.in-app .nakula-mail-pdf{
+ display:flex;align-items:center;gap:9px;
+ width:calc(100% - 36px);margin:0 18px 16px;padding:12px;
+ box-sizing:border-box;border-radius:14px;border:1px solid #dae2ef;
+ background:#e9f0fc;color:#294267;text-align:left;font:inherit;cursor:pointer;
+}
+#phone.in-app .nakula-mail-pdf>span:first-child{
+ flex:none;width:38px;height:42px;border-radius:8px;
+ background:#e26b6b;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:750;
+}
+#phone.in-app .nakula-mail-pdf>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+#phone.in-app .nakula-mail-pdf strong{font-size:12px;word-break:break-word}
+#phone.in-app .nakula-mail-pdf small{font-size:11px;color:#697a93}
+#phone.in-app .nakula-mail-pdf>span:last-child{font-size:23px;color:#4384ec}
+#phone.in-app .nakula-mail-task-info{
+ padding:15px 17px;border-radius:14px;
+ margin:14px 18px;background:#edf3fd;color:#617793;
+ font-size:12px;line-height:1.5;
+}
+#phone.in-app .nakula-mail-decision,
+#phone.in-app .nakula-mail-decision-complete{
+ display:flex;flex-direction:column;gap:10px;
+ margin:14px 18px;padding:17px 14px;
+ border:1px solid #d2def2;border-radius:17px;background:#eff5ff;
+}
+#phone.in-app .nakula-mail-decision>small{font-size:10px;color:#5887c0;font-weight:750;letter-spacing:.09em}
+#phone.in-app .nakula-mail-decision h3{font-size:16px;line-height:1.35;margin:0;font-weight:750}
+#phone.in-app .nakula-mail-decision p,
+#phone.in-app .nakula-mail-decision-complete p{
+ font-size:11px;line-height:1.55;color:#62738a;margin:0 0 3px;
+}
+#phone.in-app .nakula-mail-decision button{
+ width:100%;padding:12px;border-radius:13px;
+ border:1px solid #d3dff2;background:#fff;text-align:left;
+ display:flex;flex-direction:column;gap:4px;color:#2d5b9a;
+ cursor:pointer;font-family:inherit;
+}
+#phone.in-app .nakula-mail-decision button strong{font-size:12px;font-weight:720}
+#phone.in-app .nakula-mail-decision button span{font-size:11px;line-height:1.45;color:#70849e}
+#phone.in-app .nakula-mail-decision-complete span{font-size:11px;color:#438b72}
+#phone.in-app .nakula-mail-decision-complete>strong{font-size:15px;font-weight:720}
+#phone.in-app .nakula-mail-decision-complete button{
+ min-height:43px;border:0;border-radius:11px;
+ background:#4389ed;color:white;font-size:12px;font-weight:680;cursor:pointer;
+}
+#phone.in-app .nakula-mail-case button:focus-visible{
+ outline:2px solid #559afa;outline-offset:2px;
+}
+#phone.in-app.dark-ui .nakula-mail-case{color:#f2f3f8}
+#phone.in-app.dark-ui .nakula-mail-case-head span,
+#phone.in-app.dark-ui .nakula-mail-case-head small{color:#929eaf}
+#phone.in-app.dark-ui .nakula-mail-offer-row{
+ border-color:#333943;background:#202127;color:#f3f5f8;
+}
+#phone.in-app.dark-ui .nakula-mail-offer-row-copy small{color:#929aab}
+#phone.in-app.dark-ui .nakula-mail-personal{border-color:#383d48}
+#phone.in-app.dark-ui .nakula-mail-personal>summary{color:#9da9bd}
+#phone.in-app.dark-ui .nakula-mail-letter-top{border-color:#343943}
+#phone.in-app.dark-ui .nakula-mail-letter-top>small,
+#phone.in-app.dark-ui .nakula-mail-sender small{color:#959dad}
+#phone.in-app.dark-ui .nakula-mail-letter-body{color:#e4e7ee}
+#phone.in-app.dark-ui .nakula-mail-pdf{
+ background:#273447;color:#f4f6fb;border-color:#38475e;
+}
+#phone.in-app.dark-ui .nakula-mail-pdf small{color:#adbcd1}
+#phone.in-app.dark-ui .nakula-mail-task-info{
+ background:#283349;color:#c1cde0;
+}
+#phone.in-app.dark-ui .nakula-mail-decision,
+#phone.in-app.dark-ui .nakula-mail-decision-complete{
+ background:#212c3d;color:#f0f4fa;border-color:#3a4a63;
+}
+#phone.in-app.dark-ui .nakula-mail-decision p,
+#phone.in-app.dark-ui .nakula-mail-decision-complete p{color:#afc0d7}
+#phone.in-app.dark-ui .nakula-mail-decision button{
+ background:#304058;border-color:#456181;color:#f5f8fd;
+}
+#phone.in-app.dark-ui .nakula-mail-decision button span{color:#b4c4da}
+@media(max-width:385px){
+ #phone .nakula-offer-notification{left:8px;right:8px;gap:7px;padding:9px}
+ #phone.in-app .nakula-mail-letter-body{padding-left:16px;padding-right:16px}
+ #phone.in-app .nakula-mail-pdf{width:calc(100% - 26px);margin-left:13px;margin-right:13px}
+ #phone.in-app .nakula-mail-decision,#phone.in-app .nakula-mail-decision-complete{
+  margin-left:13px;margin-right:13px;
+ }
+}
