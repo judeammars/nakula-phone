@@ -349,13 +349,19 @@ callScreen.addEventListener('click',e=>{
  if(!button)return;
  const action=button.dataset.nakulaCall;
  if(action==='decline'&&unknownStage==='ringing'){
-  // Every rejection schedules another incoming call; only answering ends the loop.
+  // Refusing five times unlocks an OPTIONAL noncanon ending; answering remains possible.
   recordUnknownCall('Declined');
   clearUnknownTimers();
   callScreen.hidden=true;
   unknownStage='retrying';
-  saveStoryState('declined-call');
-  callRetryTimer=setTimeout(showUnknownCall,2000);
+  if(unknownCallHistory.filter(x=>x.kind==='Declined').length>=5){
+   storyAwaitingSilenceChoice=true;
+   saveStoryState('fifth-decline-decision');
+   showSilenceDecision();
+  }else{
+   saveStoryState('declined-call');
+   callRetryTimer=setTimeout(showUnknownCall,2000);
+  }
  }else if(action==='accept'&&unknownStage==='ringing'){
   clearUnknownTimers();
   unknownStage='answered';
@@ -377,6 +383,8 @@ callScreen.addEventListener('click',e=>{
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
 const STORY_SLOT_KEY='story-save-v1';
 const STORY_SLOT_VERSION=1;
+const STORY_ENDINGS_KEY='story-endings-v1';
+let currentStoryEnding=null,storyAwaitingSilenceChoice=false;
 let storySaveReady=false,storyNeedsCallResume=false,storyResumeSameCall=false;
 let storyCallResumeScheduled=false,storyHarleyResumeScheduled=false;
 function makeStorySnapshot(reason='progress'){
@@ -384,13 +392,14 @@ function makeStorySnapshot(reason='progress'){
  return {
   version:STORY_SLOT_VERSION,reason,savedAt:Date.now(),
   checkpoint:aftermathTriggered?'CP01':'CP00',
-  chapter:aftermathTriggered?'CH01_COMPLETE':'CH01',
+  chapter:currentStoryEnding?'ENDING':aftermathTriggered?'CH01_COMPLETE':'CH01',
+  endingId:currentStoryEnding,
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,
    harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
-   adnanIncidentPending,phoneRecentsFilter
+   adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice
   },
   threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
   adnanTimeline:adnanTimeline.map(m=>({...m})),
@@ -404,6 +413,7 @@ function saveStoryState(reason='progress'){
  const snapshot=makeStorySnapshot(reason);
  try{
   localStorage.setItem('myphone-ios-'+STORY_SLOT_KEY,JSON.stringify(snapshot));
+  if(snapshot.checkpoint==='CP01'&&reason==='CP01-call-aftermath')showProgressToast();
   return true;
  }catch(e){return false}
 }
@@ -432,6 +442,8 @@ function loadStoryState(){
  harleyUnread=!!p.harleyUnread;adnanUnread=!!p.adnanUnread;unknownUnread=!!p.unknownUnread;
  unknownQueued=!!p.unknownQueued;unknownAttempt=Math.max(0,Math.min(100,Number(p.unknownAttempt)||0));
  unknownInterrupted=!!p.unknownInterrupted;
+ currentStoryEnding=isKnownStoryEnding(saved.endingId)?saved.endingId:null;
+ storyAwaitingSilenceChoice=!!p.storyAwaitingSilenceChoice&&!currentStoryEnding;
  aftermathTriggered=!!p.aftermathTriggered;adnanIncidentPending=!!p.adnanIncidentPending;
  phoneRecentsFilter=p.phoneRecentsFilter==='missed'?'missed':'all';
  unknownStage=['idle','retrying','ringing','answered','finished'].includes(p.unknownStage)?p.unknownStage:'idle';
@@ -448,7 +460,7 @@ function loadStoryState(){
  if(cursor>=timeline.length&&!aftermathTriggered&&unknownStage==='idle'){
   unknownQueued=true;
  }
- storyNeedsCallResume=unknownQueued&&!aftermathTriggered&&unknownStage!=='finished';
+ storyNeedsCallResume=unknownQueued&&!aftermathTriggered&&!currentStoryEnding&&!storyAwaitingSilenceChoice&&unknownStage!=='finished';
  return true;
 }
 function resumePendingStoryCall(){
@@ -476,16 +488,191 @@ function startFreshStory(){
 function initializeStorySave(){
  const restored=loadStoryState();
  storySaveReady=true;
- if(restored&&unknownStage==='finished'&&!aftermathTriggered
+ if(restored&&unknownStage==='finished'&&!aftermathTriggered&&!currentStoryEnding
   &&unknownCallHistory.some(x=>x.kind==='Answered'))finishUnknownIncident();
  saveStoryState(restored?'resumed':'new-game');
  syncHarleyBadge();
+ renderStoryEndingMenu();
+ if(storyAwaitingSilenceChoice)showSilenceDecision();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
+ completeEnding:id=>completeStoryEnding(id),
+ unlockedEndings:()=>getUnlockedStoryEndings().slice(),
  summary:()=>{const s=makeStorySnapshot('summary');return {chapter:s.chapter,checkpoint:s.checkpoint,storyTime:window.nakulaNarrativeClock.dateLabel(),savedAt:s.savedAt,branch:s.progress.aftermathTriggered?(s.progress.unknownInterrupted?'angry':'regular'):'pending'}},
  newGame:startFreshStory
 });
+
+
+/* FASE A.3 — Diegetic checkpoint toast, ending-unlocked menu and archive.
+   No Continue button: the existing A.2 save restores automatically.
+   The seven later endings are registrable but cannot appear until their
+   respective chapters actually call completeStoryEnding(id). */
+const STORY_ENDINGS=Object.freeze([
+ {id:'good',label:'THE WEIGHT OF JUSTICE',kind:'GOOD'},
+ {id:'bad',label:'CASE DISMISSED',kind:'BAD'},
+ {id:'true',label:'JUSTICE, PENDING APPEAL',kind:'TRUE'},
+ {id:'bittersweet',label:'THE COST OF TRUTH',kind:'BITTERSWEET'},
+ {id:'false-good',label:'A BEAUTIFUL SETTLEMENT',kind:'FALSE GOOD'},
+ {id:'tragic',label:'OBJECTION OVERRULED',kind:'TRAGIC'},
+ {id:'secret',label:'THE MAN ON THE LINE',kind:'SECRET'},
+ {id:'dead',label:'LINE DISCONNECTED',kind:'DEAD · NON-CANON'}
+]);
+const isKnownStoryEnding=id=>STORY_ENDINGS.some(e=>e.id===id);
+const endingById=id=>STORY_ENDINGS.find(e=>e.id===id);
+function getUnlockedStoryEndings(){
+ const list=getSaved(STORY_ENDINGS_KEY,[]);
+ return Array.isArray(list)?[...new Set(list.filter(isKnownStoryEnding))]:[];
+}
+function rememberStoryEnding(id){
+ if(!isKnownStoryEnding(id))return false;
+ const archive=getUnlockedStoryEndings();
+ if(!archive.includes(id)){
+  archive.push(id);
+  try{localStorage.setItem('myphone-ios-'+STORY_ENDINGS_KEY,JSON.stringify(archive))}catch(e){}
+ }
+ return true;
+}
+const progressToast=document.createElement('div');
+progressToast.className='nakula-story-toast';
+progressToast.setAttribute('role','status');
+progressToast.setAttribute('aria-live','polite');
+progressToast.innerHTML='<span class="nakula-story-toast-mark">✓</span><span><strong>PROGRESS SAVED</strong><small>CHAPTER 01 · CALL AFTERMATH</small></span>';
+$au('phone').appendChild(progressToast);
+let progressToastTimeout=null;
+function showProgressToast(){
+ progressToast.classList.add('is-visible');
+ clearTimeout(progressToastTimeout);
+ progressToastTimeout=setTimeout(()=>progressToast.classList.remove('is-visible'),3200);
+}
+const storyEndingLockCard=document.createElement('button');
+storyEndingLockCard.type='button';
+storyEndingLockCard.className='nakula-story-lock-card';
+storyEndingLockCard.hidden=true;
+storyEndingLockCard.setAttribute('aria-label','Open Story Progress menu');
+storyEndingLockCard.innerHTML='<span class="nakula-story-lock-icon">▣</span><span><small>STORY PROGRESS · ENDING DISCOVERED</small><strong class="nakula-story-lock-title"></strong><em>Tap to open story menu</em></span><span class="nakula-story-lock-chevron">›</span>';
+$au('lock-screen').appendChild(storyEndingLockCard);
+const storySheet=document.createElement('div');
+storySheet.className='nakula-story-sheet';
+storySheet.hidden=true;
+storySheet.setAttribute('role','dialog');
+storySheet.setAttribute('aria-modal','true');
+storySheet.setAttribute('aria-label','Nakula story progress');
+storySheet.innerHTML='<div class="nakula-story-shade" data-story-action="close"></div><div class="nakula-story-sheet-body"><div class="nakula-story-grabber"></div><button type="button" class="nakula-story-close" data-story-action="close" aria-label="Close story menu">×</button><div class="nakula-story-sheet-content"></div></div>';
+$au('phone').appendChild(storySheet);
+const silenceSheet=document.createElement('div');
+silenceSheet.className='nakula-silence-sheet';
+silenceSheet.hidden=true;
+silenceSheet.setAttribute('role','dialog');
+silenceSheet.setAttribute('aria-modal','true');
+silenceSheet.setAttribute('aria-label','Unknown caller decision');
+silenceSheet.innerHTML='<div class="nakula-silence-body"><div class="nakula-silence-icon">☾</div><small>PHONE · UNKNOWN CALLER</small><h2>Silence this caller?</h2><p>Five calls declined. The number keeps trying to reach you.</p><button type="button" data-story-action="answer-next">Answer Next Call</button><button type="button" class="nakula-silence-dnd" data-story-action="silence-caller">Do Not Disturb</button></div>';
+$au('phone').appendChild(silenceSheet);
+function renderStoryEndingMenu(){
+ const ending=endingById(currentStoryEnding);
+ const visible=!!ending;
+ storyEndingLockCard.hidden=!visible;
+ if(ending){
+  storyEndingLockCard.querySelector('.nakula-story-lock-title').textContent=ending.label;
+ }
+ if(!storySheet.hidden)renderStorySheet();
+}
+function renderStorySheet(section='menu'){
+ const ending=endingById(currentStoryEnding);
+ if(!ending){storySheet.hidden=true;return}
+ const content=storySheet.querySelector('.nakula-story-sheet-content');
+ const archive=getUnlockedStoryEndings();
+ if(section==='archive'){
+  content.innerHTML='<small class="nakula-story-overline">STORY ARCHIVE</small><h2>Discovered Endings</h2><p class="nakula-story-info">'+archive.length+' of 8 endings discovered</p><div class="nakula-story-archive">'+STORY_ENDINGS.map((e,i)=>{
+    const unlocked=archive.includes(e.id);
+    return '<div class="nakula-story-archive-item'+(unlocked?' unlocked':'')+'"><span>'+String(i+1).padStart(2,'0')+'</span><div><strong>'+(unlocked?e.label:'LOCKED ENDING')+'</strong><small>'+(unlocked?e.kind:'???')+'</small></div><span>'+(unlocked?'✓':'◌')+'</span></div>';
+   }).join('')+'</div><button class="nakula-story-action secondary" type="button" data-story-action="menu">Back to Story Menu</button>';
+ }else{
+  const dead=ending.id==='dead';
+  content.innerHTML='<small class="nakula-story-overline">ENDING DISCOVERED</small><h2>'+ending.label+'</h2><p class="nakula-story-info">'+ending.kind+' · '+archive.length+' of 8 endings discovered</p>'+
+   (dead?'<p class="nakula-story-detail">You were supposed to answer the phone.</p><button class="nakula-story-action primary" type="button" data-story-action="retry">Retry Last Decision</button>':'')+
+   '<button class="nakula-story-action'+(dead?' secondary':' primary')+'" type="button" data-story-action="new-game">New Game</button>'+
+   '<button class="nakula-story-action secondary" type="button" data-story-action="archive">Story Archive</button>';
+ }
+}
+function openStoryMenu(section='menu'){
+ if(!currentStoryEnding)return;
+ silenceSheet.hidden=true;
+ storySheet.hidden=false;
+ renderStorySheet(section);
+}
+function showSilenceDecision(){
+ if(!storyAwaitingSilenceChoice||currentStoryEnding)return;
+ if(state.screen==='lock')return; // Shown when the player unlocks again.
+ silenceSheet.hidden=false;
+}
+function completeStoryEnding(id){
+ if(!isKnownStoryEnding(id)||currentStoryEnding)return false;
+ clearUnknownTimers();
+ storyAwaitingSilenceChoice=false;
+ storyNeedsCallResume=false;
+ storyResumeSameCall=false;
+ storyCallResumeScheduled=false;
+ silenceSheet.hidden=true;
+ callScreen.hidden=true;
+ unknownStage='finished';
+ currentStoryEnding=id;
+ rememberStoryEnding(id);
+ saveStoryState('ending-'+id);
+ renderStoryEndingMenu();
+ openStoryMenu();
+ return true;
+}
+function retryDeadDecision(){
+ if(currentStoryEnding!=='dead')return false;
+ storySheet.hidden=true;
+ silenceSheet.hidden=true;
+ currentStoryEnding=null;
+ storyAwaitingSilenceChoice=false;
+ unknownStage='retrying';
+ unknownQueued=true;
+ storyNeedsCallResume=false;
+ storyResumeSameCall=false;
+ // Keep historical declines, but let the player answer the next ringing call.
+ saveStoryState('retry-dead-choice');
+ renderStoryEndingMenu();
+ setTimeout(()=>{if(!currentStoryEnding&&state.screen!=='lock')showUnknownCall();else if(!currentStoryEnding){storyNeedsCallResume=true;}},500);
+ return true;
+}
+function beginNewGameFromEnding(){
+ if(!currentStoryEnding)return;
+ if(!confirm('Start a new story? Your current progress will reset. Discovered endings stay in the archive.'))return;
+ storySheet.hidden=true;
+ startFreshStory();
+}
+storyEndingLockCard.addEventListener('click',()=>openStoryMenu());
+document.addEventListener('click',e=>{
+ const target=e.target.closest('[data-story-action]');
+ if(!target)return;
+ const action=target.dataset.storyAction;
+ if(!['close','menu','archive','new-game','retry','answer-next','silence-caller'].includes(action))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(action==='close'){storySheet.hidden=true;return}
+ if(action==='menu'){openStoryMenu();return}
+ if(action==='archive'){openStoryMenu('archive');return}
+ if(action==='new-game'){beginNewGameFromEnding();return}
+ if(action==='retry'){retryDeadDecision();return}
+ if(action==='answer-next'&&storyAwaitingSilenceChoice){
+  storyAwaitingSilenceChoice=false;silenceSheet.hidden=true;
+  saveStoryState('chose-to-answer');
+  setTimeout(()=>{if(!currentStoryEnding&&state.screen!=='lock')showUnknownCall();else if(!currentStoryEnding)storyNeedsCallResume=true},500);
+ }else if(action==='silence-caller'&&storyAwaitingSilenceChoice){
+  completeStoryEnding('dead');
+ }
+},true);
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!storySheet.hidden){storySheet.hidden=true}
+});
+// Make pending fifth-call choice visible on return from lock screen.
+function restoreStoryOverlay(){
+ if(storyAwaitingSilenceChoice&&!currentStoryEnding)showSilenceDecision();
+ if(currentStoryEnding)renderStoryEndingMenu();
+}
 
 const oldEnterPIN=enterPasscodeDigit;
 enterPasscodeDigit=function(digit){
@@ -494,7 +681,8 @@ enterPasscodeDigit=function(digit){
  if(wasLocked&&state.screen==='home'){
    syncHarleyBadge();
    if(unknownUnread){setNotification('unknown');notif.classList.add('show');sound()}
-   else showNotif(true);
+   else if(!currentStoryEnding)showNotif(true);
+   restoreStoryOverlay();
  }
 };
 const oldLayer=layer;
@@ -504,6 +692,8 @@ layer=function(which){
  if(which!=='home')hideNotif();
  syncHarleyBadge();
  if(which==='home')resumePendingStoryCall();
+ if(which==='lock')renderStoryEndingMenu();
+ if(which==='home')restoreStoryOverlay();
 };
 // A chat read clears the unread badge, including when Harley is opened from the Messages list.
 document.addEventListener('click',e=>{
