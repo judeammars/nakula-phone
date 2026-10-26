@@ -936,7 +936,7 @@ function makeStorySnapshot(reason='progress'){
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,nirmalaCursor,nirmalaAutoplayStarted,
    day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
-   day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,day2FamilyTaskDismissed,
+   day2CaseBriefRead,day2BriefingDone,day2CalendarBriefOpen,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,day2FamilyTaskDismissed,
    day2ReadFileIds:[...day2ReadFileIds],
    day2MentariCallStage,day2MentariCallDueAt,day2MentariCallOutcome,
    day2MentariPhotoDelivered,day2MentariPhotoDueAt,
@@ -995,6 +995,7 @@ function loadStoryState(){
  day2RedFolderDelivered=!!p.day2RedFolderDelivered||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2RedFolder));
  day2CaseBriefRead=!!p.day2CaseBriefRead;
  day2BriefingDone=!!p.day2BriefingDone||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2BriefingOutcome));
+ day2CalendarBriefOpen=!!p.day2CalendarBriefOpen&&!day2BriefingDone;
  day2FamiliesReceived=!!p.day2FamiliesReceived||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyPacket));
  day2FamilyDocsRead={statements:!!p.day2FamilyDocsRead?.statements,client:!!p.day2FamilyDocsRead?.client};
  // Backfill previously opened documents in existing saves. All new reads
@@ -2316,7 +2317,16 @@ document.addEventListener('click',e=>{
    nakulaFilesPath='pbk';nakulaFilesDocId=null;nakulaFilesInfo=false;
    saveStoryState('CP02-03-briefing-opened');
    openApp('calendar');
-   render();
+   // Jump to the meeting itself; the Calendar overview can be taller than
+   // one iPhone screen, so opening Calendar alone is not enough.
+   requestAnimationFrame(()=>{
+    const container=$au('app-content'),meeting=container?.querySelector('.nakula-calendar-meeting');
+    if(container&&meeting){
+     const top=Math.max(0,meeting.offsetTop-container.offsetTop-10);
+     if(typeof container.scrollTo==='function')container.scrollTo({top,behavior:'smooth'});
+     else container.scrollTop=top;
+    }
+   });
   }
   return;
  }
