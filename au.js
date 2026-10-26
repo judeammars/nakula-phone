@@ -1011,6 +1011,55 @@ function scheduleHarleyReply(delay=950){
  },delay);
 }
 
+
+/* Native-feeling iMessage chronology, based on the story clock rather than
+   the actual visitor's date. Existing CH01 saves need no migration. */
+function nakulaChatMessageDay(message){
+ if(message.day2Morning===true)return 1;
+ if(Number.isInteger(message.dayOffset)&&message.dayOffset>=0)return message.dayOffset;
+ return 0;
+}
+function nakulaChatTimeMinutes(message){
+ const parts=String(message.time||'').replace(':','.').split('.');
+ if(parts.length!==2)return null;
+ const hour=Number(parts[0]),min=Number(parts[1]);
+ return Number.isInteger(hour)&&Number.isInteger(min)&&hour>=0&&hour<24&&min>=0&&min<60?hour*60+min:null;
+}
+function nakulaChatDayTitle(day){
+ const currentDay=Math.floor(window.nakulaNarrativeClock.minutes()/1440);
+ if(day===currentDay)return 'Today';
+ if(day===currentDay-1)return 'Yesterday';
+ const dayDate=new Date(Date.UTC(2026,9,25+day,5));
+ return new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).format(dayDate);
+}
+function nakulaChatHasPause(previous,current){
+ if(!previous)return true;
+ if(nakulaChatMessageDay(previous)!==nakulaChatMessageDay(current))return true;
+ const prev=nakulaChatTimeMinutes(previous),cur=nakulaChatTimeMinutes(current);
+ return prev!==null&&cur!==null&&cur-prev>=45;
+}
+function nakulaChatSameCluster(a,b){
+ if(!a||!b||a.me!==b.me||nakulaChatMessageDay(a)!==nakulaChatMessageDay(b))return false;
+ const timeA=nakulaChatTimeMinutes(a),timeB=nakulaChatTimeMinutes(b);
+ return timeA!==null&&timeB!==null&&Math.abs(timeB-timeA)<=2;
+}
+function nakulaRenderChatBubbles(messages){
+ return messages.map((m,i)=>{
+  const previous=messages[i-1],next=messages[i+1];
+  const start=nakulaChatHasPause(previous,m);
+  const day=nakulaChatMessageDay(m);
+  const stamp=String(m.time||'').replace(':','.');
+  const title=nakulaChatDayTitle(day);
+  const divider=start?'<div class="date-divider nakula-chat-time-divider" role="separator" aria-label="'+esc(title+' at '+stamp)+'">'+esc(title)+' <span>at '+esc(stamp)+'</span></div>':'';
+  const joinsPrevious=!start&&nakulaChatSameCluster(previous,m);
+  const joinsNext=!!next&&!nakulaChatHasPause(m,next)&&nakulaChatSameCluster(m,next);
+  const classes='bubble-row '+(m.me?'me':'them')+
+   (joinsPrevious?' chat-cluster-follow':'')+
+   (joinsNext?' chat-cluster-has-next':'');
+  return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div></div>';
+ }).join('');
+}
+
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
@@ -1029,11 +1078,11 @@ render=function(){
    return;
  }
  const thread=threadById(state.thread),script=activeTimeline(),index=activeIndex(),next=script[index],done=!next&&!isReceiving();
- const bubbles=thread.messages.map(m=>'<div class="bubble-row '+(m.me?'me':'them')+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div></div>').join('');
+ const bubbles=nakulaRenderChatBubbles(thread.messages);
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
  const aftermathCta=state.thread==='unknown'&&aftermathTriggered?
   '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
- const delivered=state.thread==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length?
+ const delivered=state.thread==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length&&thread.messages.length>0&&thread.messages[thread.messages.length-1].me?
   '<div class="nakula-message-delivered">Delivered</div>':'';
  const camera='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="14" r="4"/></svg>';
  const mic='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"/></svg>';
@@ -1043,7 +1092,7 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+esc(thread.initials)+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today '+(state.thread==='unknown'?'23.57':state.thread==='adnan'?'18.42':'20.20')+'</div>'+bubbles+dots+delivered+aftermathCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
