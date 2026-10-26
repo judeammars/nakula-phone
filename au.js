@@ -40,16 +40,19 @@ function syncHarleyBadge(){
 }
 function markHarleyRead(){
  harleyUnread=false;
+ saveStoryState('read-harley');
  hideNotif();
  syncHarleyBadge();
 }
 function markAdnanRead(){
  adnanUnread=false;
+ saveStoryState('read-adnan');
  hideNotif();
  syncHarleyBadge();
 }
 function markUnknownRead(){
  unknownUnread=false;
+ saveStoryState('read-unknown');
  hideNotif();
  syncHarleyBadge();
 }
@@ -200,7 +203,7 @@ function recordUnknownCall(kind){
  unknownCallHistory.unshift({id:Date.now()+'-'+unknownAttempt,kind,
   time:window.nakulaNarrativeClock.time().replace(':','.'),duration});
  unknownCallHistory=unknownCallHistory.slice(0,30);
- // Keep records in memory for this playthrough, not across website visits.
+ saveStoryState('call-log');
  if(state.screen==='app'&&state.app==='phone')render();
 }
 function finishUnknownIncident(){
@@ -231,6 +234,7 @@ function finishUnknownIncident(){
    messages:unknownTimeline.map(m=>({...m}))});
  }
  unknownUnread=true;
+ saveStoryState('CP01-call-aftermath');
  syncHarleyBadge();
  if(state.screen==='app'&&(state.app==='phone'||(state.app==='messages'&&state.view!=='convo')))render();
  if(state.screen!=='lock'){
@@ -268,13 +272,14 @@ document.addEventListener('click',e=>{
  }
 },true);
 
-function showUnknownCall(){
+function showUnknownCall(resumeSameAttempt=false){
  if(unknownStage==='answered'||unknownStage==='finished')return;
- // Fictional jump: Harley's 20:26 becomes 23:57 only when the first call arrives.
- // Repeat calls move story time by one minute, regardless of actual waiting.
- if(unknownAttempt===0)window.nakulaNarrativeClock.set(23,57);
- else window.nakulaNarrativeClock.advance(1);
- unknownAttempt++;
+ // Resume an interrupted ringing call without duplicating it in Recents.
+ if(!resumeSameAttempt){
+  if(unknownAttempt===0)window.nakulaNarrativeClock.set(23,57);
+  else window.nakulaNarrativeClock.advance(1);
+  unknownAttempt++;
+ }
  callConnectedAt=0;
  unknownStage='ringing';
  callScreen.hidden=false;
@@ -286,10 +291,12 @@ function showUnknownCall(){
  callScreen.querySelector('.nakula-call-hangup').hidden=true;
  ringPulse();
  callRingTimer=setInterval(ringPulse,2700);
+ saveStoryState(resumeSameAttempt?'resumed-ringing':'incoming-call');
 }
 function queueUnknownCall(){
  if(unknownQueued)return;
  unknownQueued=true;
+ saveStoryState('call-queued');
  callRetryTimer=setTimeout(showUnknownCall,1450);
 }
 function closeUnknownCall(){
@@ -300,6 +307,7 @@ function closeUnknownCall(){
  callScreen.classList.remove('is-connected','is-angry');
  callCaption.classList.remove('is-visible');
  unknownStage='finished';
+ saveStoryState('call-completed');
  // Both endings of the call generate evidence; only the content depends on the branch.
  setTimeout(finishUnknownIncident,2300);
 }
@@ -313,6 +321,7 @@ function retryUnknownAfterHangup(){
  callScreen.classList.remove('is-connected','is-angry');
  callCaption.classList.remove('is-visible');
  unknownStage='retrying';
+ saveStoryState('angry-redial');
  callRetryTimer=setTimeout(showUnknownCall,3200);
 }
 function nextUnknownSubtitle(){
@@ -337,6 +346,7 @@ callScreen.addEventListener('click',e=>{
   clearUnknownTimers();
   callScreen.hidden=true;
   unknownStage='retrying';
+  saveStoryState('declined-call');
   callRetryTimer=setTimeout(showUnknownCall,2000);
  }else if(action==='accept'&&unknownStage==='ringing'){
   clearUnknownTimers();
@@ -348,8 +358,118 @@ callScreen.addEventListener('click',e=>{
   callStatus.textContent='00:00 · connected';
   callScreen.querySelector('.nakula-call-actions').hidden=true;
   callScreen.querySelector('.nakula-call-hangup').hidden=false;
+  saveStoryState('call-answered');
   callSubtitleTimer=setTimeout(nextUnknownSubtitle,750);
  }else if(action==='hangup'&&unknownStage==='answered')retryUnknownAfterHangup();
+});
+
+
+/* FASE A.2: one local story slot. This stores storyline data separately from
+   the user's ordinary Notes, Photos and appearance. Browser time never drives
+   the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
+const STORY_SLOT_KEY='story-save-v1';
+const STORY_SLOT_VERSION=1;
+let storySaveReady=false,storyNeedsCallResume=false,storyResumeSameCall=false;
+let storyCallResumeScheduled=false,storyHarleyResumeScheduled=false;
+function makeStorySnapshot(reason='progress'){
+ const incident=notes.find(n=>Number(n.id)===9901);
+ return {
+  version:STORY_SLOT_VERSION,reason,savedAt:Date.now(),
+  checkpoint:aftermathTriggered?'CP01':'CP00',
+  chapter:aftermathTriggered?'CH01_COMPLETE':'CH01',
+  storyMinutes:window.nakulaNarrativeClock.minutes(),
+  progress:{
+   harleyCursor:cursor,adnanCursor,unknownCursor,
+   harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,
+   unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,aftermathTriggered,
+   adnanIncidentPending,phoneRecentsFilter
+  },
+  threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
+  adnanTimeline:adnanTimeline.map(m=>({...m})),
+  unknownTimeline:unknownTimeline.map(m=>({...m})),
+  callLog:unknownCallHistory.map(x=>({...x})),
+  incidentNote:aftermathTriggered&&incident?{...incident}:null
+ };
+}
+function saveStoryState(reason='progress'){
+ if(!storySaveReady)return false;
+ const snapshot=makeStorySnapshot(reason);
+ try{
+  localStorage.setItem('myphone-ios-'+STORY_SLOT_KEY,JSON.stringify(snapshot));
+  return true;
+ }catch(e){return false}
+}
+function loadStoryState(){
+ let saved;
+ try{saved=getSaved(STORY_SLOT_KEY,null)}catch(e){return false}
+ if(!saved||saved.version!==STORY_SLOT_VERSION||!saved.progress
+  ||!Number.isInteger(saved.storyMinutes)||saved.storyMinutes<1220||saved.storyMinutes>1440*32
+  ||!Array.isArray(saved.threads)||saved.threads.length<4||saved.threads.length>12
+  ||!Array.isArray(saved.adnanTimeline)||saved.adnanTimeline.length>24
+  ||!Array.isArray(saved.unknownTimeline)||saved.unknownTimeline.length>8
+  ||!Array.isArray(saved.callLog)||saved.callLog.length>30)return false;
+ const p=saved.progress;
+ if(!Number.isInteger(p.harleyCursor)||p.harleyCursor<1||p.harleyCursor>timeline.length
+  ||!Number.isInteger(p.adnanCursor)||p.adnanCursor<0||p.adnanCursor>saved.adnanTimeline.length
+  ||!Number.isInteger(p.unknownCursor)||p.unknownCursor<0||p.unknownCursor>saved.unknownTimeline.length
+  ||!saved.threads.every(t=>t&&typeof t.id==='string'&&Array.isArray(t.messages)&&t.messages.length<=80)
+  ||!saved.threads.some(t=>t.id==='harley')||!saved.threads.some(t=>t.id==='adnan')
+  ||!window.nakulaNarrativeClock.restore(saved.storyMinutes))return false;
+ threads=saved.threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))}));
+ adnanTimeline.splice(0,adnanTimeline.length,...saved.adnanTimeline.map(m=>({...m})));
+ unknownTimeline.splice(0,unknownTimeline.length,...saved.unknownTimeline.map(m=>({...m})));
+ unknownCallHistory=saved.callLog.map(x=>({...x}));
+ cursor=p.harleyCursor;adnanCursor=p.adnanCursor;unknownCursor=p.unknownCursor;
+ harleyAutoplayStarted=!!p.harleyAutoplayStarted;
+ harleyUnread=!!p.harleyUnread;adnanUnread=!!p.adnanUnread;unknownUnread=!!p.unknownUnread;
+ unknownQueued=!!p.unknownQueued;unknownAttempt=Math.max(0,Math.min(100,Number(p.unknownAttempt)||0));
+ unknownInterrupted=!!p.unknownInterrupted;
+ aftermathTriggered=!!p.aftermathTriggered;adnanIncidentPending=!!p.adnanIncidentPending;
+ phoneRecentsFilter=p.phoneRecentsFilter==='missed'?'missed':'all';
+ unknownStage=['idle','retrying','ringing','answered','finished'].includes(p.unknownStage)?p.unknownStage:'idle';
+ callConnectedAt=0;callLineIndex=0;unknownQueued=unknownQueued||unknownAttempt>0;
+ notes=notes.filter(n=>Number(n.id)!==9901);
+ if(aftermathTriggered&&saved.incidentNote&&Number(saved.incidentNote.id)===9901
+  &&typeof saved.incidentNote.body==='string'){
+  notes.unshift({...saved.incidentNote});
+ }
+ // A browser refresh cannot restore in-flight audio/typing timers. Resume an
+ // unanswered call as the SAME ringing attempt without adding a duplicate log.
+ storyResumeSameCall=unknownStage==='ringing'||unknownStage==='answered';
+ if(storyResumeSameCall){unknownStage='retrying';unknownQueued=true;}
+ if(cursor>=timeline.length&&!aftermathTriggered&&unknownStage==='idle'){
+  unknownQueued=true;
+ }
+ storyNeedsCallResume=unknownQueued&&!aftermathTriggered&&unknownStage!=='finished';
+ return true;
+}
+function resumePendingStoryCall(){
+ if(!storyNeedsCallResume||storyCallResumeScheduled||state.screen==='lock')return;
+ storyNeedsCallResume=false;storyCallResumeScheduled=true;
+ const reuseAttempt=storyResumeSameCall;
+ storyResumeSameCall=false;
+ setTimeout(()=>{
+  storyCallResumeScheduled=false;
+  if(state.screen==='lock'||aftermathTriggered||unknownStage==='finished')return;
+  showUnknownCall(reuseAttempt);
+ },1100);
+}
+function startFreshStory(){
+ try{localStorage.removeItem('myphone-ios-'+STORY_SLOT_KEY)}catch(e){}
+ try{window.location.reload()}catch(e){}
+}
+function initializeStorySave(){
+ const restored=loadStoryState();
+ storySaveReady=true;
+ if(restored&&unknownStage==='finished'&&!aftermathTriggered
+  &&unknownCallHistory.some(x=>x.kind==='Answered'))finishUnknownIncident();
+ saveStoryState(restored?'resumed':'new-game');
+ syncHarleyBadge();
+}
+window.nakulaStorySave=Object.freeze({
+ save:()=>saveStoryState('manual'),
+ summary:()=>{const s=makeStorySnapshot('summary');return {chapter:s.chapter,checkpoint:s.checkpoint,storyTime:window.nakulaNarrativeClock.dateLabel(),savedAt:s.savedAt,branch:s.progress.aftermathTriggered?(s.progress.unknownInterrupted?'angry':'regular'):'pending'}},
+ newGame:startFreshStory
 });
 
 const oldEnterPIN=enterPasscodeDigit;
@@ -368,6 +488,7 @@ layer=function(which){
  $au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages');
  if(which!=='home')hideNotif();
  syncHarleyBadge();
+ if(which==='home')resumePendingStoryCall();
 };
 // A chat read clears the unread badge, including when Harley is opened from the Messages list.
 document.addEventListener('click',e=>{
@@ -497,7 +618,17 @@ render=function(){
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
- if(inHarley())scheduleHarleyReply();
+ if(inHarley()){
+  scheduleHarleyReply();
+  // A fully received message is the resume boundary, not a partial keypress.
+  if(harleyAutoplayStarted&&!incomingThread&&!typing&&!ready&&timeline[cursor]&&!timeline[cursor].me&&!storyHarleyResumeScheduled){
+   storyHarleyResumeScheduled=true;
+   setTimeout(()=>{
+    storyHarleyResumeScheduled=false;
+    if(inHarley()&&!incomingThread&&timeline[cursor]&&!timeline[cursor].me)receive('harley');
+   },650);
+  }
+ }
 };
 function beginAutoType(){
  if(!inScripted()||isReceiving())return;
@@ -553,11 +684,13 @@ function receive(id=state.thread){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
    if(id==='harley'&&current>=script.length)queueUnknownCall();
+   saveStoryState('incoming-sequence-finished');
    return;
   }
   if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
+  saveStoryState('incoming-message');
   if(inScripted()&&state.thread===id){render();sound()}
   else if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
   setTimeout(one,next.text.length>160?1800:1250);
@@ -573,7 +706,9 @@ function sendScripted(){
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
  if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
- setIndex(id,current+1);ready=false;render();
+ setIndex(id,current+1);ready=false;
+ saveStoryState('outgoing-message');
+ render();
  if(id==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length){
   const idx=threads.findIndex(t=>t.id==='adnan');
   if(idx>0)threads.unshift(...threads.splice(idx,1));
@@ -586,6 +721,7 @@ document.addEventListener('click',e=>{
    if(inHarley()){
      if(!harleyAutoplayStarted){
        harleyAutoplayStarted=true;
+       saveStoryState('harley-started');
        beginAutoType();
      }
      return;
@@ -615,4 +751,12 @@ document.addEventListener('submit',e=>{
    sendScripted();
  }
 },true);
+
+// The index.html Notes editor writes personal Notes separately; capture edits
+// of the story-created incident note into the independent story checkpoint.
+document.addEventListener('submit',e=>{
+ if(e.target&&e.target.id==='note-form')setTimeout(()=>saveStoryState('note-edited'),0);
+});
+window.addEventListener('pagehide',()=>saveStoryState('page-exit'));
+initializeStorySave();
 })();
