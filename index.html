@@ -560,8 +560,15 @@ function narrativeSyncMessage(timestamp){
  const match=String(timestamp||'').match(/^(\d{1,2})[.:](\d{2})$/);
  return match?setNarrativeTime(Number(match[1]),Number(match[2])):false;
 }
+// Direct restore is permitted only for a validated story checkpoint. Normal story time remains monotonic.
+function restoreNarrativeMinutes(value){
+ if(!Number.isInteger(value)||value<1220||value>1440*32)return false;
+ nakulaStoryMinutes=value;now();return true;
+}
 window.nakulaNarrativeClock=Object.freeze({
  date:narrativeDate,time:narrativeTime,dateLabel:narrativeDateLabel,
+ minutes:()=>nakulaStoryMinutes,restore:restoreNarrativeMinutes,
+ reset:()=>restoreNarrativeMinutes(1220),
  set:setNarrativeTime,advance:advanceNarrativeTime,syncMessage:narrativeSyncMessage
 });
 function now(){
