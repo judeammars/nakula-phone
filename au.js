@@ -617,22 +617,44 @@ function openDay2OfferMail(view='inbox'){
  }
  openApp('mail');
 }
+/* After selecting a settlement follow-up, the player becomes Nakula again.
+   Do not stamp both chat bubbles into history: queue them in the existing
+   Adnan script so the real iMessage keyboard types and sends the reply. */
+function openDay2OfferAdnanChat(){
+ openApp('messages');
+ state.view='convo';state.thread='adnan';
+ adnanAutoplayStarted=true;
+ markAdnanRead();
+ render();
+ // Start immediately: this is a decision, so players must not tap the
+ // composer a second time. The usual keyboard typing + auto-send stays.
+ if(adnanTimeline[adnanCursor]?.day2OfferDecision){
+  if(adnanNextTimer){clearTimeout(adnanNextTimer);adnanNextTimer=null}
+  beginAutoType();
+ }
+}
 function chooseDay2Offer(choice){
  if(!day2OfferDelivered||!day2OfferOpened||!day2OfferDocRead||day2OfferChoice
   ||!Object.prototype.hasOwnProperty.call(DAY2_OFFER_CHOICES,choice))return;
+ const route=DAY2_OFFER_CHOICES[choice],adnan=threadById('adnan');
+ if(!adnan)return;
  day2OfferChoice=choice;
- const route=DAY2_OFFER_CHOICES[choice],a=threadById('adnan');
- if(a&&!a.messages.some(m=>m.day2OfferAdvice)){
-  a.messages.push({me:true,time:'10.49',dayOffset:1,day2OfferDecision:true,text:route.outgoing});
-  a.messages.push({me:false,time:'10.50',dayOffset:1,day2OfferAdvice:true,text:route.reply});
-  a.date='10.50';adnanUnread=true;
-  const ix=threads.findIndex(t=>t.id==='adnan');
-  if(ix>0)threads.unshift(...threads.splice(ix,1));
+ // Guard against duplicates when players reopen Mail or restore a save.
+ if(!adnanTimeline.some(m=>m.day2OfferDecision)&&
+    !adnan.messages.some(m=>m.day2OfferDecision)){
+  adnanTimeline.push(
+   {me:true,time:'10.49',dayOffset:1,day2OfferDecision:true,text:route.outgoing},
+   {me:false,time:'10.50',dayOffset:1,day2OfferAdvice:true,text:route.reply}
+  );
  }
- window.nakulaNarrativeClock.set(10,50,1);
+ adnanAutoplayStarted=true;
+ adnanUnread=false;
+ const ix=threads.findIndex(t=>t.id==='adnan');
+ if(ix>0)threads.unshift(...threads.splice(ix,1));
+ window.nakulaNarrativeClock.set(10,49,1);
  saveStoryState('CP02-06-settlement-decision');
  syncHarleyBadge();hideDay2OfferNotice();
- if(state.screen==='app'&&state.app==='mail')render();
+ openDay2OfferAdnanChat();
 }
 function renderDay2Mail(){
  if(state.screen!=='app'||state.app!=='mail'||!day2OfferDelivered)return;
@@ -2460,7 +2482,7 @@ document.addEventListener('click',e=>{
  const offerAdnan=e.target.closest('[data-day2-offer-adnan]');
  if(offerAdnan){
   e.preventDefault();e.stopImmediatePropagation();
-  openApp('messages');state.view='convo';state.thread='adnan';markAdnanRead();render();
+  openDay2OfferAdnanChat();
   return;
  }
  const mentariView=e.target.closest('[data-day2-mentari-view]');
