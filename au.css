@@ -1447,35 +1447,71 @@
  }
 }
 
-/* FINAL iMESSAGE TAIL — seamless single-vector curve */
-/* One Safari-compatible mask, rather than two overlapping pseudo-elements.
-   Tail's top 9px stay INSIDE the bubble and curve out only near its bottom;
-   there can be no exposed square at the tail attachment. Both receive the
-   same flat color, avoiding the gradient-on-solid seam in older versions. */
-#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble{
- background:#4488f7;
+/* FINAL iMESSAGE SOCIAL MAKER REFERENCE A
+   Single curve, no cutout, no bump. The hook is part of the bubble silhouette.
+   Tested in a browser against the supplied reference at iPhone width.
+   Keep iMessage navbar and Liquid Glass rules untouched. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll{
+ --nakula-ios-sent:#4688f6;
+ --nakula-ios-received:#26252b;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
+ box-sizing:border-box;
  position:relative;
+ width:fit-content;
+ max-width:79%;
+ padding:7px 12px;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+ font-size:17px;
+ font-weight:400;
+ line-height:1.32;
+ letter-spacing:-.012em;
+ white-space:pre-wrap;
+ word-break:normal;
+ overflow-wrap:anywhere;
+ border-radius:23px;
+ box-shadow:none;
+ -webkit-font-smoothing:antialiased;
  overflow:visible;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble{
+ background:var(--nakula-ios-sent);
+ color:#fff;
+ border-radius:23px;
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble{
+ background:var(--nakula-ios-received);
+ color:#fff;
+ border-radius:23px;
+}
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble{
+ border-radius:23px;
+}
+/* FakeChat keeps FULL rounded corners on every message, including clusters.
+   Only the last bubble of each cluster has the iOS-shaped tail. */
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next.me .bubble,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-follow.me .bubble,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next.them .bubble,
+#phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-follow.them .bubble{
+ border-radius:23px;
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before{
  content:"";
  display:block;
  position:absolute;
- width:26px;
+ width:32px;
  height:30px;
  bottom:-1px;
- right:-11px;
+ right:-6px;
  left:auto;
  border:0;
  border-radius:0;
- background:#4488f7;
+ background:var(--nakula-ios-sent);
  pointer-events:none;
  -webkit-clip-path:none;
  clip-path:none;
- -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2026%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H9%20C9%2010%209.2%2016%2012.6%2020.1%20C16.1%2023.8%2020.6%2024%2024.2%2022.7%20C25.5%2022.3%2025.8%2023.8%2024.5%2025%20C20.1%2028.5%2014.1%2029%208.5%2028.5%20H0%20Z%22%2F%3E%3C%2Fsvg%3E");
- mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2026%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H9%20C9%2010%209.2%2016%2012.6%2020.1%20C16.1%2023.8%2020.6%2024%2024.2%2022.7%20C25.5%2022.3%2025.8%2023.8%2024.5%2025%20C20.1%2028.5%2014.1%2029%208.5%2028.5%20H0%20Z%22%2F%3E%3C%2Fsvg%3E");
+ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H13%20C13%2013%2014%2020%2019%2024%20C22%2026%2027%2027%2031%2024%20C31%2028%2026%2030%2020%2030%20C13%2030%207%2027%200%2024%20Z%22%2F%3E%3C%2Fsvg%3E");
+ mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2030%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M0%200%20H13%20C13%2013%2014%2020%2019%2024%20C22%2026%2027%2027%2031%2024%20C31%2028%2026%2030%2020%2030%20C13%2030%207%2027%200%2024%20Z%22%2F%3E%3C%2Fsvg%3E");
  -webkit-mask-position:center;
  mask-position:center;
  -webkit-mask-repeat:no-repeat;
@@ -1485,19 +1521,24 @@
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
  right:auto;
- left:-11px;
- background:var(--nakula-reference-gray,#26252b);
+ left:-6px;
+ background:#e5e5e7;
  transform:scaleX(-1);
+}
+#phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
+ background:var(--nakula-ios-received);
 }
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{
  content:none!important;
  display:none!important;
 }
-/* Non-final messages in a cluster never grow tails. */
 #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-has-next .bubble::before{
  display:none!important;
 }
-/* Light appearance keeps the tail and incoming bubble the exact same shade. */
-#phone.in-app.harley-au-mode:not(.dark-ui) #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble::before{
- background:#e5e5e7;
+@media(max-width:385px){
+ #phone.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
+  font-size:17px;
+  max-width:79%;
+  padding:7px 12px;
+ }
 }
