@@ -14,7 +14,7 @@ threads=[
 let cursor=1,adnanCursor=adnanTimeline.length,typing=false,ready=false,incomingThread=null,typingTimer=null,audioContext=null;
 let harleyUnread=true,adnanUnread=false,unknownUnread=false,nirmalaUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
-let harleyAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null;
+let harleyAutoplayStarted=false,adnanAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null,adnanNextTimer=null,adnanAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered));
 const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?[]:timeline;
@@ -498,7 +498,7 @@ function makeStorySnapshot(reason='progress'){
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,
-   harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
+   harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
    adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage
@@ -541,6 +541,10 @@ function loadStoryState(){
  unknownCallHistory=saved.callLog.map(x=>({...x}));
  cursor=p.harleyCursor;adnanCursor=p.adnanCursor;unknownCursor=p.unknownCursor;
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
+ // Older CH02 saves have no Adnan auto-play flag, but their first Adnan
+ // reply was already tapped and sent in Chapter 01. Respect that one tap.
+ adnanAutoplayStarted=!!p.adnanAutoplayStarted||!!p.day2BriefChoice
+  ||(p.day2Stage&&p.day2Stage!=='none');
  harleyUnread=!!p.harleyUnread;adnanUnread=!!p.adnanUnread;unknownUnread=!!p.unknownUnread;
  nirmalaUnread=!!p.nirmalaUnread;
  day2BriefPrepared=!!p.day2BriefPrepared||saved.adnanTimeline.some(m=>m.day2Brief);
@@ -1175,6 +1179,24 @@ function scheduleHarleyReply(delay=950){
 }
 
 
+/* Nakula's Adnan conversation uses the same once-to-start
+   type → auto-send → wait for reply → type loop as Harley. The choice
+   placeholder is deliberately a hard stop until the player chooses. */
+function scheduleAdnanReply(delay=900){
+ if(!adnanAutoplayStarted||state.screen!=='app'||state.app!=='messages'
+  ||state.view!=='convo'||state.thread!=='adnan'
+  ||incomingThread||typing||ready||keyboardVisible||adnanNextTimer)return;
+ const next=adnanTimeline[adnanCursor];
+ if(!next?.me||next.choicePending)return;
+ adnanNextTimer=setTimeout(()=>{
+  adnanNextTimer=null;
+  if(!adnanAutoplayStarted||!inScripted()||state.thread!=='adnan'
+   ||incomingThread||typing||ready||keyboardVisible)return;
+  const step=adnanTimeline[adnanCursor];
+  if(step?.me&&!step.choicePending)beginAutoType();
+ },delay);
+}
+
 /* Native-feeling iMessage chronology, based on the story clock rather than
    the actual visitor's date. Existing CH01 saves need no migration. */
 function nakulaChatMessageDay(message){
@@ -1230,6 +1252,11 @@ render=function(){
    clearTimeout(harleyNextTimer);harleyNextTimer=null;
    clearTimeout(harleyAutoSendTimer);harleyAutoSendTimer=null;
  }
+ if(!(state.screen==='app'&&state.app==='messages'
+  &&state.view==='convo'&&state.thread==='adnan')){
+   clearTimeout(adnanNextTimer);adnanNextTimer=null;
+   clearTimeout(adnanAutoSendTimer);adnanAutoSendTimer=null;
+ }
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
@@ -1267,7 +1294,10 @@ render=function(){
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
- if(state.thread==='adnan'&&day2Stage==='complete')queueDay2BriefIncoming();
+ if(state.thread==='adnan'){
+  if(day2Stage==='complete')queueDay2BriefIncoming();
+  scheduleAdnanReply();
+ }
  if(inHarley()){
   scheduleHarleyReply();
   // A fully received message is the resume boundary, not a partial keypress.
@@ -1312,12 +1342,21 @@ function beginAutoType(){
   }else{
     typing=false;ready=true;
     const btn=document.querySelector('#chat-form .send-btn');if(btn)btn.disabled=false;
-    if(inHarley()&&harleyAutoplayStarted&&currentRun===typingRun){
-      clearTimeout(harleyAutoSendTimer);
-      harleyAutoSendTimer=setTimeout(()=>{
-        harleyAutoSendTimer=null;
-        if(inHarley()&&!typing&&ready&&timeline[cursor]===message)sendScripted();
-      },620);
+    if(currentRun===typingRun){
+      if(inHarley()&&harleyAutoplayStarted){
+        clearTimeout(harleyAutoSendTimer);
+        harleyAutoSendTimer=setTimeout(()=>{
+          harleyAutoSendTimer=null;
+          if(inHarley()&&!typing&&ready&&timeline[cursor]===message)sendScripted();
+        },620);
+      }else if(state.thread==='adnan'&&adnanAutoplayStarted){
+        clearTimeout(adnanAutoSendTimer);
+        adnanAutoSendTimer=setTimeout(()=>{
+          adnanAutoSendTimer=null;
+          if(inScripted()&&state.thread==='adnan'&&!typing&&ready
+           &&adnanTimeline[adnanCursor]===message)sendScripted();
+        },620);
+      }
     }
   }
  }
@@ -1391,6 +1430,9 @@ document.addEventListener('click',e=>{
    ?'Ya. Pisahkan catatan ancaman dari berkas klien. Kita bahas langkah perlindungan setelah briefing pukul 09.00.'
    :'Good. Kirimkan daftar ketidaksesuaian, bukan kesimpulan. Kita bahas pukul 09.00.';
  }
+ // Selecting a branching answer is an intentional player action and
+ // also arms the same auto-send loop for the remainder of this thread.
+ adnanAutoplayStarted=true;
  saveStoryState('CP02-brief-decision');
  render();
  beginAutoType();
@@ -1407,6 +1449,14 @@ document.addEventListener('click',e=>{
      }
      return;
    }
+   if(state.thread==='adnan'){
+     if(!adnanAutoplayStarted){
+       adnanAutoplayStarted=true;
+       saveStoryState('adnan-autotype-started');
+     }
+     beginAutoType();
+     return;
+   }
    beginAutoType();
  }
 },true);
@@ -1416,7 +1466,8 @@ document.addEventListener('click',e=>{
  const k=e.target.closest('[data-au-key]');
  if(k){
    e.preventDefault();e.stopImmediatePropagation();
-   if(inHarley()&&harleyAutoplayStarted)return;
+   if((inHarley()&&harleyAutoplayStarted)
+     ||(state.thread==='adnan'&&adnanAutoplayStarted))return;
    auArmKeyboardAudio();
    const c=k.dataset.auKey;
    auKeyFeedback(c,true);
@@ -1428,7 +1479,8 @@ document.addEventListener('click',e=>{
 document.addEventListener('submit',e=>{
  if(e.target.id==='chat-form'&&inScripted()){
    e.preventDefault();e.stopImmediatePropagation();
-   if(inHarley()&&harleyAutoplayStarted)return;
+   if((inHarley()&&harleyAutoplayStarted)
+     ||(state.thread==='adnan'&&adnanAutoplayStarted))return;
    sendScripted();
  }
 },true);
