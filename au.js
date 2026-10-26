@@ -67,7 +67,7 @@ function setNotification(id){
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
 }
 
@@ -861,6 +861,8 @@ function hideDay2ChapterFinale(){
  day2Chapter2Finale.classList.remove('visible');
  day2Chapter2Finale.hidden=true;
  goHome();
+ // Chapter 03 follows the ending card with the same cinematic day change.
+ startDay3();
 }
 
 
@@ -1715,6 +1717,8 @@ function makeStorySnapshot(reason='progress'){
    day2OfferDueAt,day2OfferDelivered,day2OfferOpened,day2OfferDocRead,day2OfferChoice,day2OfferUnread,
    day2Page312Stage,day2Page312DueAt,day2Page312CurrentPage,day2Page312Viewed,
    day2Page312FindingSaved,day2InvitationDelivered,day2InvitationOpened,day2InvitationUnread,day2Chapter2Completed,
+   day3Stage,day3TransitionDueAt,day3ChecklistChecks:[...day3ChecklistChecks],
+   day3ChecklistPresented,day3HarleyDelivered,day3ArticleOpened,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -1816,6 +1820,14 @@ function loadStoryState(){
  day2InvitationOpened=!!p.day2InvitationOpened;
  day2InvitationUnread=!!p.day2InvitationUnread&&!day2InvitationOpened;
  day2Chapter2Completed=!!p.day2Chapter2Completed;
+ day3Stage=['none','transition','alarm','checklist','harley'].includes(p.day3Stage)?p.day3Stage:'none';
+ day3TransitionDueAt=Number.isFinite(p.day3TransitionDueAt)?p.day3TransitionDueAt:0;
+ day3ChecklistChecks=Array.isArray(p.day3ChecklistChecks)&&p.day3ChecklistChecks.length===5?p.day3ChecklistChecks.map(Boolean):[false,false,false,false,false];
+ day3ChecklistPresented=!!p.day3ChecklistPresented;
+ day3HarleyDelivered=Number.isInteger(p.day3HarleyDelivered)?Math.max(0,Math.min(3,p.day3HarleyDelivered)):0;
+ day3ArticleOpened=!!p.day3ArticleOpened;
+ if(day3Stage==='harley'&&day3ChecklistChecks.every(Boolean))day3ChecklistPresented=true;
+ if(day3Stage!=='none'&&day3Stage!=='transition')ensureDay3ChecklistNote();
  if(day2Chapter2Completed)day2Page312Stage='complete';
  if(day2InvitationDelivered&&day2Page312Stage!=='complete')day2Page312Stage='invitation';
  if(day2Page312FindingSaved&&day2Page312Stage==='found'&&!day2InvitationDelivered){
@@ -1981,7 +1993,7 @@ function initializeStorySave(){
  syncHarleyBadge();
  // The persistent Lock Screen card is only shown on a visit that restored
  // an existing, valid save; it is never shown by an in-session checkpoint.
- showReturningStoryNotice=restored&&!currentStoryEnding&&['none','complete'].includes(day2Stage);
+ showReturningStoryNotice=restored&&!currentStoryEnding&&day3Stage==='none'&&['none','complete'].includes(day2Stage);
  renderReturningStoryNotice();
  renderStoryEndingMenu();
  if(storyAwaitingSilenceChoice)showSilenceDecision();
@@ -1995,6 +2007,10 @@ function initializeStorySave(){
  if(day2Page312Stage==='none'&&day2Page312Ready())queueDay2Page312();
  if(day2Page312Stage==='queued')scheduleDay2Page312();
  if(day2Page312Stage==='found'&&!day2InvitationDelivered)deliverDay2Invitation();
+ if(day2Chapter2Completed&&day3Stage==='none')startDay3();
+ if(day3Stage==='alarm')showDay3Alarm();
+ if(day3Stage==='harley')scheduleDay3Harley();
+ if(day3Stage==='transition')scheduleDay3Transition();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -2267,7 +2283,7 @@ day2MorningNotice.addEventListener('click',()=>{
 
 let day2AlarmAudio=null,day2AlarmSoundTimer=null;
 function playDay2AlarmChime(){
- if(day2Stage!=='alarm')return;
+ if(day2Stage!=='alarm'&&day3Stage!=='alarm')return;
  try{
   const AC=window.AudioContext||window.webkitAudioContext;
   if(!AC)return;
@@ -2402,6 +2418,8 @@ layer=function(which){
   resumePendingStoryCall();
   if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
   if(day2OfferUnread||day2InvitationUnread)showDay2OfferNotice();
+  if(day3Stage==='transition')scheduleDay3Transition();
+  if(day3Stage==='checklist')enterDay3Checklist();
   if(day2Stage==='transition')scheduleDay2Transition();
  }
  if(which==='lock'){
@@ -2410,6 +2428,7 @@ layer=function(which){
   renderReturningStoryNotice();
   renderStoryEndingMenu();
   if(day2Stage==='alarm')showDay2Alarm();
+  if(day3Stage==='alarm')showDay3Alarm();
   renderDay2MorningNotice();
  }
  if(which==='home')restoreStoryOverlay();
@@ -2570,7 +2589,7 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead)?' chat-has-attachment':'');
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink)?' chat-has-attachment':'');
   const attachment=m.day2MentariPhoto?
    '<div class="nakula-mentari-photo-block"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
     '<div class="nakula-mentari-actions"><button type="button" data-day2-mentari-view>Lihat di Foto</button>'+
@@ -2578,7 +2597,8 @@ function nakulaRenderChatBubbles(messages){
    m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
    m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
-   m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':'';
+   m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':
+   m.day3NewsLink?'<button type="button" class="nakula-file-attachment nakula-day3-news-link" data-day3-article><span class="nakula-file-attachment-icon">NEWS</span><span><strong>Kasus Zona B: Pertemuan Pengacara Jadi Sorotan</strong><small>The Civic Ledger · Buka di Safari</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
 }
@@ -2604,7 +2624,11 @@ render=function(){
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
-   if(state.screen==='app'&&state.app==='notes')decorateDailyCaseNotesUI();
+   if(state.screen==='app'&&state.app==='notes'){
+    decorateDailyCaseNotesUI();
+    renderDay3Checklist();
+   }
+   if(state.screen==='app'&&state.app==='safari')decorateDay3Safari();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
    if(state.screen==='app'&&state.app==='calendar')renderDay2Calendar();
    if(state.screen==='app'&&state.app==='mail')renderDay2Mail();
