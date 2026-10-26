@@ -1218,20 +1218,22 @@
   z-index:0;
   background:linear-gradient(to bottom,rgba(230,234,248,.17),transparent);
 }
-/* Dark mode: sufficiently translucent to visibly refract blue/gray bubbles,
-   still legible with the avatar, Messages back button and call controls. */
+/* Brighter, clearer liquid-glass response: keep enough transparency
+   to show the passing blue/gray iMessage bubble behind the navbar.
+   A smaller blur radius preserves its blue silhouette; boosted saturation
+   reproduces the strong blue glow in the earlier iOS reference. */
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::before{
   background:linear-gradient(180deg,
-    rgba(21,22,28,.70) 0%,
-    rgba(20,22,29,.53) 55%,
-    rgba(23,26,34,.30) 100%);
-  -webkit-backdrop-filter:blur(32px) saturate(170%);
-  backdrop-filter:blur(32px) saturate(170%);
-  border-bottom:1px solid rgba(170,177,193,.14);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 22px rgba(0,0,0,.11);
+    rgba(16,19,28,.31) 0%,
+    rgba(13,18,28,.16) 53%,
+    rgba(12,20,34,.075) 100%);
+  -webkit-backdrop-filter:blur(15px) saturate(240%) brightness(1.12);
+  backdrop-filter:blur(15px) saturate(240%) brightness(1.12);
+  border-bottom:1px solid rgba(170,177,193,.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 6px 20px rgba(0,0,0,.10);
 }
 #phone.in-app.dark-ui.harley-au-mode #app-screen.page.in-conversation .page-head::after{
-  background:linear-gradient(to bottom,rgba(23,26,34,.20),transparent);
+  background:linear-gradient(to bottom,rgba(18,26,43,.12),transparent);
 }
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   #phone.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before{
