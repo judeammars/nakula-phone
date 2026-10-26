@@ -1631,3 +1631,106 @@
   padding-left:2px;padding-right:2px;
  }
 }
+
+/* STORY SETTINGS — NEW GAME */
+#phone.in-app .nakula-new-game-settings{
+ display:block;
+ margin:22px 0 10px;
+ padding:0 0 1px;
+}
+#phone.in-app .nakula-new-game-section-heading{
+ font:600 11px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ color:#92939b;
+ letter-spacing:.06em;
+ padding:0 2px 9px;
+}
+#phone.in-app .nakula-new-game-settings .list-group{
+ overflow:hidden;
+ border-radius:13px;
+}
+#phone.in-app .nakula-new-game-row{
+ width:100%;
+ text-align:left;
+ cursor:pointer;
+ font-family:inherit;
+}
+#phone.in-app .nakula-new-game-row:active{opacity:.75}
+#phone.in-app .nakula-new-game-info{
+ color:#8b8c95;
+ font-size:11px;
+ line-height:1.45;
+ margin:9px 4px 13px;
+}
+#phone .nakula-new-game-confirm{
+ position:absolute;inset:0;z-index:240;
+ display:flex;align-items:center;justify-content:center;
+ padding:0 24px;
+ box-sizing:border-box;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+ color:#fff;
+}
+#phone .nakula-new-game-confirm[hidden]{display:none!important}
+#phone .nakula-new-game-backdrop{
+ position:absolute;inset:0;
+ background:rgba(0,0,0,.62);
+ -webkit-backdrop-filter:blur(8px);
+ backdrop-filter:blur(8px);
+}
+#phone .nakula-new-game-dialog{
+ z-index:1;
+ position:relative;
+ display:flex;flex-direction:column;
+ align-items:stretch;
+ width:100%;max-width:335px;
+ padding:24px 19px 14px;
+ border-radius:22px;
+ background:#26272d;
+ border:1px solid rgba(255,255,255,.15);
+ box-shadow:0 20px 50px rgba(0,0,0,.45);
+ text-align:center;
+}
+#phone .nakula-new-game-overline{
+ font-size:10px;
+ font-weight:700;
+ letter-spacing:.14em;
+ color:#bcc7df;
+}
+#phone .nakula-new-game-dialog h2{
+ margin:11px 0 9px;
+ font-size:20px;
+ font-weight:650;
+ line-height:1.25;
+ color:#fff;
+}
+#phone .nakula-new-game-dialog p{
+ margin:0 0 18px;
+ font-size:13px;
+ line-height:1.5;
+ color:#c7c8d0;
+}
+#phone .nakula-new-game-dialog button{
+ border:0;
+ width:100%;
+ min-height:47px;
+ border-radius:13px;
+ font-family:inherit;
+ font-size:15px;
+ font-weight:650;
+ cursor:pointer;
+ -webkit-tap-highlight-color:transparent;
+}
+#phone .nakula-new-game-danger{
+ color:#fff;background:#b93e40;
+}
+#phone .nakula-new-game-cancel{
+ background:#3b3c43;color:#f1f1f4;
+ margin-top:8px;
+}
+#phone .nakula-new-game-dialog button:focus-visible{
+ outline:2px solid #e2efff;
+ outline-offset:2px;
+}
+#phone.in-app.dark-ui .nakula-new-game-section-heading,
+#phone.in-app.dark-ui .nakula-new-game-info{
+ color:#9b9ca5;
+}
