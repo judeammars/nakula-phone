@@ -532,7 +532,61 @@ const safariHeadlines={"daily":[{"category":"ENVIRONMENT","date":"24 OCT","sourc
 let safariPeriod='daily';
 const state={screen:'lock',app:null,view:null,thread:null,note:null,photo:null};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function now(){let d=new Date();let status=$('status-time');if(status)status.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false});let lockClock=$('lock-clock');if(lockClock)lockClock.textContent=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}).replace(':','.');let lockDate=$('lock-date');if(lockDate)lockDate.textContent=d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'});let ww=$('widget-weekday'),wd=$('widget-day'),wm=$('widget-month');if(ww)ww.textContent=d.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase();if(wd)wd.textContent=d.getDate();if(wm)wm.textContent=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});const fmt=(tz)=>new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:tz}).format(d).replace(':','.');let cup=$('cup-time'),tok=$('tok-time'),syd=$('syd-time');if(cup)cup.textContent=fmt('America/Los_Angeles');if(tok)tok.textContent=fmt('Asia/Tokyo');if(syd)syd.textContent=fmt('Australia/Sydney');let cd=$('cal-icon-day'),cn=$('cal-icon-number');if(cd)cd.textContent=d.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase();if(cn)cn.textContent=d.getDate();let hlt=$('home-live-time');if(hlt)hlt.textContent=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:false})};now();setInterval(now,30000);
+/* Narrative Clock: Nakula's story advances the phone, never the visitor's real clock.
+   Baseline is Sunday 25 October 2026 at 20:20, Asia/Jakarta (UTC+7).
+   World-clock cities use the same fictional instant, with real timezone offsets. */
+const nakulaStoryEpoch=Date.UTC(2026,9,24,17,0,0); // 25 October, 00:00 WIB.
+let nakulaStoryMinutes=20*60+20;
+const nakulaStoryZone='Asia/Jakarta';
+const narrativeDate=()=>new Date(nakulaStoryEpoch+nakulaStoryMinutes*60000);
+function narrativeTime(){
+ const minuteOfDay=((nakulaStoryMinutes%1440)+1440)%1440;
+ return String(Math.floor(minuteOfDay/60)).padStart(2,'0')+':'+String(minuteOfDay%60).padStart(2,'0');
+}
+function narrativeDateLabel(){
+ return new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:nakulaStoryZone}).format(narrativeDate())+
+  ' · '+narrativeTime().replace(':','.');
+}
+function setNarrativeTime(hour,minute,dayOffset=0){
+ const value=Number(dayOffset)*1440+Number(hour)*60+Number(minute);
+ if(!Number.isInteger(value)||value<nakulaStoryMinutes||Number(hour)<0||Number(hour)>23||Number(minute)<0||Number(minute)>59)return false;
+ nakulaStoryMinutes=value;now();return true;
+}
+function advanceNarrativeTime(minutes){
+ if(!Number.isFinite(minutes)||minutes<=0)return false;
+ nakulaStoryMinutes+=Math.max(1,Math.floor(minutes));now();return true;
+}
+function narrativeSyncMessage(timestamp){
+ const match=String(timestamp||'').match(/^(\d{1,2})[.:](\d{2})$/);
+ return match?setNarrativeTime(Number(match[1]),Number(match[2])):false;
+}
+window.nakulaNarrativeClock=Object.freeze({
+ date:narrativeDate,time:narrativeTime,dateLabel:narrativeDateLabel,
+ set:setNarrativeTime,advance:advanceNarrativeTime,syncMessage:narrativeSyncMessage
+});
+function now(){
+ const d=narrativeDate(),time=narrativeTime();
+ const localOpts={timeZone:nakulaStoryZone};
+ const status=$('status-time');if(status)status.textContent=time;
+ const lockClock=$('lock-clock');if(lockClock)lockClock.textContent=time;
+ const lockDate=$('lock-date');
+ if(lockDate)lockDate.textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',day:'numeric',month:'long',...localOpts}).format(d);
+ const ww=$('widget-weekday'),wd=$('widget-day'),wm=$('widget-month');
+ if(ww)ww.textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',...localOpts}).format(d).toUpperCase();
+ if(wd)wd.textContent=new Intl.DateTimeFormat('en-GB',{day:'numeric',...localOpts}).format(d);
+ if(wm)wm.textContent=new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric',...localOpts}).format(d);
+ const fmt=tz=>new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:tz}).format(d).replace(':','.');
+ const cup=$('cup-time'),tok=$('tok-time'),syd=$('syd-time');
+ if(cup)cup.textContent=fmt('America/Los_Angeles');
+ if(tok)tok.textContent=fmt('Asia/Tokyo');
+ if(syd)syd.textContent=fmt('Australia/Sydney');
+ const cd=$('cal-icon-day'),cn=$('cal-icon-number');
+ if(cd)cd.textContent=new Intl.DateTimeFormat('en-US',{weekday:'short',...localOpts}).format(d).toUpperCase();
+ if(cn)cn.textContent=new Intl.DateTimeFormat('en-GB',{day:'numeric',...localOpts}).format(d);
+ const hlt=$('home-live-time');if(hlt)hlt.textContent=time;
+}
+now();
+
 function layer(which){state.screen=which;['lock','home','app'].forEach(n=>$(n+'-screen').classList.toggle('active',n===which));$('phone').classList.toggle('in-app',which==='app');$('phone').classList.toggle('dark-ui',which==='app'&&!!darkMode);$('phone').classList.toggle('nakula-calculator-mode',which==='app'&&state.app==='calculator');$('phone').classList.toggle('nakula-photos-mode',which==='app'&&state.app==='photos')}
 function unlock(){state.app=null;state.view=null;layer('home')}
 function goHome(){state.app=null;state.view=null;state.thread=null;layer('home')}
@@ -670,7 +724,7 @@ if(app==='messages'){
  if(state.view==='convo'){
  let t=threads.find(x=>x.id===state.thread);if(!t){state.view=null;return render()}
  h=`<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> Messages</button><div class="convo-head"><div class="mini-avatar">${esc(t.initials)}</div><div class="contact-name">${esc(t.name)} ›</div></div><span style="width:75px"></span>`;
- content=`<div class="conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>${t.messages.map(m=>`<div class="bubble-row ${m.me?'me':'them'}"><div class="bubble">${esc(m.text)}</div></div>`).join('')}</div><form class="convo-foot" id="chat-form"><button type="button" class="plus-btn" data-action="attach" aria-label="Add attachment">+</button><textarea class="chat-input" id="chat-input" rows="1" maxlength="450" placeholder="iMessage" aria-label="Message text"></textarea><button class="send-btn" type="submit" aria-label="Send message">↑</button></form><div class="convo-local">Demo only. Messages are saved in this browser.</div></div>`;
+ content=`<div class="conversation"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today ${narrativeTime()}</div>${t.messages.map(m=>`<div class="bubble-row ${m.me?'me':'them'}"><div class="bubble">${esc(m.text)}</div></div>`).join('')}</div><form class="convo-foot" id="chat-form"><button type="button" class="plus-btn" data-action="attach" aria-label="Add attachment">+</button><textarea class="chat-input" id="chat-input" rows="1" maxlength="450" placeholder="iMessage" aria-label="Message text"></textarea><button class="send-btn" type="submit" aria-label="Send message">↑</button></form><div class="convo-local">Demo only. Messages are saved in this browser.</div></div>`;
  }else{
  h=pageHeader('Home','Messages',actionBtn('compose','✎'));
  content=`<div class="large-title">Messages</div><label class="ios-search"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg><input type="search" id="message-search" placeholder="Search" aria-label="Search messages"></label><div class="smallcaps">All Messages</div><div class="threads" id="thread-list">${threadMarkup(threads)}</div>`;
@@ -694,7 +748,9 @@ if(app==='messages'){
 }else if(app==='mail'){
  h=pageHeader('Home','Mail');content=`<div class="large-title">Inbox</div><p class="fine-title">Leave a message here. Only you can see it in this browser.</p><form id="letter-form" class="letter-form"><label for="visitor-name">Name</label><input id="visitor-name" name="name" maxlength="40" placeholder="Your name" required><label for="visitor-message">Message</label><textarea id="visitor-message" name="message" maxlength="500" placeholder="Write a message…" required></textarea><button class="ios-btn" type="submit">Save to Inbox</button></form><div class="smallcaps">Saved messages · ${letters.length}</div>${letters.map(l=>`<div class="saved-note"><strong>${esc(l.name)}</strong><p>${esc(l.message)}</p><small>${esc(l.date)}</small></div>`).join('')}`;
 }else if(app==='calendar'||app==='clock'){
- h=pageHeader('Home',app==='clock'?'Clock':'Calendar');let d=new Date();content=`<div class="large-title">${app==='clock'?'World Clock':'Calendar'}</div><div class="profile-banner" style="align-items:flex-start;flex-direction:column;gap:7px"><span class="smallcaps">${app==='clock'?'LOCAL TIME':'TODAY'}</span><strong style="font-size:36px;letter-spacing:-.045em" id="app-live-time">${app==='clock'?esc(d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})):esc(d.toLocaleDateString('en-US',{month:'long',day:'numeric'}))}</strong><span style="font-size:13px;color:#6c7b86">${esc(d.toLocaleDateString('en-US',{weekday:'long',year:'numeric'}))}</span></div><p class="fine-title" style="margin-top:22px">${app==='clock'?'Showing your device time.':'Your day, at a glance.'}</p>`;
+ h=pageHeader('Home',app==='clock'?'Clock':'Calendar');
+ const d=narrativeDate(),jkt={timeZone:'Asia/Jakarta'},calendarDate=new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',...jkt}).format(d),calendarYear=new Intl.DateTimeFormat('en-US',{weekday:'long',year:'numeric',...jkt}).format(d);
+ content=`<div class="large-title">${app==='clock'?'World Clock':'Calendar'}</div><div class="profile-banner" style="align-items:flex-start;flex-direction:column;gap:7px"><span class="smallcaps">${app==='clock'?'JAKARTA TIME':'STORY DATE'}</span><strong style="font-size:36px;letter-spacing:-.045em" id="app-live-time">${app==='clock'?esc(narrativeTime()):esc(calendarDate)}</strong><span style="font-size:13px;color:#acb0be">${esc(calendarYear)}</span></div><p class="fine-title" style="margin-top:22px">${app==='clock'?"Nakula's time · Jakarta.":"Nakula's day, at a glance."}</p>`;
 
 }else if(app==='safari'){
  h=pageHeader('Home','Safari');
