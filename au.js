@@ -61,7 +61,7 @@ function setNotification(id){
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=t.messages[0]?.text||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=(id==='adnan'&&day2Stage!=='none'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
 }
 
@@ -387,19 +387,30 @@ const STORY_ENDINGS_KEY='story-endings-v1';
 let currentStoryEnding=null,storyAwaitingSilenceChoice=false;
 let storySaveReady=false,storyNeedsCallResume=false,storyResumeSameCall=false;
 let storyCallResumeScheduled=false,storyHarleyResumeScheduled=false;
+/* Day 2 persists in the existing story slot, so refreshing during the
+   transition/alarm never skips the required Stop interaction. */
+let day2Stage='none',day2TransitionRunning=false,day2TransitionTimer=null;
+const DAY2_MORNING_MINUTES=1440+7*60+12;
+const DAY2_ADNAN_MESSAGE='Pagi, Na. Saya sudah baca laporanmu semalam. Simpan seluruh riwayat panggilannya. Kita bahas bersama dengan Nirmala pagi ini, terutama berkas PBK Group.';
+function day2ReportSent(){
+ const adnan=threadById('adnan');
+ const report=adnanTimeline[adnanTimeline.length-1];
+ return aftermathTriggered&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length
+  &&!!report?.me&&!!adnan?.messages.some(m=>m.me&&m.text===report.text);
+}
 function makeStorySnapshot(reason='progress'){
  const incident=notes.find(n=>Number(n.id)===9901);
  return {
   version:STORY_SLOT_VERSION,reason,savedAt:Date.now(),
-  checkpoint:aftermathTriggered?'CP01':'CP00',
-  chapter:currentStoryEnding?'ENDING':aftermathTriggered?'CH01_COMPLETE':'CH01',
+  checkpoint:day2Stage!=='none'?'CP02':aftermathTriggered?'CP01':'CP00',
+  chapter:currentStoryEnding?'ENDING':day2Stage!=='none'?'CH02':aftermathTriggered?'CH01_COMPLETE':'CH01',
   endingId:currentStoryEnding,
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,
    harleyAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
-   adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice
+   adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage
   },
   threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
   adnanTimeline:adnanTimeline.map(m=>({...m})),
@@ -446,6 +457,14 @@ function loadStoryState(){
  storyAwaitingSilenceChoice=!!p.storyAwaitingSilenceChoice&&!currentStoryEnding;
  aftermathTriggered=!!p.aftermathTriggered;adnanIncidentPending=!!p.adnanIncidentPending;
  phoneRecentsFilter=p.phoneRecentsFilter==='missed'?'missed':'all';
+ day2Stage=['none','transition','alarm','morning','complete'].includes(p.day2Stage)?p.day2Stage:'none';
+ // Legacy saves created before DAY 2: infer only after the real incident
+ // report was sent, never just from the call having ended.
+ if(!p.day2Stage&&day2Stage==='none'&&!currentStoryEnding&&day2ReportSent())
+  day2Stage='transition';
+ if(day2Stage!=='none'&&day2Stage!=='transition'
+  &&window.nakulaNarrativeClock.minutes()<DAY2_MORNING_MINUTES)
+  window.nakulaNarrativeClock.restore(DAY2_MORNING_MINUTES);
  unknownStage=['idle','retrying','ringing','answered','finished'].includes(p.unknownStage)?p.unknownStage:'idle';
  callConnectedAt=0;callLineIndex=0;unknownQueued=unknownQueued||unknownAttempt>0;
  notes=notes.filter(n=>Number(n.id)!==9901);
@@ -494,10 +513,12 @@ function initializeStorySave(){
  syncHarleyBadge();
  // The persistent Lock Screen card is only shown on a visit that restored
  // an existing, valid save; it is never shown by an in-session checkpoint.
- showReturningStoryNotice=restored&&!currentStoryEnding;
+ showReturningStoryNotice=restored&&!currentStoryEnding&&['none','complete'].includes(day2Stage);
  renderReturningStoryNotice();
  renderStoryEndingMenu();
  if(storyAwaitingSilenceChoice)showSilenceDecision();
+ if(day2Stage==='alarm')showDay2Alarm();
+ if(day2Stage==='morning')renderDay2MorningNotice();
 }
 window.nakulaStorySave=Object.freeze({
  save:()=>saveStoryState('manual'),
@@ -575,7 +596,7 @@ if(storyLockBottom){
  $au('lock-screen').appendChild(returningStoryNotice);
 }
 function renderReturningStoryNotice(){
- const visible=showReturningStoryNotice&&!currentStoryEnding&&state.screen==='lock';
+ const visible=showReturningStoryNotice&&!currentStoryEnding&&state.screen==='lock'&&['none','complete'].includes(day2Stage);
  returningStoryNotice.hidden=!visible;
  if(!visible)return;
  const label=aftermathTriggered?'CHAPTER 01 · CALL AFTERMATH':'CHAPTER 01 · IN PROGRESS';
@@ -718,13 +739,156 @@ function restoreStoryOverlay(){
  if(currentStoryEnding)renderStoryEndingMenu();
 }
 
+
+/* CHAPTER 02 — DAY 2 / THE MORNING AFTER
+   A cinematic midnight-to-morning transition, then a mandatory, dismissible
+   Clock alarm over Nakula's Lock Screen. Adnan's new message is delivered
+   only after the player stops the alarm. All steps survive reload. */
+const day2Curtain=document.createElement('div');
+day2Curtain.className='nakula-day2-curtain';
+day2Curtain.hidden=true;
+day2Curtain.setAttribute('aria-hidden','true');
+day2Curtain.innerHTML='<div class="nakula-day2-title">DAY 2</div>';
+$au('phone').appendChild(day2Curtain);
+
+const day2Alarm=document.createElement('div');
+day2Alarm.className='nakula-day2-alarm';
+day2Alarm.hidden=true;
+day2Alarm.setAttribute('role','dialog');
+day2Alarm.setAttribute('aria-modal','true');
+day2Alarm.setAttribute('aria-label','Alarm. 7:12 AM. Stop the alarm to continue');
+day2Alarm.innerHTML=
+ '<div class="nakula-day2-alarm-content">'+
+  '<div class="nakula-day2-bell" aria-hidden="true">'+
+   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8.5A6 6 0 0 0 6 8.5c0 7-3 7.9-3 9h18c0-1.1-3-2-3-9Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>'+
+  '</div>'+
+  '<div class="nakula-day2-alarm-label">CLOCK · ALARM</div>'+
+  '<div class="nakula-day2-alarm-time">07:12</div>'+
+  '<div class="nakula-day2-alarm-name">Weekday Alarm</div>'+
+  '<button type="button" class="nakula-day2-alarm-stop" data-day2-stop>Stop</button>'+
+  '<div class="nakula-day2-alarm-hint">Stop the alarm to continue</div>'+
+ '</div>';
+$au('phone').appendChild(day2Alarm);
+
+const day2MorningNotice=document.createElement('button');
+day2MorningNotice.type='button';
+day2MorningNotice.className='nakula-day2-morning-notice';
+day2MorningNotice.hidden=true;
+day2MorningNotice.setAttribute('aria-label','New message from Adnan W. Unlock to read');
+day2MorningNotice.innerHTML=
+ '<span class="nakula-day2-message-icon" aria-hidden="true">●</span>'+
+ '<span class="nakula-day2-message-body">'+
+  '<span class="nakula-day2-message-top"><strong>MESSAGES</strong><span>now</span></span>'+
+  '<strong>Adnan W. (Managing Partner)</strong>'+
+  '<span>Pagi, Na. Saya sudah baca laporanmu semalam. Simpan seluruh riwayat panggilannya...</span>'+
+ '</span>';
+const day2LockBottom=$au('lock-screen').querySelector('.lock-bottom');
+if(day2LockBottom)day2LockBottom.insertBefore(day2MorningNotice,day2LockBottom.querySelector('.lock-actions'));
+else $au('lock-screen').appendChild(day2MorningNotice);
+day2MorningNotice.addEventListener('click',()=>{
+ if(day2Stage==='morning'&&state.screen==='lock')requestUnlock();
+});
+
+let day2AlarmAudio=null,day2AlarmSoundTimer=null;
+function playDay2AlarmChime(){
+ if(day2Stage!=='alarm')return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  day2AlarmAudio=day2AlarmAudio||new AC();
+  if(day2AlarmAudio.state==='suspended')day2AlarmAudio.resume().catch(()=>{});
+  const ctx=day2AlarmAudio,t=ctx.currentTime+.025;
+  for(const [offset,freq] of [[0,784],[.23,1046],[.5,784],[.73,1046]]){
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.value=freq;
+   gain.gain.setValueAtTime(.0001,t+offset);
+   gain.gain.exponentialRampToValueAtTime(.055,t+offset+.025);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+offset+.19);
+   osc.connect(gain).connect(ctx.destination);
+   osc.start(t+offset);osc.stop(t+offset+.2);
+  }
+ }catch(e){} // Browsers can block alarm audio until user interaction.
+}
+function stopDay2AlarmAudio(){
+ if(day2AlarmSoundTimer){clearInterval(day2AlarmSoundTimer);day2AlarmSoundTimer=null}
+ if(day2AlarmAudio&&day2AlarmAudio.state==='running')day2AlarmAudio.suspend().catch(()=>{});
+}
+function showDay2Alarm(){
+ if(day2Stage!=='alarm'||currentStoryEnding)return;
+ day2Alarm.hidden=false;
+ day2MorningNotice.hidden=true;
+ if(!day2AlarmSoundTimer){
+  playDay2AlarmChime();
+  day2AlarmSoundTimer=setInterval(playDay2AlarmChime,2800);
+ }
+}
+function renderDay2MorningNotice(){
+ const visible=day2Stage==='morning'&&state.screen==='lock'&&!currentStoryEnding;
+ day2MorningNotice.hidden=!visible;
+ if(visible){showReturningStoryNotice=false;renderReturningStoryNotice()}
+}
+function deliverDay2MorningMessage(){
+ const adnan=threadById('adnan');
+ if(!adnan)return;
+ if(!adnan.messages.some(m=>m.day2Morning===true)){
+  adnan.messages.push({me:false,time:'07.12',text:DAY2_ADNAN_MESSAGE,day2Morning:true});
+  adnan.date='07.12';
+ }
+ adnanUnread=true;
+ const idx=threads.findIndex(t=>t.id==='adnan');
+ if(idx>0)threads.unshift(...threads.splice(idx,1));
+ syncHarleyBadge();
+}
+function stopDay2Alarm(){
+ if(day2Stage!=='alarm')return;
+ stopDay2AlarmAudio();
+ day2Alarm.hidden=true;
+ day2Stage='morning';
+ deliverDay2MorningMessage();
+ saveStoryState('CP02-alarm-stopped');
+ renderDay2MorningNotice();
+ sound();
+}
+day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay2Alarm);
+
+function startDay2Transition(){
+ if(day2Stage!=='transition'||day2TransitionRunning||currentStoryEnding||state.screen==='lock')return;
+ day2TransitionRunning=true;
+ hideNotif();
+ day2Curtain.hidden=false;
+ day2Curtain.setAttribute('aria-hidden','false');
+ // A frame is needed for the full-screen fade to animate in WebKit.
+ requestAnimationFrame(()=>day2Curtain.classList.add('is-dark'));
+ setTimeout(()=>day2Curtain.classList.add('show-title'),450);
+ setTimeout(()=>{
+  if(day2Stage!=='transition')return;
+  // Sunday 25 Oct -> Monday 26 Oct 2026, 07:12 Jakarta.
+  window.nakulaNarrativeClock.restore(DAY2_MORNING_MINUTES);
+  day2Stage='alarm';
+  state.app=null;state.view=null;state.thread=null;
+  hidePasscode();
+  layer('lock');
+  saveStoryState('CP02-day2-morning');
+  day2Curtain.classList.remove('show-title');
+ },2550);
+ setTimeout(()=>{
+  day2Curtain.classList.remove('is-dark');
+ },3050);
+ setTimeout(()=>{
+  day2Curtain.hidden=true;
+  day2Curtain.setAttribute('aria-hidden','true');
+  day2TransitionRunning=false;
+ },3580);
+}
+
 const oldEnterPIN=enterPasscodeDigit;
 enterPasscodeDigit=function(digit){
  const wasLocked=state.screen==='lock';
  oldEnterPIN(digit);
  if(wasLocked&&state.screen==='home'){
    syncHarleyBadge();
-   if(unknownUnread){setNotification('unknown');notif.classList.add('show');sound()}
+   if(day2Stage==='complete'&&adnanUnread){setNotification('adnan');notif.classList.add('show');sound()}
+   else if(unknownUnread){setNotification('unknown');notif.classList.add('show');sound()}
    else if(!currentStoryEnding)showNotif(true);
    restoreStoryOverlay();
  }
@@ -737,13 +901,21 @@ layer=function(which){
  syncHarleyBadge();
  if(which==='home'){
   showReturningStoryNotice=false;
+  if(day2Stage==='morning'){
+   day2Stage='complete';
+   saveStoryState('CP02-morning-unlocked');
+  }
   renderReturningStoryNotice();
+  renderDay2MorningNotice();
   resumePendingStoryCall();
+  if(day2Stage==='transition')setTimeout(startDay2Transition,650);
  }
  if(which==='lock'){
   silenceSheet.hidden=true;
   renderReturningStoryNotice();
   renderStoryEndingMenu();
+  if(day2Stage==='alarm')showDay2Alarm();
+  renderDay2MorningNotice();
  }
  if(which==='home')restoreStoryOverlay();
 };
@@ -969,6 +1141,11 @@ function sendScripted(){
  if(id==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length){
   const idx=threads.findIndex(t=>t.id==='adnan');
   if(idx>0)threads.unshift(...threads.splice(idx,1));
+  if(day2Stage==='none'&&day2ReportSent()&&!currentStoryEnding){
+   day2Stage='transition';
+   saveStoryState('CP01-report-delivered');
+   setTimeout(startDay2Transition,1350);
+  }
  }
  if(script[current+1]&&!script[current+1].me)receive(id);
 }
