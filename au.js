@@ -515,6 +515,63 @@ function scheduleDay2RedFolder(){
 let day2CaseBriefRead=false,day2BriefingDone=false,day2CalendarBriefOpen=false;
 let day2FamiliesReceived=false,day2FamilyDocsRead={statements:false,client:false};
 let day2FamilyPriority=null,day2FamilyFollowup=false;
+let day2FamilyTaskDismissed=false,day2FamilyTaskModal=null,day2FamilyTaskTimer=null;
+function day2FamilyTaskAvailable(){
+ return day2FamiliesReceived&&day2FamilyDocsReady()&&!day2FamilyPriority;
+}
+function ensureDay2FamilyTaskModal(){
+ if(day2FamilyTaskModal)return day2FamilyTaskModal;
+ const modal=document.createElement('div');
+ modal.className='nakula-family-task-overlay';
+ modal.hidden=true;
+ modal.setAttribute('role','dialog');
+ modal.setAttribute('aria-modal','true');
+ modal.setAttribute('aria-labelledby','nakula-family-task-heading');
+ modal.setAttribute('aria-describedby','nakula-family-task-description');
+ modal.innerHTML=
+  '<div class="nakula-family-task-backdrop" data-nakula-family-task-later aria-hidden="true"></div>'+
+  '<div class="nakula-family-task-dialog">'+
+   '<div class="nakula-family-task-app-icon" aria-hidden="true"><span>✓</span></div>'+
+   '<div class="nakula-family-task-overline">NEW TASK · ZONA B</div>'+
+   '<h2 id="nakula-family-task-heading">Choose Your Next Step</h2>'+
+   '<p id="nakula-family-task-description">You have reviewed both family records. How should Nakula proceed?</p>'+
+   '<div class="nakula-family-task-options">'+
+    '<button type="button" data-nakula-family-task-choice="consult"><span class="nakula-family-task-option-icon">01</span><span><strong>Consult with the Families</strong><small>Discuss their needs, explain options, and obtain consent</small></span><span class="nakula-family-task-chevron">›</span></button>'+
+    '<button type="button" data-nakula-family-task-choice="corroborate"><span class="nakula-family-task-option-icon">02</span><span><strong>Verify Witness Statements</strong><small>Corroborate time and location while protecting consent</small></span><span class="nakula-family-task-chevron">›</span></button>'+
+   '</div>'+
+   '<button type="button" class="nakula-family-task-later" data-nakula-family-task-later>Later</button>'+
+  '</div>';
+ $au('phone').appendChild(modal);
+ day2FamilyTaskModal=modal;
+ return modal;
+}
+function hideDay2FamilyTask(){
+ if(day2FamilyTaskTimer){clearTimeout(day2FamilyTaskTimer);day2FamilyTaskTimer=null}
+ if(day2FamilyTaskModal)day2FamilyTaskModal.hidden=true;
+}
+function openDay2FamilyTask(){
+ if(!day2FamilyTaskAvailable()||state.screen!=='app')return;
+ if(day2FamilyTaskTimer){clearTimeout(day2FamilyTaskTimer);day2FamilyTaskTimer=null}
+ const modal=ensureDay2FamilyTaskModal();
+ modal.hidden=false;
+ modal.querySelector('[data-nakula-family-task-choice]')?.focus();
+}
+function deferDay2FamilyTask(){
+ if(!day2FamilyTaskAvailable())return;
+ hideDay2FamilyTask();
+ day2FamilyTaskDismissed=true;
+ saveStoryState('CP02-04-task-deferred');
+}
+function scheduleDay2FamilyTask(){
+ if(!day2FamilyTaskAvailable()||day2FamilyTaskDismissed||day2FamilyTaskTimer
+  ||state.screen!=='app'||state.app!=='files'||nakulaFilesPath==='document'
+  ||(day2FamilyTaskModal&&!day2FamilyTaskModal.hidden))return;
+ day2FamilyTaskTimer=setTimeout(()=>{
+  day2FamilyTaskTimer=null;
+  if(state.screen==='app'&&state.app==='files'&&nakulaFilesPath!=='document'&&!day2FamilyTaskDismissed)
+   openDay2FamilyTask();
+ },430);
+}
 function day2CaseBriefAvailable(){return day2RedFolderDelivered||day2BriefingDone}
 function day2FamilyDocsReady(){return day2FamilyDocsRead.statements&&day2FamilyDocsRead.client}
 function day2CaseBriefSummary(){
@@ -563,6 +620,8 @@ function finishDay2CalendarBriefing(){
 }
 function chooseDay2FamilyPriority(choice){
  if(!day2FamiliesReceived||!day2FamilyDocsReady()||day2FamilyPriority||!['consult','corroborate'].includes(choice))return;
+ hideDay2FamilyTask();
+ day2FamilyTaskDismissed=true;
  day2FamilyPriority=choice;
  const n=threadById('nirmala');
  if(n&&!n.messages.some(m=>m.day2FamilyFollowup)){
@@ -614,6 +673,7 @@ function renderDay2Calendar(){
    '<div class="nakula-calendar-event-body"><strong>Zona B · Families & Witness Notes</strong><small>Client communication · Nirmala / Files</small>'+
    '<p>Keterangan Rania dan Harun tersedia untuk ditelaah, dengan privasi dan persetujuan klien tetap dijaga.</p>'+
    '<button type="button" data-nakula-calendar-families>Review Family Records in Files</button>'+
+   (day2FamilyTaskAvailable()?'<button type="button" class="nakula-calendar-task-open" data-nakula-family-task-open>NEW TASK · Choose Follow-up</button>':'')+
    (day2FamilyPriority?'<span class="nakula-calendar-complete">✓ Family follow-up recorded</span>':'')+'</div></div>':'')+
   (!isToday?'<p class="nakula-case-muted">This schedule unlocks during Chapter 02.</p>':'');
  content.appendChild(section);
@@ -709,7 +769,7 @@ function makeStorySnapshot(reason='progress'){
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,nirmalaCursor,nirmalaAutoplayStarted,
    day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
-   day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,
+   day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,day2FamilyTaskDismissed,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -768,6 +828,7 @@ function loadStoryState(){
  day2FamilyDocsRead={statements:!!p.day2FamilyDocsRead?.statements,client:!!p.day2FamilyDocsRead?.client};
  day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
  day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
+ day2FamilyTaskDismissed=!!p.day2FamilyTaskDismissed||!!day2FamilyPriority;
  if(day2InvestigationChoice)applyDay2InvestigationChoice(day2InvestigationChoice);
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
  // Older CH02 saves have no Adnan auto-play flag, but their first Adnan
@@ -1970,16 +2031,17 @@ function renderNakulaFilesApp(){
   '<section class="nakula-files-decision" role="group" aria-label="Evidence investigation choice"><small>07.35 · CASE DECISION</small><h2>What should Nakula do?</h2><p>Both paths can progress. Choose which evidence trail to prioritize.</p>'+
   '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
   '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
- const familyChoice=day2FamilyDocsReady()&&!day2FamilyPriority&&day2FamiliesReceived&&!detail?
-  '<section class="nakula-files-decision" role="group" aria-label="Family advocacy choice"><small>10.10 · CLIENT PRIORITY</small><h2>What should Nakula prioritize?</h2><p>Both paths protect the clients. Their needs and consent must remain central.</p>'+
-  '<button type="button" data-nakula-family-choice="consult"><strong>Consult with the Families</strong><span>Discuss needs, explain options, obtain consent</span></button>'+
-  '<button type="button" data-nakula-family-choice="corroborate"><strong>Verify the Witness Statements</strong><span>Check timeline and locations without pressuring clients</span></button></section>':'';
+ const familyChoice=day2FamilyTaskAvailable()&&!detail?
+  '<section class="nakula-family-task-banner"><span>NEW TASK · 10.10</span>'+
+   '<strong>Family Follow-up</strong><small>Both documents reviewed. Your next action is ready.</small>'+
+   '<button type="button" data-nakula-family-task-open>Choose Next Step</button></section>':'';
  const chapterNext=day2CaseBriefAvailable()&&!day2BriefingDone&&day2CaseBriefRead&&!detail?
   '<div class="nakula-files-return-bar"><span>✓ Case brief reviewed · 09.00</span><button type="button" data-nakula-calendar-open>Open Calendar Briefing</button></div>':'';
  const familyNext=day2FamilyPriority&&!detail?'<div class="nakula-files-return-bar"><span>✓ Family follow-up saved</span><button type="button" data-nakula-family-return>Return to Nirmala</button></div>':'';
  const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
   '<div class="nakula-files-return-bar"><span>✓ '+(day2InvestigationChoice==='verify'?'Digital signature verification':'Original-document provenance')+' prioritized</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
- content.innerHTML='<div class="nakula-files-screen">'+body+investigationChoice+familyChoice+chapterNext+familyNext+callout+'</div>';
+ content.innerHTML='<div class="nakula-files-screen">'+familyChoice+body+investigationChoice+chapterNext+familyNext+callout+'</div>';
+ if(!detail)scheduleDay2FamilyTask();
 }
 function nakulaOpenFilesDocument(id){
  const doc=nakulaFilesAvailableDocs().find(d=>d.id===id);
@@ -2004,6 +2066,12 @@ back=function(){
  nakulaPriorBack();
 };
 document.addEventListener('click',e=>{
+ const taskOpen=e.target.closest('[data-nakula-family-task-open]');
+ if(taskOpen){e.preventDefault();e.stopImmediatePropagation();openDay2FamilyTask();return}
+ const taskChoice=e.target.closest('[data-nakula-family-task-choice]');
+ if(taskChoice){e.preventDefault();e.stopImmediatePropagation();chooseDay2FamilyPriority(taskChoice.dataset.nakulaFamilyTaskChoice);return}
+ const taskLater=e.target.closest('[data-nakula-family-task-later]');
+ if(taskLater){e.preventDefault();e.stopImmediatePropagation();deferDay2FamilyTask();return}
  const open=e.target.closest('[data-nakula-files-open]');
  if(open){e.preventDefault();e.stopImmediatePropagation();if(nakulaFilesReady()){nakulaFilesPath='pbk';openApp('files')}return}
  const goCalendar=e.target.closest('[data-nakula-calendar-open]');
@@ -2047,5 +2115,10 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-nakula-files-back]')){e.preventDefault();e.stopImmediatePropagation();nakulaFilesBack()}
 },true);
 
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&day2FamilyTaskModal&&!day2FamilyTaskModal.hidden){
+  e.preventDefault();deferDay2FamilyTask();
+ }
+});
 initializeStorySave();
 })();
