@@ -1832,6 +1832,58 @@ const nakulaFilesDocs=Object.freeze([
   metadata:[['Case','Zona B · PBK Group'],['Incident','18 October 2026'],['Prepared for','Adnan W. · Nakula Shankara Bumi'],['Status','Attorney work product']],
   body:[['15 OCT','Tanggal persetujuan yang tertulis pada salinan AMDAL.'],['18 OCT','Peristiwa longsor di area Zona B.'],['20 OCT · 02:00','Waktu tanda tangan yang terdeteksi pada hasil pemeriksaan awal.'],['21 OCT','Salinan dokumen terkirim ke pihak asuransi oleh vendor logistik.'],['26 OCT','Nirmala dan tim forensik mengidentifikasi ketidaksesuaian dalam salinan yang diterima.']]}
 ]);
+
+/* Dynamic chapter documents are not merged into the original five evidence
+   files until the story unlocks their contents. This prevents spoilers. */
+function nakulaAdditionalDocs(){
+ const files=[];
+ if(day2CaseBriefAvailable())files.push({
+  id:'casebrief',name:'CASE_BRIEF_PBK.pdf',kind:'PDF Document',size:'640 KB',folder:'PBK Group',
+  title:'CASE BRIEF · ZONA B',badge:'ATTORNEY WORK PRODUCT · 09.00',
+  metadata:[['Prepared for','Adnan W. · Managing Partner'],['Prepared by','Nakula Shankara Bumi'],['Date','26 October 2026'],['Review','Internal privileged discussion']],
+  body:[
+   ['OBJECTIVE','Menentukan apa yang sudah diketahui, apa yang masih perlu diverifikasi, dan langkah pembuktian yang tepat untuk membela korban Zona B.'],
+   ['KEY FACTS','Longsor terjadi 18 Oktober. Salinan persetujuan menyebut 15 Oktober. Pemeriksaan awal mendeteksi timestamp tanda tangan 20 Oktober pukul 02.00.'],
+   ['EVIDENCE STATUS','Email vendor dan salinan asuransi telah diterima untuk telaah. Keaslian, atribusi tanda tangan, dan rantai penguasaan tetap memerlukan verifikasi.'],
+   ['INVESTIGATION PRIORITY',day2CaseBriefSummary()],
+   ['INCIDENT CALL',unknownInterrupted?'Panggilan berulang dengan nada lebih agresif dicatat secara terpisah. Identitas penelpon belum diverifikasi.':'Peringatan melalui telepon dicatat secara terpisah. Identitas penelpon belum diverifikasi.'],
+   ['RECOMMENDATION','Jaga salinan asli, lakukan pemeriksaan independen, dan konsultasikan strategi serta kebutuhan praktis keluarga korban sebelum mengambil tindakan.']
+  ]
+ });
+ if(day2FamiliesReceived)files.push(
+  {id:'family_statements',name:'Zona_B_Family_Statements.pdf',kind:'PDF Document',size:'520 KB',folder:'PBK Group',
+   title:'ZONA B · FAMILY & WITNESS NOTES',badge:'RESTRICTED · CONSENT REQUIRED',
+   metadata:[['Prepared by','Nirmala · Junior Associate'],['Date','26 October 2026'],['Contents','Preliminary statements'],['Status','Awaiting client confirmation']],
+   body:[
+    ['RANIA · FAMILY MEMBER','Rania menjelaskan bahwa keluarganya masih membutuhkan informasi yang dapat dipercaya mengenai kronologi kejadian dan proses pendampingan. Ia meminta agar perkembangan perkara disampaikan tanpa istilah hukum yang membingungkan.'],
+    ['HARUN · COMMUNITY WITNESS','Harun menyampaikan ingatan awal tentang aktivitas dan kondisi akses menuju Zona B sebelum kejadian. Waktu tepatnya belum diverifikasi dengan rekaman atau catatan lapangan.'],
+    ['FAMILY PRIORITIES','Komunikasi berkala, penjelasan mengenai pilihan hukum, dan tindak lanjut kebutuhan mendesak. Persetujuan klien diperlukan sebelum membagikan kesaksian.'],
+    ['LEGAL CAUTION','Catatan ini adalah informasi awal dan belum merupakan pernyataan saksi terverifikasi. Jangan memublikasikan identitas atau menyimpulkan tanggung jawab dari catatan ini saja.']
+   ]},
+  {id:'family_intake',name:'Client_Contact_Plan.pdf',kind:'PDF Document',size:'340 KB',folder:'PBK Group',
+   title:'CLIENT RELATIONS · FAMILY CONTACT PLAN',badge:'CONFIDENTIAL · INTERNAL',
+   metadata:[['Responsible','Nakula · Nirmala'],['Date','26 October 2026'],['Classification','Privileged client intake'],['Status','Consent and follow-up pending']],
+   body:[
+    ['OUTREACH','Tawarkan waktu percakapan yang disepakati keluarga. Sampaikan tujuan wawancara, kerahasiaan, dan pilihan untuk tidak menjawab pertanyaan tertentu.'],
+    ['PRACTICAL NEEDS','Dengarkan kebutuhan keselamatan, akses informasi, dokumen, dan dukungan darurat. Pisahkan permintaan ini dari evaluasi peluang menang di pengadilan.'],
+    ['EVIDENCE CARE','Konfirmasi kronologi, identitas sumber, lokasi, dan waktu secara sukarela. Hindari pertanyaan yang menggiring jawaban.'],
+    ['NEXT STEP','Rumuskan prioritas tindak lanjut bersama klien sebelum menggunakan pernyataan dalam berkas resmi.']
+   ]}
+ );
+ if(day2FamilyPriority)files.push({
+  id:'family_action',name:'Family_Followup_Plan.pdf',kind:'PDF Document',size:'230 KB',folder:'PBK Group',
+  title:'ZONA B · FOLLOW-UP STRATEGY',badge:'WORKING PLAN · 10.20',
+  metadata:[['Priority',day2FamilyPriority==='consult'?'Consult with families':'Corroborate witness statements'],['Date','26 October 2026'],['Lead','Nakula · Nirmala']],
+  body:[
+   ['DECISION',day2FamilyPriority==='consult'?'Mendahulukan konsultasi keluarga untuk menyepakati kebutuhan dan persetujuan penggunaan informasi.':'Mendahulukan verifikasi independen atas waktu dan lokasi dalam kesaksian, dengan persetujuan keluarga.'],
+   ['SAFEGUARDS','Kebutuhan mendesak klien tetap dicatat; kesaksian tidak boleh dibagikan tanpa izin dan tidak dianggap final tanpa pemeriksaan.'],
+   ['STATUS','Rencana tindak lanjut telah dikirim kepada Nirmala. Penilaian perkara dan keputusan hukum berikutnya masih menunggu dokumen tambahan.']
+  ]
+ });
+ return files;
+}
+function nakulaFilesAvailableDocs(){return [...nakulaFilesDocs,...nakulaAdditionalDocs()]}
+
 let nakulaFilesPath='root',nakulaFilesTab='browse',nakulaFilesDocId=null,nakulaFilesInfo=false;
 const nakulaFilesReady=()=>day2Stage!=='none'&&!currentStoryEnding;
 function ensureNakulaFilesIcon(){
@@ -1870,7 +1922,7 @@ function renderNakulaFilesApp(){
  content.style.padding='0';content.style.overflowY='auto';content.style.overflow='auto';
  const root=nakulaFilesPath==='root';
  const detail=nakulaFilesPath==='document';
- const current=nakulaFilesDocs.find(d=>d.id===nakulaFilesDocId);
+ const current=nakulaFilesAvailableDocs().find(d=>d.id===nakulaFilesDocId);
  const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='downloads'?'Downloads':'Personal';
  head.innerHTML='<button type="button" class="plain-btn nakula-files-nav-back" data-nakula-files-back>‹ <span>'+
  (detail?'PBK Group':root?'Home':'Browse')+'</span></button><span class="app-title">'+title+'</span>'+
@@ -1893,7 +1945,7 @@ function renderNakulaFilesApp(){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>PBK Group</h1>'+
    (day2FilesReceived?
-    '<p class="nakula-files-help">Shared by Nirmala · 26 Oct 2026</p><div class="nakula-files-document-list">'+nakulaFilesDocs.map(nakulaFilesRow).join('')+'</div>'+
+    '<p class="nakula-files-help">Shared by Nirmala · 26 Oct 2026</p><div class="nakula-files-document-list">'+nakulaFilesAvailableDocs().map(nakulaFilesRow).join('')+'</div>'+
     '<p class="nakula-files-tip">Open <b>AMDAL_Approval_Final.pdf</b> and <b>Digital_Signature_Report.pdf</b> to cross-check the dates.</p>':
     '<div class="nakula-files-empty"><div>◌</div><strong>No documents yet</strong><span>Nirmala will send the case materials to this folder.</span></div>')+'</div>';
  }else if(nakulaFilesPath==='downloads'||nakulaFilesPath==='personal'){
@@ -1904,10 +1956,10 @@ function renderNakulaFilesApp(){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div><h1>'+(nakulaFilesTab==='recents'?'Recents':'Browse')+'</h1>'+
    '<div class="nakula-files-search">⌕ <span>Search</span></div>'+
    (nakulaFilesTab==='recents'?
-    (day2FilesReceived?'<div class="nakula-files-section-title">Recently Opened</div>'+nakulaFilesDocs.slice(0,3).map(nakulaFilesRow).join(''):
+    (day2FilesReceived?'<div class="nakula-files-section-title">Recently Opened</div>'+nakulaFilesAvailableDocs().slice(-3).map(nakulaFilesRow).join(''):
     '<div class="nakula-files-empty"><div>◷</div><strong>No Recents</strong><span>Your recently opened case files will appear here.</span></div>'):
     '<div class="nakula-files-section-title">Locations</div><div class="nakula-files-location-list">'+
-     nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?'5 items':'Waiting for shared documents')+
+     nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?nakulaFilesAvailableDocs().length+' items':'Waiting for shared documents')+
      nakulaFilesFolder('personal','Personal','On My iPhone')+
      nakulaFilesFolder('downloads','Downloads','On My iPhone')+
     '</div>')+'</div>'+
@@ -1918,17 +1970,27 @@ function renderNakulaFilesApp(){
   '<section class="nakula-files-decision" role="group" aria-label="Evidence investigation choice"><small>07.35 · CASE DECISION</small><h2>What should Nakula do?</h2><p>Both paths can progress. Choose which evidence trail to prioritize.</p>'+
   '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
   '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
+ const familyChoice=day2FamilyDocsReady()&&!day2FamilyPriority&&day2FamiliesReceived?
+  '<section class="nakula-files-decision" role="group" aria-label="Family advocacy choice"><small>10.10 · CLIENT PRIORITY</small><h2>What should Nakula prioritize?</h2><p>Both paths protect the clients. Their needs and consent must remain central.</p>'+
+  '<button type="button" data-nakula-family-choice="consult"><strong>Consult with the Families</strong><span>Discuss needs, explain options, obtain consent</span></button>'+
+  '<button type="button" data-nakula-family-choice="corroborate"><strong>Verify the Witness Statements</strong><span>Check timeline and locations without pressuring clients</span></button></section>':'';
+ const chapterNext=day2CaseBriefAvailable()&&!day2BriefingDone&&day2CaseBriefRead&&!detail?
+  '<div class="nakula-files-return-bar"><span>✓ Case brief reviewed · 09.00</span><button type="button" data-nakula-calendar-open>Open Calendar Briefing</button></div>':'';
+ const familyNext=day2FamilyPriority&&!detail?'<div class="nakula-files-return-bar"><span>✓ Family follow-up saved</span><button type="button" data-nakula-family-return>Return to Nirmala</button></div>':'';
  const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
   '<div class="nakula-files-return-bar"><span>✓ '+(day2InvestigationChoice==='verify'?'Digital signature verification':'Original-document provenance')+' prioritized</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
- content.innerHTML='<div class="nakula-files-screen">'+body+investigationChoice+callout+'</div>';
+ content.innerHTML='<div class="nakula-files-screen">'+body+investigationChoice+familyChoice+chapterNext+familyNext+callout+'</div>';
 }
 function nakulaOpenFilesDocument(id){
- const doc=nakulaFilesDocs.find(d=>d.id===id);
+ const doc=nakulaFilesAvailableDocs().find(d=>d.id===id);
  if(!doc||!day2FilesReceived)return;
  nakulaFilesDocId=id;nakulaFilesPath='document';nakulaFilesInfo=false;
  if(id==='approval')day2FilesInspected.approval=true;
  if(id==='signature')day2FilesInspected.metadata=true;
- saveStoryState('CP02-files-investigation');
+ if(id==='casebrief')day2CaseBriefRead=true;
+ if(id==='family_statements')day2FamilyDocsRead.statements=true;
+ if(id==='family_intake')day2FamilyDocsRead.client=true;
+ saveStoryState(id==='casebrief'?'CP02-03-case-brief-read':id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
  render();
 }
 function nakulaFilesBack(){
@@ -1944,6 +2006,28 @@ back=function(){
 document.addEventListener('click',e=>{
  const open=e.target.closest('[data-nakula-files-open]');
  if(open){e.preventDefault();e.stopImmediatePropagation();if(nakulaFilesReady()){nakulaFilesPath='pbk';openApp('files')}return}
+ const goCalendar=e.target.closest('[data-nakula-calendar-open]');
+ if(goCalendar){e.preventDefault();e.stopImmediatePropagation();openApp('calendar');return}
+ const showCaseFile=e.target.closest('[data-nakula-calendar-case-file]');
+ if(showCaseFile){e.preventDefault();e.stopImmediatePropagation();if(day2CaseBriefAvailable()){nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument('casebrief')}return}
+ const startBrief=e.target.closest('[data-nakula-calendar-briefing]');
+ if(startBrief&&state.app==='calendar'&&day2CaseBriefRead&&!day2BriefingDone){
+  e.preventDefault();e.stopImmediatePropagation();day2CalendarBriefOpen=true;render();return;
+ }
+ const finishBrief=e.target.closest('[data-nakula-calendar-finish]');
+ if(finishBrief&&state.app==='calendar'){e.preventDefault();e.stopImmediatePropagation();finishDay2CalendarBriefing();return}
+ const openFamily=e.target.closest('[data-nakula-calendar-families], [data-nakula-family-files-open]');
+ if(openFamily){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(day2FamiliesReceived){nakulaFilesPath='pbk';openApp('files')}
+  return;
+ }
+ const chooseFamily=e.target.closest('[data-nakula-family-choice]');
+ if(chooseFamily&&state.app==='files'){
+  e.preventDefault();e.stopImmediatePropagation();chooseDay2FamilyPriority(chooseFamily.dataset.nakulaFamilyChoice);return;
+ }
+ const familyReturn=e.target.closest('[data-nakula-family-return]');
+ if(familyReturn){e.preventDefault();e.stopImmediatePropagation();openStoryThread('nirmala');return}
  const choice=e.target.closest('[data-nakula-investigation-choice]');
  if(choice&&state.screen==='app'&&state.app==='files'){
   e.preventDefault();e.stopImmediatePropagation();
