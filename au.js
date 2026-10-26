@@ -910,7 +910,7 @@ function day3ChecklistHtml(){
   '<div class="nakula-day3-progress"><div style="width:'+(completed*20)+'%"></div></div>'+
   '<div class="nakula-day3-check-rows">'+DAY3_CHECKLIST_ITEMS.map((x,i)=>
    '<button type="button" class="nakula-day3-check-row'+(day3ChecklistChecks[i]?' is-checked':'')+'" data-day3-check="'+i+'" '+
-    (day3Stage!=='checklist'||day3ChecklistChecks[i]?'disabled':'')+
+    (day3Stage!=='checklist'||day3ChecklistChecks[i]||i!==completed?'disabled':'')+
     ' aria-pressed="'+(!!day3ChecklistChecks[i])+'">'+
     '<span class="nakula-day3-check-circle">'+(day3ChecklistChecks[i]?'✓':'')+'</span>'+
     '<span class="nakula-day3-check-copy"><strong>'+x.label+'</strong><small>'+x.detail+'</small></span>'+
@@ -918,7 +918,7 @@ function day3ChecklistHtml(){
   ).join('')+'</div>'+
   (completed===5?
    '<div class="nakula-day3-ready"><strong>✓ Pagi selesai · 05.00</strong><span>Agenda sudah dicatat. Periksa pesan masuk.</span><button type="button" data-day3-open-harley '+(day3HarleyDelivered?'':'disabled')+'>Buka Chat Harley</button></div>':
-   '<p class="nakula-day3-check-foot">Centang setiap kegiatan yang sudah dilakukan. Waktu cerita akan bergerak hingga pukul 05.00.</p>')+
+   '<p class="nakula-day3-check-foot">Mulai dari kegiatan pertama. Setiap centang membuka kegiatan berikutnya dan memajukan waktu hingga pukul 05.00.</p>')+
   '</section>';
 }
 function day3ChecklistClockText(){
@@ -946,7 +946,8 @@ function renderDay3Checklist(){
  }
 }
 function checkDay3Item(index){
- if(day3Stage!=='checklist'||!Number.isInteger(index)||index<0||index>=5||day3ChecklistChecks[index])return;
+ if(day3Stage!=='checklist'||!Number.isInteger(index)||index<0||index>=5||day3ChecklistChecks[index]||
+    index!==day3ChecklistChecks.filter(Boolean).length)return;
  day3ChecklistChecks[index]=true;
  const count=day3ChecklistChecks.filter(Boolean).length;
  const minute=DAY3_MORNING_MINUTES+count*6;
@@ -1096,6 +1097,8 @@ function decorateDay3Safari(){
  if(state.view==='day3-article'){renderDay3Article();return}
  if(day3HarleyDelivered!==DAY3_HARLEY_MESSAGES.length)return;
  const content=$au('app-content');if(!content||content.querySelector('[data-day3-safari-article]'))return;
+ const issue=content.querySelector('.nakula-news-issue span:first-child');
+ if(issue)issue.textContent='Tuesday, 27 October 2026';
  const featured='<section class="nakula-day3-safari-feature"><span>THE CIVIC LEDGER · 27 OKTOBER 2026</span>'+
   '<h2>Kasus Zona B: Pertemuan Pengacara PBK dan Keluarga Korban Jadi Sorotan</h2>'+
   '<p>Rencana pertemuan Nakula dan Damar beredar di kalangan jurnalis.</p>'+
