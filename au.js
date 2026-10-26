@@ -400,7 +400,36 @@ let day2Stage='none',day2TransitionRunning=false,day2TransitionTimer=null,day2Tr
 const DAY2_TRANSITION_PAUSE_MS=7000;
 let day2BriefPrepared=false,day2BriefChoice=null,day2NirmalaDelivered=false,day2BriefKickoffScheduled=false,day2NirmalaNotifyTimer=null;
 const DAY2_MORNING_MINUTES=1440+7*60+12;
-const DAY2_ADNAN_MESSAGE='Pagi, Na. Saya sudah baca laporanmu semalam. Simpan seluruh riwayat panggilannya. Kita bahas bersama dengan Nirmala pagi ini, terutama berkas PBK Group.';
+const DAY2_ADNAN_MESSAGE={
+ angry:'Pagi, Na. Saya sudah baca laporanmu semalam. Saya lihat ada panggilan kedua setelah sambungan kamu putus. Nomor dan waktunya sama? Simpan semua riwayatnya. Kita bahas bersama Nirmala pagi ini.',
+ normal:'Pagi, Na. Saya sudah baca laporanmu semalam. Selain PBK dan Zona B, apakah penelepon menyebut nama atau istilah lain? Simpan riwayat panggilannya. Kita bahas bersama Nirmala pagi ini.'
+};
+/* Keep only one opening message at 07.12. Older saves contained an
+   additional 07.14 “Pagi, Na” from the route-specific briefing. This
+   migration removes that one redundant bubble and script step while
+   preserving cursors, decisions, later dialogue and autoplay. */
+function day2MorningIntroText(){
+ return unknownInterrupted?DAY2_ADNAN_MESSAGE.angry:DAY2_ADNAN_MESSAGE.normal;
+}
+function reconcileDay2MorningIntro(){
+ const adnan=threadById('adnan');
+ if(!adnan)return;
+ const opening=adnan.messages.find(m=>m.day2Morning===true);
+ if(!opening)return;
+ opening.text=day2MorningIntroText();
+ const redundant=m=>m?.day2Brief===true&&m.time==='07.14'
+  &&typeof m.text==='string'&&m.text.startsWith('Pagi, Na.');
+ let removedBeforeCursor=0;
+ for(let i=adnanTimeline.length-1;i>=0;i--){
+  if(!redundant(adnanTimeline[i]))continue;
+  if(i<adnanCursor)removedBeforeCursor++;
+  adnanTimeline.splice(i,1);
+ }
+ adnanCursor=Math.max(0,adnanCursor-removedBeforeCursor);
+ if(adnan.messages.some(redundant)){
+  adnan.messages=adnan.messages.filter(m=>!redundant(m));
+ }
+}
 /* CHAPTER 02.1 — THE MORNING BRIEF
    Optional incident-call path has lasting dialogue consequences, but neither
    path locks the ending. A second choice records which concern Nakula raises.
@@ -486,11 +515,9 @@ function prepareDay2MorningBrief(){
  if(day2BriefPrepared||day2Stage!=='complete'||!threadById('adnan')?.messages.some(m=>m.day2Morning))return;
  const angry=unknownInterrupted;
  const tailored=angry?[
-  day2BriefMessage(false,'07.14','Pagi, Na. Saya lihat ada panggilan kedua setelah kamu memutus sambungan. Nomor dan waktunya sama?'),
   day2BriefMessage(true,'07.15','Nomornya sama, Pak. Panggilan kedua lebih agresif. Saya simpan kedua log beserta kronologinya.'),
   day2BriefMessage(false,'07.16','Baik. Jangan hapus atau ubah catatan waktunya. Kalau ada panggilan baru, laporkan dulu kepada saya.')
  ]:[
-  day2BriefMessage(false,'07.14','Pagi, Na. Kamu membiarkan penelepon menyelesaikan peringatannya. Ada nama atau istilah spesifik selain PBK dan Zona B?'),
   day2BriefMessage(true,'07.15','Tidak ada nama baru, Pak. Tapi dia tahu perkara yang sedang kita tangani. Saya catat kata-katanya tanpa menebak identitasnya.'),
   day2BriefMessage(false,'07.16','Good. That is the right approach. Kita bekerja dari fakta, bukan dari orang yang paling keras mengancam.')
  ];
@@ -504,6 +531,7 @@ function prepareDay2MorningBrief(){
   day2BriefMessage(false,'07.23','Good. See you at nine. Bring the discrepancies, not assumptions.')
  ];
  adnanTimeline.push(...tailored,...common);
+ reconcileDay2MorningIntro();
  day2BriefPrepared=true;
  saveStoryState('CP02-morning-brief-ready');
 }
@@ -640,6 +668,7 @@ function loadStoryState(){
  }
  unknownQueued=!!p.unknownQueued;unknownAttempt=Math.max(0,Math.min(100,Number(p.unknownAttempt)||0));
  unknownInterrupted=!!p.unknownInterrupted;
+ reconcileDay2MorningIntro();
  currentStoryEnding=isKnownStoryEnding(saved.endingId)?saved.endingId:null;
  storyAwaitingSilenceChoice=!!p.storyAwaitingSilenceChoice&&!currentStoryEnding;
  aftermathTriggered=!!p.aftermathTriggered;adnanIncidentPending=!!p.adnanIncidentPending;
@@ -1092,9 +1121,10 @@ function deliverDay2MorningMessage(){
  const adnan=threadById('adnan');
  if(!adnan)return;
  if(!adnan.messages.some(m=>m.day2Morning===true)){
-  adnan.messages.push({me:false,time:'07.12',text:DAY2_ADNAN_MESSAGE,day2Morning:true});
+  adnan.messages.push({me:false,time:'07.12',text:day2MorningIntroText(),day2Morning:true,dayOffset:1});
   adnan.date='07.12';
  }
+ reconcileDay2MorningIntro();
  adnanUnread=true;
  const idx=threads.findIndex(t=>t.id==='adnan');
  if(idx>0)threads.unshift(...threads.splice(idx,1));
