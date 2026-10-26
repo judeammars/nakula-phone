@@ -2032,3 +2032,15 @@
  #phone.in-app.harley-au-mode .convo-scroll .bubble-row .nakula-file-attachment{width:238px;padding:9px;gap:7px}
  #phone.in-app .nakula-files-decision{margin-left:8px;margin-right:8px}
 }
+
+/* Attachment is a second, full-width item below Nirmala's bubble, not a
+   sibling displayed alongside it in the normal horizontal bubble row. */
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment{
+ flex-direction:column;align-items:flex-start;gap:2px;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .bubble{
+ align-self:flex-start;
+}
+#phone.in-app.harley-au-mode .convo-scroll .bubble-row.chat-has-attachment .nakula-file-attachment{
+ align-self:flex-start;margin-top:5px;
+}
