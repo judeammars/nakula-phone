@@ -550,6 +550,121 @@ function preserveDay2MentariEvidence(){
  render();
 }
 
+
+/* CHAPTER 02.6 — THE SETTLEMENT OFFER.
+   A settlement proposal is not binding. The clients, not Nakula, decide
+   whether to authorize any eventual agreement. */
+let day2OfferDueAt=0,day2OfferTimer=null,day2OfferDelivered=false;
+let day2OfferOpened=false,day2OfferDocRead=false,day2OfferChoice=null,day2OfferUnread=false;
+let day2OfferView='inbox',day2OfferNotice=null;
+const DAY2_OFFER_SUBJECT='Usulan Kerangka Penyelesaian · Zona B';
+const DAY2_OFFER_CHOICES=Object.freeze({
+ breakdown:{
+  label:'Minta Rincian Tertulis',
+  subtitle:'Perjelas penerima, pos kompensasi, syarat, dan dasar perhitungan',
+  outgoing:'Pak, tawaran PBK sudah masuk. Saya ingin meminta rincian Rp150 miliar, cakupan penerima, syarat penyelesaian, dan dasar perhitungannya sebelum kita memberi tanggapan substantif.',
+  reply:'Setuju, Na. Minta proposal lengkapnya untuk kita telaah. Angka besar tanpa rincian belum tentu menjawab kebutuhan keluarga. Jangan menjanjikan persetujuan apa pun.'
+ },
+ consult:{
+  label:'Konsultasikan kepada Klien',
+  subtitle:'Jelaskan tawaran dan dengarkan sikap keluarga tanpa menekan mereka',
+  outgoing:'Pak, PBK mengirim kerangka penyelesaian Rp150 miliar. Prioritas saya adalah menginformasikan tawaran ini secara utuh kepada para klien, lalu mendengar kebutuhan dan sikap mereka tanpa memberi tekanan.',
+  reply:'Good. Klien yang berhak menentukan sikap setelah memahami pilihan dan konsekuensinya. Siapkan ringkasan yang mudah dimengerti, termasuk syarat-syarat yang belum jelas.'
+ },
+ review:{
+  label:'Telaah Strategi Bersama Adnan',
+  subtitle:'Uji risiko hukum dan bukti tanpa menunda hak klien memperoleh informasi',
+  outgoing:'Pak, PBK mengirimkan usulan penyelesaian. Saya ingin menelaah risiko hukum, ruang lingkup klausul pelepasan tuntutan, dan bukti AMDAL bersama Bapak. Klien tetap perlu diberi informasi tepat waktu.',
+  reply:'Baik, Na. Siapkan catatan risiko dan penilaian opsi perkara. Kita tidak boleh menganggap tawaran itu pengakuan kesalahan, tetapi juga tidak boleh menutup pilihan klien.'
+ }
+});
+function ensureDay2OfferNotice(){
+ if(day2OfferNotice)return day2OfferNotice;
+ const el=document.createElement('button');
+ el.type='button';el.className='nakula-offer-notification';el.hidden=true;
+ el.setAttribute('data-day2-offer-open','');
+ el.innerHTML='<span class="nakula-offer-icon">✉</span><span class="nakula-offer-notice-text"><strong>MAIL · HHP Legal Counsel</strong><small>Usulan penyelesaian perkara Zona B</small></span><span class="nakula-offer-notice-time">now</span>';
+ $au('phone').appendChild(el);day2OfferNotice=el;return el;
+}
+function showDay2OfferNotice(){
+ if(state.screen==='lock'||!day2OfferUnread)return;
+ ensureDay2OfferNotice().hidden=false;
+}
+function hideDay2OfferNotice(){if(day2OfferNotice)day2OfferNotice.hidden=true}
+function scheduleDay2Offer(){
+ if(!day2MentariPhotoDelivered||day2OfferDelivered||day2OfferTimer||currentStoryEnding)return;
+ if(!day2OfferDueAt)day2OfferDueAt=Date.now()+9000;
+ day2OfferTimer=setTimeout(()=>{
+  day2OfferTimer=null;
+  if(day2MentariPhotoDelivered&&!day2OfferDelivered)deliverDay2Offer();
+ },Math.max(0,day2OfferDueAt-Date.now()));
+}
+function deliverDay2Offer(){
+ if(day2OfferDelivered||!day2MentariPhotoDelivered)return;
+ day2OfferDelivered=true;day2OfferUnread=true;day2OfferDueAt=0;
+ window.nakulaNarrativeClock.set(10,45,1);
+ saveStoryState('CP02-06-settlement-offer-arrived');
+ if(state.screen!=='lock'){showDay2OfferNotice();sound()}
+ if(state.screen==='app'&&state.app==='mail')render();
+}
+function openDay2OfferMail(view='inbox'){
+ if(!day2OfferDelivered)return;
+ hideDay2OfferNotice();day2OfferView=view==='offer'?'offer':'inbox';
+ if(day2OfferView==='offer'){
+  day2OfferOpened=true;day2OfferUnread=false;
+  saveStoryState('CP02-06-offer-opened');
+ }
+ openApp('mail');
+}
+function chooseDay2Offer(choice){
+ if(!day2OfferDelivered||!day2OfferOpened||!day2OfferDocRead||day2OfferChoice
+  ||!Object.prototype.hasOwnProperty.call(DAY2_OFFER_CHOICES,choice))return;
+ day2OfferChoice=choice;
+ const route=DAY2_OFFER_CHOICES[choice],a=threadById('adnan');
+ if(a&&!a.messages.some(m=>m.day2OfferAdvice)){
+  a.messages.push({me:true,time:'10.49',dayOffset:1,day2OfferDecision:true,text:route.outgoing});
+  a.messages.push({me:false,time:'10.50',dayOffset:1,day2OfferAdvice:true,text:route.reply});
+  a.date='10.50';adnanUnread=true;
+  const ix=threads.findIndex(t=>t.id==='adnan');
+  if(ix>0)threads.unshift(...threads.splice(ix,1));
+ }
+ window.nakulaNarrativeClock.set(10,50,1);
+ saveStoryState('CP02-06-settlement-decision');
+ syncHarleyBadge();hideDay2OfferNotice();
+ if(state.screen==='app'&&state.app==='mail')render();
+}
+function renderDay2Mail(){
+ if(state.screen!=='app'||state.app!=='mail'||!day2OfferDelivered)return;
+ const content=$au('app-content'),head=$au('app-header');
+ if(!content||!head)return;
+ const legacy=content.innerHTML,opened=day2OfferView==='offer';
+ head.innerHTML='<button type="button" class="plain-btn" data-day2-mail-back>‹ <span>'+(opened?'Kotak Masuk':'Home')+'</span></button><span class="app-title">'+(opened?'Pesan':'Mail')+'</span><span style="width:56px"></span>';
+ const inbox='<div class="nakula-mail-case-head"><span>KOTAK MASUK · 26 OKTOBER 2026</span><h1>Mail</h1><small>1 pesan perkara</small></div>'+
+  '<button type="button" class="nakula-mail-offer-row" data-day2-mail-open>'+
+    (day2OfferUnread?'<span class="nakula-mail-unread-dot"></span>':'<span class="nakula-mail-unread-placeholder"></span>')+
+    '<span class="nakula-mail-offer-row-copy"><strong>HHP Legal Counsel</strong><b>'+DAY2_OFFER_SUBJECT+'</b><small>Usulan skema penyelesaian sengketa, termasuk pagu indikatif Rp150 miliar…</small></span><time>10.45</time></button>'+
+  '<details class="nakula-mail-personal"><summary>Pesan lokal lainnya</summary>'+legacy+'</details>';
+ const offer='<div class="nakula-mail-letter"><div class="nakula-mail-letter-top"><small>DITERIMA · 10.45</small><h2>'+DAY2_OFFER_SUBJECT+'</h2>'+
+   '<div class="nakula-mail-sender"><span class="nakula-mail-sender-avatar">H</span><span><strong>HHP Legal Counsel</strong><small>Kuasa Hukum PBK Group · Untuk Nakula S. Bumi</small></span></div></div>'+
+   '<div class="nakula-mail-letter-body"><p>Yth. Bapak Nakula Shankara Bumi,</p>'+
+   '<p>Atas nama klien kami, PBK Group, kami menyampaikan usulan awal kerangka penyelesaian sengketa terkait peristiwa Zona B.</p>'+
+   '<p>PBK bersedia membahas skema kompensasi dengan nilai indikatif agregat hingga <strong>Rp150.000.000.000</strong>, dengan perincian penerima, cakupan pembayaran, syarat, dan mekanisme pelaksanaan yang masih harus disepakati.</p>'+
+   '<p>Usulan ini disampaikan untuk keperluan negosiasi, bukan pengakuan tanggung jawab. Belum terdapat kesepakatan yang mengikat para pihak. Kami mengundang tanggapan tertulis serta waktu pertemuan lanjutan.</p>'+
+   '<p>Hormat kami,<br>Tim Kuasa Hukum PBK Group<br>HHP Legal Counsel</p></div>'+
+   '<button type="button" class="nakula-mail-pdf" data-day2-offer-attachment><span>PDF</span><span><strong>PBK_Settlement_Framework.pdf</strong><small>Lampiran · 480 KB · Buka di Files</small></span><span>›</span></button>'+
+   (!day2OfferDocRead?
+    '<div class="nakula-mail-task-info">Buka lampiran dan periksa syarat tawaran sebelum memilih tindak lanjut.</div>':
+    !day2OfferChoice?
+     '<div class="nakula-mail-decision"><small>KEPUTUSAN PERKARA · 10.48</small><h3>Bagaimana Nakula menanggapi tawaran ini?</h3><p>Keputusan ini menentukan langkah pemeriksaan dan konsultasi, bukan menerima atau menolak tawaran atas nama korban.</p>'+
+     Object.entries(DAY2_OFFER_CHOICES).map(([id,o])=>
+      '<button type="button" data-day2-offer-choice="'+id+'"><strong>'+o.label+'</strong><span>'+o.subtitle+'</span></button>').join('')+'</div>':
+     '<div class="nakula-mail-decision-complete"><span>✓ Keputusan tersimpan</span><strong>'+DAY2_OFFER_CHOICES[day2OfferChoice].label+'</strong>'+
+     '<p>Ringkasan tindak lanjut sudah dikirim kepada Adnan. Keputusan akhir atas tawaran tetap berada pada para klien.</p>'+
+     '<button type="button" data-day2-offer-adnan>Buka Chat Adnan</button></div>')+'</div>';
+ content.innerHTML='<div class="nakula-mail-case">'+(opened?offer:inbox)+'</div>';
+ content.style.padding='0';content.style.overflowY='auto';content.scrollTop=0;
+}
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
