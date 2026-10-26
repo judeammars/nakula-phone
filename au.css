@@ -1036,7 +1036,7 @@
 #phone .nakula-silence-body p{font-size:13px;line-height:1.45;color:#c3c3cf;margin:0 0 20px}
 #phone .nakula-silence-body button{
  width:100%;min-height:44px;margin:6px 0;border-radius:13px;border:0;
- background:#dfe4ed;color:#14151b;font:600 13px inherit;cursor:pointer;
+ background:#dfe4ed;color:#14151b;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;
 }
 #phone .nakula-silence-body button.nakula-silence-dnd{background:#373941;color:#e5e5e9}
 #phone .nakula-story-sheet[hidden],
