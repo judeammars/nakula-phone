@@ -165,7 +165,7 @@ function ringPulse(){
 function recordUnknownCall(kind){
  const duration=callConnectedAt?Math.max(1,Math.round((Date.now()-callConnectedAt)/1000)):0;
  unknownCallHistory.unshift({id:Date.now()+'-'+unknownAttempt,kind,
-  time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),duration});
+  time:window.nakulaNarrativeClock.time().replace(':','.'),duration});
  unknownCallHistory=unknownCallHistory.slice(0,30);
  // Keep records in memory for this playthrough, not across website visits.
  if(state.screen==='app'&&state.app==='phone')render();
@@ -175,7 +175,7 @@ function finishUnknownIncident(){
  if(aftermathTriggered||unknownCallHistory.length===0)return;
  aftermathTriggered=true;
  if(!notes.some(n=>Number(n.id)===9901)){
-  notes.unshift({id:9901,title:'PANGGILAN TAK DIKENAL / catatan insiden',date:'25 Oktober 2026 · 23.57',body:[
+  notes.unshift({id:9901,title:'PANGGILAN TAK DIKENAL / catatan insiden',date:window.nakulaNarrativeClock.dateLabel(),body:[
    'CATATAN PANGGILAN — PRIBADI','',
    'Nomor penelepon: Disembunyikan / Tidak dikenal.',
    'Panggilan masuk berulang kali setelah beberapa kali ditolak.',
@@ -191,10 +191,11 @@ function finishUnknownIncident(){
  }
  if(!adnanIncidentPending){
   adnanIncidentPending=true;
-  adnanTimeline.push({me:true,time:'23.59',text:adnanIncidentText});
+  adnanTimeline.push({me:true,time:window.nakulaNarrativeClock.time().replace(':','.'),text:adnanIncidentText});
  }
  if(!threadById('unknown')){
-  threads.unshift({id:'unknown',name:'Unknown',role:'Unknown Number',initials:'?',date:'23.57',
+  unknownTimeline[0].time=window.nakulaNarrativeClock.time().replace(':','.');
+  threads.unshift({id:'unknown',name:'Unknown',role:'Unknown Number',initials:'?',date:unknownTimeline[0].time,
    messages:unknownTimeline.map(m=>({...m}))});
  }
  unknownUnread=true;
@@ -237,6 +238,10 @@ document.addEventListener('click',e=>{
 
 function showUnknownCall(){
  if(unknownStage==='answered'||unknownStage==='finished')return;
+ // Fictional jump: Harley's 20:26 becomes 23:57 only when the first call arrives.
+ // Repeat calls move story time by one minute, regardless of actual waiting.
+ if(unknownAttempt===0)window.nakulaNarrativeClock.set(23,57);
+ else window.nakulaNarrativeClock.advance(1);
  unknownAttempt++;
  callConnectedAt=0;
  unknownStage='ringing';
@@ -256,6 +261,7 @@ function queueUnknownCall(){
  callRetryTimer=setTimeout(showUnknownCall,1450);
 }
 function closeUnknownCall(){
+ window.nakulaNarrativeClock.advance(2); // Connected conversation advances two story minutes.
  recordUnknownCall('Answered');
  clearUnknownTimers();
  callScreen.hidden=true;
@@ -266,6 +272,7 @@ function closeUnknownCall(){
 }
 function retryUnknownAfterHangup(){
  // Hanging up while connected makes this same caller redial with an angrier script.
+ window.nakulaNarrativeClock.advance(1);
  recordUnknownCall('Answered');
  clearUnknownTimers();
  unknownInterrupted=true;
@@ -515,6 +522,7 @@ function receive(id=state.thread){
    if(id==='harley'&&current>=script.length)queueUnknownCall();
    return;
   }
+  if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
   if(inScripted()&&state.thread===id){render();sound()}
@@ -530,6 +538,7 @@ function sendScripted(){
  const id=state.thread,script=activeTimeline(),current=activeIndex(),m=script[current];
  if(!m?.me)return;
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
+ if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;render();
  if(id==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length){
