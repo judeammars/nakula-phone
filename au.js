@@ -839,6 +839,62 @@ function scheduleHarleyReply(delay=950){
  },delay);
 }
 
+/* Safari-safe iMessage liquid glass: reflect the bubble currently passing
+   behind the header. Mobile Safari sometimes isolates a nested scroll layer
+   from backdrop-filter, so CSS blur alone does not show its blue silhouette.
+   This reflection derives from actual bubble geometry (not a permanent tint).
+   The existing backdrop blur remains enabled underneath. */
+let nakulaGlassFrame=0;
+function updateNakulaGlassReflection(scroll){
+ const header=$au('app-header');
+ if(!header||!scroll||!scroll.isConnected
+    ||!$au('app-screen').classList.contains('in-conversation'))return;
+ const headRect=header.getBoundingClientRect();
+ if(headRect.height<=0||headRect.width<=0)return;
+ let best=null,bestStrength=0;
+ for(const row of scroll.querySelectorAll('.bubble-row')){
+  const bubble=row.querySelector('.bubble');
+  if(!bubble)continue;
+  const r=bubble.getBoundingClientRect();
+  const top=Math.max(r.top,headRect.top);
+  const bottom=Math.min(r.bottom,headRect.bottom);
+  const overlap=Math.max(0,bottom-top);
+  if(overlap<3)continue;
+  const strength=overlap/Math.min(headRect.height,Math.max(r.height,1));
+  const isBlue=row.classList.contains('me');
+  const priority=strength*(isBlue?1.38:0.45);
+  if(priority<=bestStrength)continue;
+  bestStrength=priority;
+  best={rect:r,top,bottom,isBlue,overlap};
+ }
+ if(!best){
+  header.style.removeProperty('--nakula-chat-glow');
+  return;
+ }
+ const relativeX=Math.max(8,Math.min(92,
+  ((best.rect.left+best.rect.right)/2-headRect.left)/headRect.width*100));
+ const relativeY=Math.max(12,Math.min(90,
+  ((best.top+best.bottom)/2-headRect.top)/headRect.height*100));
+ const share=Math.min(1,best.overlap/headRect.height*1.9);
+ const intensity=best.isBlue?(0.34+share*0.29):(0.12+share*0.08);
+ const rgb=best.isBlue?'9,117,251':'121,129,148';
+ const glow='radial-gradient(ellipse 83% 85% at '+relativeX.toFixed(1)+'% '+relativeY.toFixed(1)+'%, rgba('+rgb+','+intensity.toFixed(3)+') 0%, rgba('+rgb+','+(intensity*.48).toFixed(3)+') 48%, rgba('+rgb+',0) 100%)';
+ header.style.setProperty('--nakula-chat-glow',glow);
+}
+function attachNakulaGlassReflection(scroll){
+ if(!scroll||scroll.dataset.nakulaGlass==='1')return;
+ scroll.dataset.nakulaGlass='1';
+ const refresh=()=>{
+  if(nakulaGlassFrame)cancelAnimationFrame(nakulaGlassFrame);
+  nakulaGlassFrame=requestAnimationFrame(()=>{
+   nakulaGlassFrame=0;
+   updateNakulaGlassReflection(scroll);
+  });
+ };
+ scroll.addEventListener('scroll',refresh,{passive:true});
+ refresh();
+}
+
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
@@ -874,7 +930,7 @@ render=function(){
  $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll"><div class="date-divider">Today '+(state.thread==='unknown'?'23.57':state.thread==='adnan'?'18.42':'20.20')+'</div>'+bubbles+dots+delivered+aftermathCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
- const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
+ const sc=$au('chat-scroll');if(sc){sc.scrollTop=sc.scrollHeight;attachNakulaGlassReflection(sc)}
  if(inHarley()){
   scheduleHarleyReply();
   // A fully received message is the resume boundary, not a partial keypress.
