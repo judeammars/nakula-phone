@@ -182,10 +182,10 @@ callScreen.innerHTML=
    '<div class="nakula-call-caption" id="nakula-call-caption" aria-live="polite"></div>'+
  '</div>'+
  '<div class="nakula-call-actions">'+  // Button text remains accessible for screenreaders
-  '<button type="button" class="nakula-call-decline" data-nakula-call="decline" aria-label="Decline call"><span class="nakula-call-icon">✕</span><small>Decline</small></button>'+
-  '<button type="button" class="nakula-call-accept" data-nakula-call="accept" aria-label="Answer call"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 2.6 3.5 5.7c-1.8 2.3 1.2 8.1 5.6 12.4 4.4 4.4 10.3 7.4 12.5 5.6l2.9-3.2-5.3-4.1-2.7 2.8c-2.8-1.3-5.3-3.8-6.6-6.6l2.7-2.7-4-5.3Z"/></svg><small>Accept</small></button>'+
+  '<button type="button" class="nakula-call-decline" data-nakula-call="decline" aria-label="Decline call"><span class="nakula-call-icon">✕</span><small>Tolak</small></button>'+
+  '<button type="button" class="nakula-call-accept" data-nakula-call="accept" aria-label="Answer call"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 2.6 3.5 5.7c-1.8 2.3 1.2 8.1 5.6 12.4 4.4 4.4 10.3 7.4 12.5 5.6l2.9-3.2-5.3-4.1-2.7 2.8c-2.8-1.3-5.3-3.8-6.6-6.6l2.7-2.7-4-5.3Z"/></svg><small>Angkat</small></button>'+
  '</div>'+
- '<button type="button" class="nakula-call-hangup" data-nakula-call="hangup" hidden>End call</button>';
+ '<button type="button" class="nakula-call-hangup" data-nakula-call="hangup" hidden>Akhiri</button>';
 $au('phone').appendChild(callScreen);
 const callStatus=callScreen.querySelector('#nakula-call-status');
 const callCaption=callScreen.querySelector('#nakula-call-caption');
@@ -698,14 +698,14 @@ function ensureDay2FamilyTaskModal(){
   '<div class="nakula-family-task-backdrop" data-nakula-family-task-later aria-hidden="true"></div>'+
   '<div class="nakula-family-task-dialog">'+
    '<div class="nakula-family-task-app-icon" aria-hidden="true"><span>✓</span></div>'+
-   '<div class="nakula-family-task-overline">NEW TASK · ZONA B</div>'+
-   '<h2 id="nakula-family-task-heading">Choose Your Next Step</h2>'+
-   '<p id="nakula-family-task-description">You have reviewed both family records. How should Nakula proceed?</p>'+
+   '<div class="nakula-family-task-overline">TUGAS BARU · ZONA B</div>'+
+   '<h2 id="nakula-family-task-heading">Pilih Langkah Berikutnya</h2>'+
+   '<p id="nakula-family-task-description">Kedua dokumen keluarga telah diperiksa. Apa yang perlu Nakula prioritaskan?</p>'+
    '<div class="nakula-family-task-options">'+
-    '<button type="button" data-nakula-family-task-choice="consult"><span class="nakula-family-task-option-icon">01</span><span><strong>Consult with the Families</strong><small>Discuss their needs, explain options, and obtain consent</small></span><span class="nakula-family-task-chevron">›</span></button>'+
-    '<button type="button" data-nakula-family-task-choice="corroborate"><span class="nakula-family-task-option-icon">02</span><span><strong>Verify Witness Statements</strong><small>Corroborate time and location while protecting consent</small></span><span class="nakula-family-task-chevron">›</span></button>'+
+    '<button type="button" data-nakula-family-task-choice="consult"><span class="nakula-family-task-option-icon">01</span><span><strong>Konsultasi dengan Keluarga</strong><small>Dengarkan kebutuhan mereka, jelaskan pilihan hukum, dan minta persetujuan</small></span><span class="nakula-family-task-chevron">›</span></button>'+
+    '<button type="button" data-nakula-family-task-choice="corroborate"><span class="nakula-family-task-option-icon">02</span><span><strong>Verifikasi Keterangan Saksi</strong><small>Periksa waktu dan lokasi dengan tetap menghormati persetujuan keluarga</small></span><span class="nakula-family-task-chevron">›</span></button>'+
    '</div>'+
-   '<button type="button" class="nakula-family-task-later" data-nakula-family-task-later>Later</button>'+
+   '<button type="button" class="nakula-family-task-later" data-nakula-family-task-later>Nanti</button>'+
   '</div>';
  $au('phone').appendChild(modal);
  day2FamilyTaskModal=modal;
@@ -840,7 +840,7 @@ function renderDay2Calendar(){
    '<div class="nakula-calendar-event-body"><strong>Zona B · Families & Witness Notes</strong><small>Client communication · Nirmala / Files</small>'+
    '<p>Keterangan Rania dan Harun tersedia untuk ditelaah, dengan privasi dan persetujuan klien tetap dijaga.</p>'+
    '<button type="button" data-nakula-calendar-families>Review Family Records in Files</button>'+
-   (day2FamilyTaskAvailable()?'<button type="button" class="nakula-calendar-task-open" data-nakula-family-task-open>NEW TASK · Choose Follow-up</button>':'')+
+   (day2FamilyTaskAvailable()?'<button type="button" class="nakula-calendar-task-open" data-nakula-family-task-open>TUGAS BARU · Pilih Tindak Lanjut</button>':'')+
    (day2FamilyPriority?'<span class="nakula-calendar-complete">✓ Family follow-up recorded</span>':'')+'</div></div>':'')+
   (!isToday?'<p class="nakula-case-muted">This schedule unlocks during Chapter 02.</p>':'');
  content.appendChild(section);
@@ -1293,7 +1293,7 @@ silenceSheet.hidden=true;
 silenceSheet.setAttribute('role','dialog');
 silenceSheet.setAttribute('aria-modal','true');
 silenceSheet.setAttribute('aria-label','Unknown caller decision');
-silenceSheet.innerHTML='<div class="nakula-silence-body"><div class="nakula-silence-icon">☾</div><small>PHONE · UNKNOWN CALLER</small><h2>Silence this caller?</h2><p>Five calls declined. The number keeps trying to reach you.</p><button type="button" data-story-action="answer-next">Answer Next Call</button><button type="button" class="nakula-silence-dnd" data-story-action="silence-caller">Do Not Disturb</button></div>';
+silenceSheet.innerHTML='<div class="nakula-silence-body"><div class="nakula-silence-icon">☾</div><small>TELEPON · NOMOR TAK DIKENAL</small><h2>Bisukan penelepon ini?</h2><p>Lima panggilan sudah ditolak. Nomor ini terus mencoba menghubungimu.</p><button type="button" data-story-action="answer-next">Angkat Panggilan Berikutnya</button><button type="button" class="nakula-silence-dnd" data-story-action="silence-caller">Jangan Ganggu</button></div>';
 $au('phone').appendChild(silenceSheet);
 function renderStoryEndingMenu(){
  const ending=endingById(currentStoryEnding);
@@ -1804,9 +1804,9 @@ render=function(){
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
  const day2ChoiceUI=state.thread==='adnan'&&next?.choiceId==='day2-brief'&&!day2BriefChoice?
   '<div class="nakula-day2-brief-choice" role="group" aria-label="Choose Nakula’s reply">'+
-   '<span>HOW SHOULD NAKULA RESPOND?</span>'+
-   '<button type="button" data-day2-brief-choice="evidence">Verify the evidence <small>Cross-check PBK documents</small></button>'+
-   '<button type="button" data-day2-brief-choice="safety">Address the threat <small>Request a safety protocol</small></button>'+
+   '<span>BAGAIMANA NAKULA HARUS MERESPONS?</span>'+
+   '<button type="button" data-day2-brief-choice="evidence">Verifikasi Bukti <small>Periksa silang dokumen PBK</small></button>'+
+   '<button type="button" data-day2-brief-choice="safety">Tangani Ancaman <small>Minta prosedur penanganan ancaman</small></button>'+
   '</div>':'';
  const aftermathCta=state.thread==='unknown'&&aftermathTriggered&&!day2MentariPhotoDelivered?
   '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
@@ -2236,13 +2236,13 @@ function renderNakulaFilesApp(){
    '<button type="button" data-nakula-files-tab="browse" class="'+(nakulaFilesTab==='browse'?'active':'')+'"><span>▦</span>Browse</button></nav>';
  }
  const investigationChoice=day2FilesInspectedCore()&&!day2InvestigationChoice&&day2FilesReceived?
-  '<section class="nakula-files-decision" role="group" aria-label="Evidence investigation choice"><small>07.35 · CASE DECISION</small><h2>What should Nakula do?</h2><p>Both paths can progress. Choose which evidence trail to prioritize.</p>'+
-  '<button type="button" data-nakula-investigation-choice="verify"><strong>Verify the Digital Signature</strong><span>Check certificate, timestamp, and authenticity</span></button>'+
-  '<button type="button" data-nakula-investigation-choice="source"><strong>Trace the Original Document</strong><span>Confirm the vendor and insurer’s records</span></button></section>':'';
+  '<section class="nakula-files-decision" role="group" aria-label="Pilihan penyelidikan bukti"><small>07.35 · KEPUTUSAN PERKARA</small><h2>Apa yang harus Nakula lakukan?</h2><p>Kedua pilihan dapat melanjutkan cerita. Pilih pemeriksaan yang diprioritaskan.</p>'+
+  '<button type="button" data-nakula-investigation-choice="verify"><strong>Verifikasi Tanda Tangan Digital</strong><span>Periksa sertifikat, timestamp, dan keasliannya</span></button>'+
+  '<button type="button" data-nakula-investigation-choice="source"><strong>Telusuri Dokumen Asli</strong><span>Konfirmasi catatan vendor dan pihak asuransi</span></button></section>':'';
  const familyChoice=day2FamilyTaskAvailable()&&!detail?
-  '<section class="nakula-family-task-banner"><span>NEW TASK · 10.10</span>'+
-   '<strong>Family Follow-up</strong><small>Both documents reviewed. Your next action is ready.</small>'+
-   '<button type="button" data-nakula-family-task-open>Choose Next Step</button></section>':'';
+  '<section class="nakula-family-task-banner"><span>TUGAS BARU · 10.10</span>'+
+   '<strong>Tindak Lanjut Keluarga</strong><small>Kedua dokumen telah diperiksa. Pilih langkah berikutnya.</small>'+
+   '<button type="button" data-nakula-family-task-open>Pilih Langkah</button></section>':'';
  const chapterNext=day2CaseBriefAvailable()&&!day2BriefingDone&&day2CaseBriefRead&&!detail?
   '<div class="nakula-files-return-bar"><span>✓ Case brief reviewed · 09.00</span><button type="button" data-nakula-calendar-open>Open Calendar Briefing</button></div>':'';
  // Completed tasks belong in the saved story state, not in permanent
