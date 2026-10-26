@@ -1099,6 +1099,7 @@ enterPasscodeDigit=function(digit){
 const oldLayer=layer;
 layer=function(which){
  oldLayer(which);
+ ensureNakulaFilesIcon();
  $au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages');
  if(which!=='home')hideNotif();
  syncHarleyBadge();
@@ -1285,6 +1286,7 @@ function nakulaRenderChatBubbles(messages){
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
+ if(state.screen==='app'&&state.app==='files'){renderNakulaFilesApp();return}
  if(!inHarley()){
    clearTimeout(harleyNextTimer);harleyNextTimer=null;
    clearTimeout(harleyAutoSendTimer);harleyAutoSendTimer=null;
@@ -1568,5 +1570,160 @@ document.addEventListener('submit',e=>{
  if(e.target&&e.target.id==='note-form')setTimeout(()=>saveStoryState('note-edited'),0);
 });
 window.addEventListener('pagehide',()=>saveStoryState('page-exit'));
+
+/* CHAPTER 02.2 — FILES APP IMPLEMENTATION
+   iOS-inspired interactive file browser rendered entirely on-device.
+   Fictional case documents are browser previews, not claims about real litigation. */
+const nakulaFilesDocs=Object.freeze([
+ {id:'approval',name:'AMDAL_Approval_Final.pdf',kind:'PDF Document',size:'1.8 MB',folder:'PBK Group',icon:'pdf',
+  title:'PBK GROUP · PERSETUJUAN LINGKUNGAN',badge:'SALINAN YANG DISERAHKAN',
+  metadata:[['Document date','15 October 2026'],['Signature field','Jenoah Pangestu'],['Pages','7'],['File source','Vendor insurance attachment']],
+  body:[
+   ['JUDUL','Persetujuan Lingkungan / Operasional Area Zona B'],
+   ['Nomor referensi','PBK-ENV/ZB/10-2026/041'],
+   ['Tanggal tertulis','15 Oktober 2026'],
+   ['Pihak terkait','PBK Group · Divisi Operasional'],
+   ['Nama penanda tangan','Jenoah Pangestu'],
+   ['Keterangan','Dokumen ini tercatat sebagai persetujuan aktivitas di Zona B. Salinan diperoleh melalui lampiran email vendor logistik kepada pihak asuransi.'],
+   ['CATATAN PEMERIKSAAN','Tanggal yang tercetak perlu dibandingkan dengan waktu penandatanganan elektronik yang tercantum dalam laporan terpisah.']
+  ]},
+ {id:'revision',name:'AMDAL_Approval_Rev.pdf',kind:'PDF Document',size:'1.5 MB',folder:'PBK Group',icon:'pdf',
+  title:'PBK GROUP · RIWAYAT REVISI',badge:'SALINAN PEMBANDING',
+  metadata:[['Document date','15 October 2026'],['Revision','Revision B'],['Pages','5'],['Integrity','Pending validation']],
+  body:[['JUDUL','Lembar Revisi Persetujuan Lingkungan'],['Dokumen','PBK-ENV/ZB/10-2026/041 · Rev. B'],['Tanggal tercantum','15 Oktober 2026'],['Catatan','Penomoran dan tanggal tercetak tidak serta-merta menunjukkan kapan berkas digital ditandatangani.'],['STATUS','Perbandingan terhadap salinan dari pihak asuransi masih berlangsung.']]},
+ {id:'vendor',name:'Vendor_Insurance_Email.pdf',kind:'PDF Document',size:'930 KB',folder:'PBK Group',icon:'pdf',
+  title:'EMAIL FORWARDED · VENDOR / INSURER',badge:'SOURCE RECORD',
+  metadata:[['Email received','21 October 2026'],['Recipient','Claims Team · Heavy Equipment Insurer'],['Pages','3'],['Chain of custody','Documented by forensic team']],
+  body:[['SUBJECT','Documentation for equipment damage claim · Zona B'],['FROM','Logistics Partner · Kalimantan Operations'],['TO','Insurance Claims Team'],['REFERENCE','PBK operational environmental-approval attachment'],['SUMMARY','Vendor meneruskan salinan dokumen AMDAL sebagai kelengkapan klaim asuransi peralatan. Salinan tersimpan pada penerima di luar sistem PBK.'],['NOTE','Identitas individu dan keaslian email masih memerlukan validasi formal.']]},
+ {id:'signature',name:'Digital_Signature_Report.pdf',kind:'PDF Document',size:'420 KB',folder:'PBK Group',icon:'pdf',
+  title:'DIGITAL SIGNATURE · INITIAL ANALYSIS',badge:'FORENSIC REVIEW',
+  metadata:[['Visible document date','15 October 2026'],['Detected signature time','20 October 2026 · 02:00 WIB'],['Zona B incident','18 October 2026'],['Status','Discrepancy found · expert review pending']],
+  body:[['FILE','AMDAL_Approval_Final.pdf'],['DATE PRINTED ON DOCUMENT','15 OCT 2026'],['OBSERVED SIGNATURE TIMESTAMP','20 OCT 2026 · 02:00 WIB'],['DATE OF ZONA B LANDSLIDE','18 OCT 2026'],['DIFFERENCE','Signature timestamp appears 2 days after the incident and 5 days after the date printed on the document.'],['PRELIMINARY FINDING','Ketidaksesuaian waktu teridentifikasi. Belum cukup untuk menyimpulkan pemalsuan atau atribusi pelaku tanpa validasi tanda tangan digital dan pemeriksaan ahli.']]},
+ {id:'chronology',name:'Zona_B_Chronology.pdf',kind:'PDF Document',size:'680 KB',folder:'PBK Group',icon:'pdf',
+  title:'ZONA B · CASE CHRONOLOGY',badge:'CONFIDENTIAL · WORKING DRAFT',
+  metadata:[['Case','Zona B · PBK Group'],['Incident','18 October 2026'],['Prepared for','Adnan W. · Nakula Shankara Bumi'],['Status','Attorney work product']],
+  body:[['15 OCT','Tanggal persetujuan yang tertulis pada salinan AMDAL.'],['18 OCT','Peristiwa longsor di area Zona B.'],['20 OCT · 02:00','Waktu tanda tangan yang terdeteksi pada hasil pemeriksaan awal.'],['21 OCT','Salinan dokumen terkirim ke pihak asuransi oleh vendor logistik.'],['26 OCT','Nirmala dan tim forensik mengidentifikasi ketidaksesuaian dalam salinan yang diterima.']]}
+]);
+let nakulaFilesPath='root',nakulaFilesTab='browse',nakulaFilesDocId=null,nakulaFilesInfo=false;
+const nakulaFilesReady=()=>day2Stage!=='none'&&!currentStoryEnding;
+function ensureNakulaFilesIcon(){
+ const grid=$au('apps-grid');
+ if(!grid)return;
+ const existing=grid.querySelector('[data-app="files"]');
+ if(!nakulaFilesReady()){
+  if(existing)existing.remove();
+  return;
+ }
+ if(existing)return;
+ const btn=document.createElement('button');
+ btn.type='button';btn.className='app-button nakula-files-app-button';
+ btn.dataset.app='files';btn.setAttribute('aria-label','Open Files');
+ btn.innerHTML='<span class="app-icon icon-files"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="9" width="54" height="46" rx="12" fill="#fff"/><path d="M13 21h38v26H13z" fill="#f7faff"/><path d="M12 22h17l5-5h18c3 0 5 2 5 5v26c0 3-2 5-5 5H12c-3 0-5-2-5-5V27c0-3 2-5 5-5Z" fill="#438cf4"/><path d="M12 22h17l5-5h18" fill="none" stroke="#78b3ff" stroke-width="2.5"/></svg></span><span class="app-name">Files</span>';
+ grid.appendChild(btn);
+}
+function nakulaFilesEsc(v){return esc(v)}
+function nakulaFilesRow(doc){
+ return '<button class="nakula-files-row" type="button" data-nakula-file="'+doc.id+'">'+
+ '<span class="nakula-files-doc-icon" aria-hidden="true">PDF</span>'+
+ '<span class="nakula-files-row-copy"><strong>'+nakulaFilesEsc(doc.name)+'</strong><small>'+doc.kind+' · '+doc.size+'</small></span>'+
+ '<span class="nakula-files-chevron">›</span></button>';
+}
+function nakulaFilesFolder(id,name,details){
+ return '<button type="button" class="nakula-files-folder" data-nakula-folder="'+id+'">'+
+ '<span class="nakula-files-folder-icon"><svg viewBox="0 0 28 25"><path d="M2 6a4 4 0 0 1 4-4h6l3 3h7a4 4 0 0 1 4 4v11a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="currentColor"/></svg></span>'+
+ '<span><strong>'+nakulaFilesEsc(name)+'</strong><small>'+nakulaFilesEsc(details)+'</small></span>'+
+ '<span class="nakula-files-chevron">›</span></button>';
+}
+function renderNakulaFilesApp(){
+ if(!nakulaFilesReady()){goHome();return}
+ const head=$au('app-header'),content=$au('app-content');
+ if(!head||!content)return;
+ $au('app-screen').classList.remove('in-conversation');
+ content.style.padding='0';content.style.overflowY='auto';content.style.overflow='auto';
+ const root=nakulaFilesPath==='root';
+ const detail=nakulaFilesPath==='document';
+ const current=nakulaFilesDocs.find(d=>d.id===nakulaFilesDocId);
+ const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='downloads'?'Downloads':'Personal';
+ head.innerHTML='<button type="button" class="plain-btn nakula-files-nav-back" data-nakula-files-back>‹ <span>'+
+ (detail?'PBK Group':root?'Home':'Browse')+'</span></button><span class="app-title">'+title+'</span>'+
+ '<span class="nakula-files-head-right">'+(detail?'<button type="button" data-nakula-files-info aria-label="Get Info">ⓘ</button>':'')+'</span>';
+ let body='';
+ if(detail&&current){
+  body='<div class="nakula-files-preview">'+
+   '<div class="nakula-files-preview-top"><span class="nakula-files-doc-icon">PDF</span><div><strong>'+nakulaFilesEsc(current.name)+'</strong><small>'+current.size+' · Local preview</small></div></div>'+
+   (nakulaFilesInfo?
+    '<section class="nakula-files-info"><h2>Information</h2>'+current.metadata.map(([k,v])=>
+      '<div class="nakula-files-info-row"><span>'+nakulaFilesEsc(k)+'</span><strong>'+nakulaFilesEsc(v)+'</strong></div>').join('')+
+     '<p>These are case-story documents. Dates and metadata are fictional and provided for investigation gameplay.</p></section>':
+    '<article class="nakula-files-sheet"><div class="nakula-files-watermark">PBK GROUP · CASE MATERIALS</div><div class="nakula-files-sheet-label">'+nakulaFilesEsc(current.badge)+'</div>'+
+     '<h2>'+nakulaFilesEsc(current.title)+'</h2><div class="nakula-files-sheet-rule"></div>'+
+     current.body.map(([k,v])=>'<div class="nakula-files-field"><strong>'+nakulaFilesEsc(k)+'</strong><p>'+nakulaFilesEsc(v)+'</p></div>').join('')+
+    '<div class="nakula-files-sheet-footer">REVIEW COPY · LEGAL CASE FILE</div></article>')+
+   '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Back to Preview':'Get Info')+'</button>'+
+    (day2FilesReviewed()?'<button type="button" data-nakula-files-return>Return to Nirmala</button>':'')+'</div></div>';
+ }else if(nakulaFilesPath==='pbk'){
+  body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
+   '<h1>PBK Group</h1>'+
+   (day2FilesReceived?
+    '<p class="nakula-files-help">Shared by Nirmala · 26 Oct 2026</p><div class="nakula-files-document-list">'+nakulaFilesDocs.map(nakulaFilesRow).join('')+'</div>'+
+    '<p class="nakula-files-tip">Open <b>AMDAL_Approval_Final.pdf</b> and <b>Digital_Signature_Report.pdf</b> to cross-check the dates.</p>':
+    '<div class="nakula-files-empty"><div>◌</div><strong>No documents yet</strong><span>Nirmala will send the case materials to this folder.</span></div>')+'</div>';
+ }else if(nakulaFilesPath==='downloads'||nakulaFilesPath==='personal'){
+  body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div>'+
+   '<h1>'+(nakulaFilesPath==='downloads'?'Downloads':'Personal')+'</h1>'+
+   '<div class="nakula-files-empty"><div>◌</div><strong>Nothing here</strong><span>No files in this folder.</span></div></div>';
+ }else{
+  body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div><h1>'+(nakulaFilesTab==='recents'?'Recents':'Browse')+'</h1>'+
+   '<div class="nakula-files-search">⌕ <span>Search</span></div>'+
+   (nakulaFilesTab==='recents'?
+    (day2FilesReceived?'<div class="nakula-files-section-title">Recently Opened</div>'+nakulaFilesDocs.slice(0,3).map(nakulaFilesRow).join(''):
+    '<div class="nakula-files-empty"><div>◷</div><strong>No Recents</strong><span>Your recently opened case files will appear here.</span></div>'):
+    '<div class="nakula-files-section-title">Locations</div><div class="nakula-files-location-list">'+
+     nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?'5 items':'Waiting for shared documents')+
+     nakulaFilesFolder('personal','Personal','On My iPhone')+
+     nakulaFilesFolder('downloads','Downloads','On My iPhone')+
+    '</div>')+'</div>'+
+   '<nav class="nakula-files-tabs" aria-label="Files navigation"><button type="button" data-nakula-files-tab="recents" class="'+(nakulaFilesTab==='recents'?'active':'')+'"><span>◷</span>Recents</button>'+
+   '<button type="button" data-nakula-files-tab="browse" class="'+(nakulaFilesTab==='browse'?'active':'')+'"><span>▦</span>Browse</button></nav>';
+ }
+ const callout=day2FilesReviewed()&&!detail&&day2FilesReceived?
+  '<div class="nakula-files-return-bar"><span>✓ Documents reviewed</span><button type="button" data-nakula-files-return>Return to Nirmala</button></div>':'';
+ content.innerHTML='<div class="nakula-files-screen">'+body+callout+'</div>';
+}
+function nakulaOpenFilesDocument(id){
+ const doc=nakulaFilesDocs.find(d=>d.id===id);
+ if(!doc||!day2FilesReceived)return;
+ nakulaFilesDocId=id;nakulaFilesPath='document';nakulaFilesInfo=false;
+ if(id==='approval')day2FilesInspected.approval=true;
+ if(id==='signature')day2FilesInspected.metadata=true;
+ saveStoryState('CP02-files-investigation');
+ render();
+}
+function nakulaFilesBack(){
+ if(nakulaFilesPath==='document'){nakulaFilesPath='pbk';nakulaFilesDocId=null;nakulaFilesInfo=false;render();return}
+ if(nakulaFilesPath!=='root'){nakulaFilesPath='root';render();return}
+ goHome();
+}
+const nakulaPriorBack=back;
+back=function(){
+ if(state.screen==='app'&&state.app==='files'){nakulaFilesBack();return}
+ nakulaPriorBack();
+};
+document.addEventListener('click',e=>{
+ const open=e.target.closest('[data-nakula-files-open]');
+ if(open){e.preventDefault();e.stopImmediatePropagation();if(nakulaFilesReady()){nakulaFilesPath='pbk';openApp('files')}return}
+ const returnToNirmala=e.target.closest('[data-nakula-files-return]');
+ if(returnToNirmala){e.preventDefault();e.stopImmediatePropagation();openStoryThread('nirmala');return}
+ if(state.screen!=='app'||state.app!=='files')return;
+ const folder=e.target.closest('[data-nakula-folder]');
+ if(folder){e.preventDefault();e.stopImmediatePropagation();nakulaFilesPath=folder.dataset.nakulaFolder;render();return}
+ const row=e.target.closest('[data-nakula-file]');
+ if(row){e.preventDefault();e.stopImmediatePropagation();nakulaOpenFilesDocument(row.dataset.nakulaFile);return}
+ if(e.target.closest('[data-nakula-files-info]')){e.preventDefault();e.stopImmediatePropagation();nakulaFilesInfo=!nakulaFilesInfo;render();return}
+ const tab=e.target.closest('[data-nakula-files-tab]');
+ if(tab){e.preventDefault();e.stopImmediatePropagation();nakulaFilesTab=tab.dataset.nakulaFilesTab;nakulaFilesPath='root';render();return}
+ if(e.target.closest('[data-nakula-files-back]')){e.preventDefault();e.stopImmediatePropagation();nakulaFilesBack()}
+},true);
+
 initializeStorySave();
 })();
