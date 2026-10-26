@@ -1055,7 +1055,7 @@ function deliverNextDay3Harley(){
  if(index===2)window.nakulaNarrativeClock.set(5,1,2);
  saveStoryState('CP03-Harley-'+(index+1));
  syncHarleyBadge();
- if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen==='app'&&(state.app==='messages'||state.app==='notes'))render();
  if(state.screen!=='lock'){
   setNotification('harley');notif.classList.add('show');
   sound();
@@ -2394,6 +2394,8 @@ enterPasscodeDigit=function(digit){
  oldEnterPIN(digit);
  if(wasLocked&&state.screen==='home'){
    syncHarleyBadge();
+   // Day 3 begins in Notes; suppress any unread Day 2 notification here.
+   if(day3Stage==='checklist'||day3Stage==='harley')return;
    if(day2Stage==='complete'&&adnanUnread){setNotification('adnan');notif.classList.add('show');sound()}
    else if(unknownUnread){setNotification('unknown');notif.classList.add('show');sound()}
    else if(!currentStoryEnding)showNotif(true);
@@ -2417,7 +2419,7 @@ layer=function(which){
   renderDay2MorningNotice();
   resumePendingStoryCall();
   if(['queued','ringing'].includes(day2MentariCallStage))scheduleDay2MentariCall();
-  if(day2OfferUnread||day2InvitationUnread)showDay2OfferNotice();
+  if((day2OfferUnread||day2InvitationUnread)&&day3Stage==='none')showDay2OfferNotice();
   if(day3Stage==='transition')scheduleDay3Transition();
   if(day3Stage==='checklist')enterDay3Checklist();
   if(day2Stage==='transition')scheduleDay2Transition();
