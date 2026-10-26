@@ -508,6 +508,117 @@ function scheduleDay2RedFolder(){
  day2RedFolderTimer=setTimeout(()=>{day2RedFolderTimer=null;deliverDay2RedFolder()},1500);
 }
 
+
+/* CHAPTER 02.3 & 02.4 — BEHIND THE RED FOLDER / THE FAMILIES
+   Runs inside the existing iPhone Calendar, Files and Messages apps.
+   Separate saved checkpoints prevent repeats after page refresh. */
+let day2CaseBriefRead=false,day2BriefingDone=false,day2CalendarBriefOpen=false;
+let day2FamiliesReceived=false,day2FamilyDocsRead={statements:false,client:false};
+let day2FamilyPriority=null,day2FamilyFollowup=false;
+function day2CaseBriefAvailable(){return day2RedFolderDelivered||day2BriefingDone}
+function day2FamilyDocsReady(){return day2FamilyDocsRead.statements&&day2FamilyDocsRead.client}
+function day2CaseBriefSummary(){
+ return day2InvestigationChoice==='source'
+  ?'Prioritas: konfirmasi keaslian email vendor, riwayat penerimaan pihak asuransi, dan rantai penguasaan lampiran. Tanggal digital tetap harus diperiksa ahli.'
+  :'Prioritas: uji sertifikat dan timestamp tanda tangan elektronik melalui ahli independen. Jejak vendor-asuransi tetap harus diamankan.';
+}
+function deliverDay2Families(){
+ if(day2FamiliesReceived||!day2BriefingDone)return;
+ const n=threadById('nirmala');
+ if(!n)return;
+ if(!n.messages.some(m=>m.day2FamilyPacket)){
+  n.messages.push({
+   me:false,time:'09.30',dayOffset:1,day2FamilyPacket:true,
+   text:'Mas, saya sudah kumpulkan keterangan awal dari Rania dan Harun terkait keluarga terdampak Zona B. Ada kebutuhan mendesak yang perlu kita dengarkan, selain soal dokumen AMDAL. Saya tempatkan catatan mereka di Files → PBK Group. Mohon cek sebelum kita menentukan langkah berikutnya.'
+  });
+  n.date='09.30';
+ }
+ day2FamiliesReceived=true;nirmalaUnread=true;
+ const i=threads.findIndex(t=>t.id==='nirmala');
+ if(i>0)threads.unshift(...threads.splice(i,1));
+ window.nakulaNarrativeClock.set(9,30,1);
+ saveStoryState('CP02-04-families-received');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
+ if(state.screen==='app'||state.screen==='home'){
+  setNotification('nirmala');notif.classList.add('show');sound();
+ }
+}
+function finishDay2CalendarBriefing(){
+ if(!day2CaseBriefAvailable()||!day2CaseBriefRead||day2BriefingDone)return;
+ day2BriefingDone=true;day2CalendarBriefOpen=false;
+ const a=threadById('adnan');
+ if(a&&!a.messages.some(m=>m.day2BriefingOutcome)){
+  a.messages.push({
+   me:false,time:'09.18',dayOffset:1,day2BriefingOutcome:true,
+   text:day2InvestigationChoice==='source'
+    ?'Good work, Na. Rantai dokumen vendor dan asuransi perlu diverifikasi sebelum kita menjadikannya dasar argumentasi. Jangan abaikan validitas timestamp. Sekarang dengarkan keterangan keluarga korban.'
+    :'Good work, Na. Timestamp itu petunjuk, bukan putusan. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.'
+  });
+  a.date='09.18';
+ }
+ saveStoryState('CP02-03-briefing-complete');
+ deliverDay2Families();
+ render();
+}
+function chooseDay2FamilyPriority(choice){
+ if(!day2FamiliesReceived||!day2FamilyDocsReady()||day2FamilyPriority||!['consult','corroborate'].includes(choice))return;
+ day2FamilyPriority=choice;
+ const n=threadById('nirmala');
+ if(n&&!n.messages.some(m=>m.day2FamilyFollowup)){
+  const text=choice==='consult'
+   ?'Siap, Mas. Saya akan menghubungi Rania dan Harun terlebih dahulu untuk meminta persetujuan dan menentukan waktu yang nyaman. Kebutuhan keluarga kita catat terpisah dari strategi perkara.'
+   :'Siap, Mas. Saya akan memeriksa kecocokan waktu dan lokasi kesaksian Rania serta Harun dengan catatan lapangan, setelah memperoleh persetujuan mereka. Kebutuhan mendesak keluarga tetap kita tindak lanjuti.';
+  n.messages.push({me:false,time:'10.20',dayOffset:1,day2FamilyFollowup:true,text});
+  n.date='10.20';
+ }
+ day2FamilyFollowup=true;nirmalaUnread=true;
+ const i=threads.findIndex(t=>t.id==='nirmala');
+ if(i>0)threads.unshift(...threads.splice(i,1));
+ window.nakulaNarrativeClock.set(10,20,1);
+ saveStoryState('CP02-04-family-decision');
+ syncHarleyBadge();
+ if(state.screen==='app'||state.screen==='home'){
+  setNotification('nirmala');notif.classList.add('show');sound();
+ }
+ render();
+}
+function renderDay2Calendar(){
+ if(state.screen!=='app'||state.app!=='calendar')return;
+ const content=$au('app-content');
+ if(!content)return;
+ // The existing Calendar shell and clock are still rendered by index.html.
+ const section=document.createElement('section');
+ section.className='nakula-case-calendar';
+ const unlocked=day2CaseBriefAvailable();
+ const summary=day2CaseBriefSummary();
+ const isToday=day2Stage!=='none';
+ section.innerHTML=
+  '<div class="nakula-case-kicker">MONDAY, 26 OCTOBER 2026 · STORY CALENDAR</div>'+
+  '<div class="nakula-calendar-event"><div class="nakula-calendar-event-time">09.00<span>09.30</span></div>'+
+   '<div class="nakula-calendar-event-body"><strong>PBK Group · Internal Case Briefing</strong><small>Managing Partner’s Office · Adnan W., Nakula, Nirmala</small>'+
+   '<p>'+esc(unlocked?'Map merah disiapkan. Periksa case brief untuk membawa fakta yang dapat diverifikasi.':'Scheduled case review · Zona B')+'</p>'+
+   (unlocked&&!day2CaseBriefRead?'<button type="button" data-nakula-calendar-case-file>Open Case Brief in Files</button>':
+    unlocked&&!day2BriefingDone?'<button type="button" data-nakula-calendar-briefing>Start 09.00 Briefing</button>':
+    day2BriefingDone?'<span class="nakula-calendar-complete">✓ Briefing completed</span>':'')+
+   '</div></div>'+
+  (day2CalendarBriefOpen&&!day2BriefingDone?
+   '<div class="nakula-calendar-meeting"><small>09.00 · PRIVATE CASE BRIEFING</small><h3>Behind the Red Folder</h3>'+
+   '<p><b>Adnan:</b> “Walk me through what we know, Na. Not what we suspect.”</p>'+
+   '<p><b>Nakula:</b> “Tanggal yang tercetak dan waktu tanda tangan digital tidak sama. Dokumennya berasal dari lampiran vendor yang diterima asuransi.”</p>'+
+   '<p><b>Adnan:</b> “And what can we prove today?”</p>'+
+   '<p><b>Nakula:</b> “'+esc(summary)+'”</p>'+
+   '<p><b>Adnan:</b> “Good. Jaga sumber bukti dan jangan menjanjikan hasil kepada klien. Sebelum kita memutuskan langkah hukum, dengarkan kebutuhan keluarga korban.”</p>'+
+   '<button type="button" data-nakula-calendar-finish>Finish Briefing · 09.18</button></div>':'')+
+  (day2BriefingDone?'<div class="nakula-calendar-event family"><div class="nakula-calendar-event-time">09.30<span>10.30</span></div>'+
+   '<div class="nakula-calendar-event-body"><strong>Zona B · Families & Witness Notes</strong><small>Client communication · Nirmala / Files</small>'+
+   '<p>Keterangan Rania dan Harun tersedia untuk ditelaah, dengan privasi dan persetujuan klien tetap dijaga.</p>'+
+   '<button type="button" data-nakula-calendar-families>Review Family Records in Files</button>'+
+   (day2FamilyPriority?'<span class="nakula-calendar-complete">✓ Family follow-up recorded</span>':'')+'</div></div>':'')+
+  (!isToday?'<p class="nakula-case-muted">This schedule unlocks during Chapter 02.</p>':'');
+ content.appendChild(section);
+}
+
 function day2BriefMessage(me,time,text,extra={}){
  return {me,time,text,dayOffset:1,day2Brief:true,...extra};
 }
@@ -598,6 +709,7 @@ function makeStorySnapshot(reason='progress'){
   progress:{
    harleyCursor:cursor,adnanCursor,unknownCursor,nirmalaCursor,nirmalaAutoplayStarted,
    day2FilesReceived,day2FilesInspected,day2InvestigationChoice,day2RedFolderDelivered,
+   day2CaseBriefRead,day2BriefingDone,day2FamiliesReceived,day2FamilyDocsRead,day2FamilyPriority,day2FamilyFollowup,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -650,6 +762,12 @@ function loadStoryState(){
  day2FilesInspected={approval:!!p.day2FilesInspected?.approval,metadata:!!p.day2FilesInspected?.metadata};
  day2InvestigationChoice=['verify','source'].includes(p.day2InvestigationChoice)?p.day2InvestigationChoice:null;
  day2RedFolderDelivered=!!p.day2RedFolderDelivered||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2RedFolder));
+ day2CaseBriefRead=!!p.day2CaseBriefRead;
+ day2BriefingDone=!!p.day2BriefingDone||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day2BriefingOutcome));
+ day2FamiliesReceived=!!p.day2FamiliesReceived||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyPacket));
+ day2FamilyDocsRead={statements:!!p.day2FamilyDocsRead?.statements,client:!!p.day2FamilyDocsRead?.client};
+ day2FamilyPriority=['consult','corroborate'].includes(p.day2FamilyPriority)?p.day2FamilyPriority:null;
+ day2FamilyFollowup=!!p.day2FamilyFollowup||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day2FamilyFollowup));
  if(day2InvestigationChoice)applyDay2InvestigationChoice(day2InvestigationChoice);
  harleyAutoplayStarted=!!p.harleyAutoplayStarted;
  // Older CH02 saves have no Adnan auto-play flag, but their first Adnan
@@ -1381,8 +1499,10 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   (m.unlockFiles?' chat-has-attachment':'');
-  const attachment=m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket)?' chat-has-attachment':'');
+  const attachment=m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
+   m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
+   m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
 }
@@ -1409,6 +1529,7 @@ render=function(){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
+   if(state.screen==='app'&&state.app==='calendar')renderDay2Calendar();
    if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
    if(state.screen==='app'&&state.app==='messages'){
      const oldCaption=document.querySelector('#app-content .convo-local');
