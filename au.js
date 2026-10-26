@@ -1127,7 +1127,7 @@ document.addEventListener('click',e=>{
   state.view=null;render();return;
  }
 },true);
-day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay3Alarm);
+/* DAY 3 alarm listener is registered after the shared alarm DOM node is created. */
 
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
@@ -2346,6 +2346,7 @@ function stopDay2Alarm(){
  sound();
 }
 day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay2Alarm);
+day2Alarm.querySelector('[data-day2-stop]').addEventListener('click',stopDay3Alarm);
 
 function scheduleDay2Transition(){
  if(day2TransitionTimer){clearTimeout(day2TransitionTimer);day2TransitionTimer=null}
