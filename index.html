@@ -687,8 +687,8 @@ function npTabBar(){
  ).join('')+'</nav>';
 }
 function renderPhotosHeader(){
- const single=state.view==='photo',recents=photoTab==='albums'&&photoSection==='recents';
- const label=single?'Recents':recents?'Albums':'Home';
+ const single=state.view==='photo',recents=photoTab==='albums'&&['recents','evidence'].includes(photoSection);
+ const label=single?(photoSection==='evidence'?'BUKTI':'Recents'):recents?'Albums':'Home';
  const backAction=single?'close-photo':recents?'albums-home':'home';
  const left='<button class="np-back" type="button" data-photos-action="'+backAction+'"><span aria-hidden="true" class="np-chevron">‹</span>'+label+'</button>';
  const actions=single?'<button class="np-more" type="button" data-photos-action="menu" aria-label="Photo options">•••</button>':
@@ -711,7 +711,10 @@ function renderPhotosContent(){
   if(photoSection==='albums-home'){
    const cover=photoItems[0];
    panel='<div class="np-title-area"><h1>Albums</h1><p>My Albums</p></div>'+
-    '<button type="button" data-photos-action="open-recents" class="np-album-card"><span class="np-album-cover"><img src="'+esc(cover.src)+'" alt="" loading="lazy"></span><strong>Recents</strong><small>'+photoItems.length+' Photos</small></button>';
+    '<button type="button" data-photos-action="open-recents" class="np-album-card"><span class="np-album-cover"><img src="'+esc(cover.src)+'" alt="" loading="lazy"></span><strong>Recents</strong><small>'+photoItems.length+' Photos</small></button>'+
+    (window.nakulaEvidenceAlbum?.has?.()?'<button type="button" data-photos-action="open-evidence" class="np-album-card nakula-evidence-album"><span class="np-album-cover"><img src="./gallery/portrait.jpg" alt="" loading="lazy"></span><strong>BUKTI</strong><small>1 Foto tersimpan</small></button>':'');
+  }else if(photoSection==='evidence'){
+   panel='<div class="np-title-area"><h1>BUKTI</h1><p>Foto disimpan sebagai bukti kasus</p></div>'+npGrid(items.filter(({p})=>p.src==='./gallery/portrait.jpg'&&window.nakulaEvidenceAlbum?.has?.()));
   }else{
    panel='<div class="np-title-area"><h1>Recents</h1></div>'+npGrid(items);
   }
@@ -787,6 +790,7 @@ document.addEventListener('click',e=>{
   if(action==='close-photo'){state.view=null;state.photo=null;}
   else if(action==='albums-home'){photoSection='albums-home';}
   else if(action==='open-recents'){photoSection='recents';}
+  else if(action==='open-evidence'){photoSection='evidence';}
   else if(action==='home'){goHome();return;}
   else if(action==='select'){photoSelecting=!photoSelecting;photoSelected.clear();photoMenuOpen=false;}
   else if(action==='menu'){photoMenuOpen=!photoMenuOpen;}
