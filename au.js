@@ -1889,6 +1889,62 @@ function saveStoryState(reason='progress'){
   return true;
  }catch(e){return false}
 }
+/* STORY COPY PATCH — apply editorial revisions to historical saves once loaded.
+   Only known scripted bubble texts are changed; never touch personal Notes or
+   conversations composed freely by a user. */
+function reconcileReviewPdfDialogueInSave(){
+ const replacements=[
+  ['tanpa menebak identitasnya.','.'],
+  ['Sudah, Pak. Actual food, not just coffee.','Sudah, Pak. Actual food.'],
+  ['Good. Kita perlu pastikan keaslian berkas','Baik. Kita perlu pastikan keaslian berkas'],
+  ['Excellent work, Nirmala. Apakah tim HHP','Apakah tim HHP'],
+  ['Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya. Jangan menuduh ada pemalsuan sebelum verifikasi ahli selesai.','Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya.'],
+  ['Server utama divisi operasional PBK memang tertutup. Kami tidak mengakses server internal mereka. Tapi vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL ke pihak asuransi alat berat untuk klaim kerusakan.','Server utama divisi operasional PBK memang tertutup, dan kami tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'],
+  ['Good work, Na. Timestamp itu petunjuk, bukan putusan. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.','Good work, Na. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.'],
+  ['Good. Klien yang berhak menentukan sikap','Oke. Klien yang berhak menentukan sikap'],
+  ['Pak, PBK mengirim kerangka penyelesaian Rp150 miliar. Prioritas saya adalah menginformasikan','Pak, PBK mengirimkan kerangka penyelesaian Rp150 miliar. Saya akan menginformasikan']
+ ];
+ const revise=m=>{
+  if(!m||typeof m.text!=='string')return;
+  for(const [before,after]of replacements)if(m.text.includes(before))m.text=m.text.replace(before,after);
+ };
+ for(const t of threads)for(const m of t.messages)revise(m);
+ adnanTimeline.forEach(revise);
+ nirmalaTimeline.forEach(revise);
+ const a=threadById('adnan');
+ if(a&&day2OfferChoice&&DAY2_OFFER_CHOICES[day2OfferChoice]){
+  for(const m of a.messages){
+   if(m.day2OfferDecision)m.text=DAY2_OFFER_CHOICES[day2OfferChoice].outgoing;
+   if(m.day2OfferAdvice)m.text=DAY2_OFFER_CHOICES[day2OfferChoice].reply;
+  }
+  for(const m of adnanTimeline){
+   if(m.day2OfferDecision)m.text=DAY2_OFFER_CHOICES[day2OfferChoice].outgoing;
+   if(m.day2OfferAdvice)m.text=DAY2_OFFER_CHOICES[day2OfferChoice].reply;
+  }
+ }
+ const harley=threadById('harley');
+ const h=harley?.messages.filter(m=>m.day3Harley)||[];
+ h.forEach((m,i)=>{if(DAY3_HARLEY_MESSAGES[i])m.text=DAY3_HARLEY_MESSAGES[i].text});
+ const n=threadById('nirmala');
+ const followup=n?.messages.findIndex(m=>m.day2FamilyFollowup)??-1;
+ if(n&&followup>=0&&day2FamilyPriority&&!n.messages.some(m=>m.day2FamilyInstruction)){
+  n.messages.splice(followup,0,{
+   me:true,time:'10.19',dayOffset:1,day2FamilyInstruction:true,
+   text:day2FamilyPriority==='consult'
+    ?'Nirmala, tolong hubungi Rania dan Harun. Pastikan mereka memahami tujuan pembicaraan kita dan pilih waktu yang nyaman bagi keluarga.'
+    :'Nirmala, tolong cocokkan kronologi keterangan Rania dan Harun dengan catatan lapangan. Pastikan ada persetujuan mereka sebelum memeriksa detailnya.'
+  });
+  if(!n.messages.some(m=>m.day2FamilyAck)){
+   n.messages.splice(followup+2,0,{
+    me:true,time:'10.21',dayOffset:1,day2FamilyAck:true,
+    text:day2FamilyPriority==='consult'
+     ?'Baik. Utamakan kenyamanan mereka dan kabari saya setelah jadwalnya disepakati.'
+     :'Baik. Pisahkan keterangan awal dan hasil verifikasi. Terima kasih, Nirmala.'
+   });
+  }
+ }
+}
+
 function loadStoryState(){
  let saved;
  try{saved=getSaved(STORY_SLOT_KEY,null)}catch(e){return false}
@@ -2047,6 +2103,7 @@ function loadStoryState(){
   unknownQueued=true;
  }
  storyNeedsCallResume=unknownQueued&&!aftermathTriggered&&!currentStoryEnding&&!storyAwaitingSilenceChoice&&unknownStage!=='finished';
+ reconcileReviewPdfDialogueInSave();
  return true;
 }
 function resumePendingStoryCall(){
