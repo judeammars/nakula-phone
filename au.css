@@ -3116,3 +3116,27 @@
 @media(prefers-reduced-motion:reduce){
  #phone.in-app .nakula-day3-progress>div{transition:none}
 }
+
+/* CHAPTER 02.8 — DAMAR PROFILE PHOTO IN NATIVE iMESSAGE */
+#phone.in-app.harley-au-mode .harley-au-avatar.damar,
+#phone.in-app.harley-au-mode .harley-au-head-avatar.damar{
+ background:#171717;
+ overflow:hidden;
+ border-radius:50%;
+}
+#phone.in-app.harley-au-mode .harley-au-avatar.damar img,
+#phone.in-app.harley-au-mode .harley-au-head-avatar.damar img{
+ display:block;
+ width:100%;
+ height:100%;
+ max-width:100%;
+ object-fit:cover;
+ object-position:center;
+ border-radius:50%;
+ pointer-events:none;
+}
+#phone.in-app.harley-au-mode .harley-au-head-avatar.damar{
+ width:35px;
+ height:35px;
+ flex:none;
+}
