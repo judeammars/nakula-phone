@@ -1263,6 +1263,193 @@ function backfillDay2DamarForCompletedSave(){
  day2DamarDone=true;damarUnread=false;
 }
 
+
+/* CHAPTER 03.2–03.3 — THE LEAK / PREPARING FOR TEN.
+   A short, optional reading leads to a meaningful journalistic response.
+   Personal notes and prior chapter decisions remain unchanged. */
+const DAY3_PREP_NOTE_ID=99304;
+const DAY3_PREP_ITEMS=Object.freeze([
+ {label:'Dokumen AMDAL',detail:'Pisahkan tanggal yang tercetak, metadata, dan temuan yang masih membutuhkan ahli.'},
+ {label:'Matriks kewenangan',detail:'Bawa halaman 312 dan minta catatan otorisasi primer, tanpa menuduh Jenoah.'},
+ {label:'Kepentingan keluarga korban',detail:'Pastikan tidak ada negosiasi atau pernyataan pers tanpa persetujuan klien.'}
+]);
+const DAY3_LEAK_CHOICES=Object.freeze({
+ verify:{
+  label:'Minta pemeriksaan silang informasi',
+  detail:'Raka tetap harus melindungi narasumbernya.',
+  outgoing:'Har, minta Raka periksa lagi mana informasi yang bisa diverifikasi. Jangan sampai sumbernya terekspos.',
+  reply:'Will do. Raka juga nggak mau asal kutip. Dia baru bisa konfirmasi jadwalnya, bukan isi kesepakatan. Gue kabari kalau ada yang solid.'
+ },
+ boundaries:{
+  label:'Tegaskan belum ada kesepakatan',
+  detail:'Jangan biarkan rumor mendahului keputusan keluarga.',
+  outgoing:'Har, tolong jangan ada framing seolah settlement sudah disetujui. Kami belum menerima keputusan dari keluarga korban.',
+  reply:'Exactly. Itu yang Raka tulis juga, Na. Pertemuan bukan berarti sudah deal. Gue bakal lurusin kalau ada yang motong konteks.'
+ },
+ official:{
+  label:'Pilih klarifikasi melalui jalur resmi',
+  detail:'Batasi komentar agar tidak memengaruhi perkara.',
+  outgoing:'Har, kalau ada yang perlu diklarifikasi, tim kami akan sampaikan secara resmi. Percakapan kita tetap off the record, ya.',
+  reply:'Understood. Off the record means off the record. Gue nggak akan kutip lo, dan akan cek lagi narasi yang beredar.'
+ }
+});
+let day3LeakDueAt=0,day3LeakTimer=null,day3LeakIntroDelivered=false,day3LeakChoice=null;
+let day3LeakCursor=0,day3LeakActive=false,day3PrepDueAt=0,day3PrepTimer=null;
+let day3AdnanDelivered=false,day3PrepChecks=[false,false,false],day3PrepReady=false;
+const day3LeakTimeline=[
+ {me:true,time:'05.12',dayOffset:2,day3LeakOutgoing:true,choicePending:true,text:''},
+ {me:false,time:'05.13',dayOffset:2,day3LeakReply:true,text:''}
+];
+function applyDay3LeakChoice(choice){
+ if(!DAY3_LEAK_CHOICES[choice])return;
+ day3LeakChoice=choice;
+ day3LeakTimeline[0].text=DAY3_LEAK_CHOICES[choice].outgoing;
+ day3LeakTimeline[0].choicePending=false;
+ day3LeakTimeline[1].text=DAY3_LEAK_CHOICES[choice].reply;
+}
+function scheduleDay3Leak(){
+ if(!day3ArticleOpened||day3LeakIntroDelivered||day3LeakTimer||day3Stage!=='harley')return;
+ if(!day3LeakDueAt)day3LeakDueAt=Date.now()+6500;
+ day3LeakTimer=setTimeout(()=>{
+  day3LeakTimer=null;
+  if(!day3LeakIntroDelivered)deliverDay3Leak();
+ },Math.max(0,day3LeakDueAt-Date.now()));
+}
+function deliverDay3Leak(){
+ if(!day3ArticleOpened||day3LeakIntroDelivered)return;
+ const thread=threadById('harley');if(!thread)return;
+ day3LeakIntroDelivered=true;day3LeakActive=true;day3LeakDueAt=0;
+ if(!thread.messages.some(m=>m.day3LeakIntro)){
+  thread.messages.push({me:false,time:'05.10',dayOffset:2,day3LeakIntro:true,
+   text:'Na, gue baru tanya Raka. Yang bisa dia pastikan baru jadwal pertemuannya. Ada yang nyebar cerita seolah settlement udah deal, padahal sumber narasinya belum jelas. Don’t react to the noise yet.'});
+ }
+ thread.date='05.10';
+ window.nakulaNarrativeClock.set(5,10,2);
+ harleyUnread=true;
+ saveStoryState('CP03-02-leak-followup');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen!=='lock'&&!(state.screen==='app'&&state.app==='messages'&&state.thread==='harley'&&state.view==='convo')){
+  setNotification('harley');notif.classList.add('show');sound();
+ }
+}
+function selectDay3Leak(choice){
+ if(!day3LeakActive||day3LeakChoice||day3LeakCursor!==0||!DAY3_LEAK_CHOICES[choice])return;
+ applyDay3LeakChoice(choice);
+ harleyAutoplayStarted=true;
+ saveStoryState('CP03-02-leak-decision');
+ if(state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley'){
+  render();beginAutoType();
+ }
+}
+function scheduleDay3Prep(){
+ if(!day3LeakActive||day3LeakCursor<day3LeakTimeline.length||day3AdnanDelivered||day3PrepTimer)return;
+ if(!day3PrepDueAt)day3PrepDueAt=Date.now()+3500;
+ day3PrepTimer=setTimeout(()=>{
+  day3PrepTimer=null;
+  if(day3LeakCursor>=day3LeakTimeline.length&&!day3AdnanDelivered)deliverDay3Adnan();
+ },Math.max(0,day3PrepDueAt-Date.now()));
+}
+function deliverDay3Adnan(){
+ if(day3AdnanDelivered||day3LeakCursor<day3LeakTimeline.length)return;
+ const a=threadById('adnan');if(!a)return;
+ day3AdnanDelivered=true;day3PrepDueAt=0;
+ if(!a.messages.some(m=>m.day3MeetingPrep)){
+  a.messages.push({me:false,time:'07.15',dayOffset:2,day3MeetingPrep:true,
+   text:'Na, saya sudah baca pemberitaan pagi ini. Jangan tanggapi spekulasi dengan spekulasi. Pertemuan pukul sepuluh tetap berjalan. Yang kita bawa adalah dokumen dan mandat klien.'});
+  a.messages.push({me:false,time:'07.16',dayOffset:2,day3MeetingPrep:true,day3MeetingNote:true,
+   text:'Saya buatkan tiga fokus persiapan: tanggal serta metadata AMDAL, kewenangan dalam lampiran operasional, dan posisi keluarga korban. Periksa semuanya di Notes sebelum pertemuan.'});
+  if(day2OfferChoice==='consult')
+   a.messages.push({me:false,time:'07.16',dayOffset:2,day3MeetingPrep:true,text:'Karena kamu memilih berkonsultasi dengan klien, pastikan posisi keluarga terdokumentasi sebelum bicara soal penyelesaian.'});
+  else if(day2OfferChoice==='breakdown')
+   a.messages.push({me:false,time:'07.16',dayOffset:2,day3MeetingPrep:true,text:'Rincian tertulis penawaran juga harus tetap terpisah dari penilaian bukti. Jangan sampai angka menggeser pertanyaan hukum.'});
+  else if(day2OfferChoice==='review')
+   a.messages.push({me:false,time:'07.16',dayOffset:2,day3MeetingPrep:true,text:'Telaah strategi kita kemarin akan berguna untuk meminta catatan otorisasi yang benar, bukan sekadar nama di matriks.'});
+ }
+ a.date='07.16';
+ const i=threads.findIndex(t=>t.id==='adnan');if(i>0)threads.unshift(...threads.splice(i,1));
+ window.nakulaNarrativeClock.set(7,16,2);
+ ensureDay3PrepNote();
+ adnanUnread=true;
+ saveStoryState('CP03-03-Adnan-briefing');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen!=='lock'){
+  setNotification('adnan');notif.classList.add('show');sound();
+ }
+}
+function ensureDay3PrepNote(){
+ if(!day3AdnanDelivered)return null;
+ let n=notes.find(n=>Number(n.id)===DAY3_PREP_NOTE_ID);
+ if(n)return n;
+ n={id:DAY3_PREP_NOTE_ID,title:'27 OKT · PERSIAPAN PERTEMUAN',date:'27 Oktober 2026 · 07.15',
+  body:'PERKARA ZONA B\n\n'+DAY3_PREP_ITEMS.map(x=>'□ '+x.label+' — '+x.detail).join('\n'),
+  day3MeetingPrep:true};
+ notes.unshift(n);
+ return n;
+}
+function day3PrepHtml(){
+ const count=day3PrepChecks.filter(Boolean).length;
+ return '<section class="nakula-day3-prep">'+
+ '<span class="nakula-day3-prep-kicker">PBK GROUP · CASE PREPARATION</span>'+
+ '<h1>Persiapan Pertemuan</h1>'+
+ '<p>Selasa, 27 Oktober 2026 · 07.15 WIB</p>'+
+ '<div class="nakula-day3-prep-count">'+count+' / 3 berkas dan mandat ditinjau</div>'+
+ DAY3_PREP_ITEMS.map((item,i)=>
+ '<button type="button" data-day3-prep-check="'+i+'" class="nakula-day3-prep-row'+(day3PrepChecks[i]?' checked':'')+'" '+(day3PrepChecks[i]?'disabled':'')+'>'+
+ '<span class="nakula-day3-prep-square">'+(day3PrepChecks[i]?'✓':'')+'</span><span><strong>'+item.label+'</strong><small>'+item.detail+'</small></span></button>').join('')+
+ (day3PrepReady?'<div class="nakula-day3-prep-complete"><strong>✓ Persiapan selesai</strong><p>Semua tiga pokok sudah diperiksa. Agenda berikutnya: pertemuan PBK Group, pukul 10.00.</p><button type="button" data-day3-prep-calendar>Lihat di Calendar</button></div>':
+ '<p class="nakula-day3-prep-hint">Catat poin yang akan ditanyakan. Tidak ada kesimpulan tentang siapa yang bersalah sebelum bukti diverifikasi.</p>')+'</section>';
+}
+function renderDay3Prep(){
+ if(!day3AdnanDelivered||state.screen!=='app'||state.app!=='notes')return;
+ ensureDay3PrepNote();
+ const root=$au('app-content');if(!root)return;
+ if(state.view==='note'&&Number(state.note)===DAY3_PREP_NOTE_ID){
+  root.innerHTML=day3PrepHtml();root.style.padding='0';root.style.overflowY='auto';
+ }else if(!state.view){
+  const row=root.querySelector('[data-note="'+DAY3_PREP_NOTE_ID+'"]');
+  if(row&& !day3PrepReady){const b=document.createElement('span');b.className='nakula-day3-required';b.textContent='TO DO';row.querySelector('.end')?.before(b)}
+ }
+}
+function checkDay3Prep(index){
+ if(!day3AdnanDelivered||!Number.isInteger(index)||index<0||index>=3||day3PrepChecks[index])return;
+ day3PrepChecks[index]=true;
+ if(day3PrepChecks.every(Boolean))day3PrepReady=true;
+ saveStoryState(day3PrepReady?'CP03-03-meeting-preparation-complete':'CP03-03-meeting-preparation-progress');
+ if(state.screen==='app'&&state.app==='notes')render();
+}
+function openDay3PrepNote(){
+ if(!day3AdnanDelivered)return;
+ ensureDay3PrepNote();
+ openApp('notes');state.view='note';state.note=DAY3_PREP_NOTE_ID;render();
+}
+function decorateDay3Calendar(){
+ if(!day3AdnanDelivered||state.screen!=='app'||state.app!=='calendar')return;
+ const root=$au('app-content');if(!root||root.querySelector('.nakula-day3-calendar'))return;
+ const card=document.createElement('section');
+ card.className='nakula-day3-calendar';
+ card.innerHTML='<span>SELASA · 27 OKTOBER 2026</span><h3>10.00 · Pertemuan PBK Group</h3>'+
+ '<p>Nakula Shankara Bumi · Adnan W. · Damar · Jenoah Arthur Pangestu</p>'+
+ '<small>'+(day3PrepReady?'✓ Catatan persiapan lengkap':'Persiapan berkas belum selesai')+'</small>'+
+ '<button type="button" data-day3-prep-notes>Buka Persiapan di Notes</button>';
+ root.prepend(card);
+}
+document.addEventListener('click',e=>{
+ const choice=e.target.closest('[data-day3-leak-choice]');
+ if(choice){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(state.app==='messages'&&state.thread==='harley')selectDay3Leak(choice.dataset.day3LeakChoice);
+  return;
+ }
+ const note=e.target.closest('[data-day3-prep-notes]');
+ if(note){e.preventDefault();e.stopImmediatePropagation();openDay3PrepNote();return}
+ const box=e.target.closest('[data-day3-prep-check]');
+ if(box){e.preventDefault();e.stopImmediatePropagation();checkDay3Prep(Number(box.dataset.day3PrepCheck));return}
+ const cal=e.target.closest('[data-day3-prep-calendar]');
+ if(cal){e.preventDefault();e.stopImmediatePropagation();openApp('calendar');render();return}
+},true);
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
