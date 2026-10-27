@@ -16,10 +16,10 @@ let harleyUnread=true,adnanUnread=false,unknownUnread=false,nirmalaUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 let harleyAutoplayStarted=false,adnanAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null,adnanNextTimer=null,adnanAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
-const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered));
-const activeTimeline=()=>state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
-const activeIndex=()=>state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
-const setIndex=(id,i)=>{if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
+const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered)||(state.thread==='damar'&&day2DamarDelivered));
+const activeTimeline=()=>state.thread==='damar'?day2DamarTimeline:state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
+const activeIndex=()=>state.thread==='damar'?day2DamarCursor:state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
+const setIndex=(id,i)=>{if(id==='damar')day2DamarCursor=i;else if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
@@ -33,7 +33,7 @@ unreadBadge.textContent='1';
 unreadBadge.setAttribute('aria-label','1 unread message');
 messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
 function syncHarleyBadge(){
- const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread);
+ const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread)+Number(damarUnread);
  unreadBadge.textContent=String(count);
  unreadBadge.setAttribute('aria-label',count+' unread messages');
  unreadBadge.classList.toggle('is-hidden',!count||state.screen==='lock');
@@ -55,6 +55,9 @@ function markUnknownRead(){
  saveStoryState('read-unknown');
  hideNotif();
  syncHarleyBadge();
+}
+function markDamarRead(){
+ damarUnread=false;saveStoryState('read-damar');hideNotif();syncHarleyBadge();
 }
 function markNirmalaRead(){
  nirmalaUnread=false;
@@ -96,7 +99,7 @@ function showNotif(play=false){
 }
 function openStoryThread(id){
  if(state.screen!=='home'&&state.screen!=='app')return;
- if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else markHarleyRead();
+ if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else if(id==='damar')markDamarRead();else markHarleyRead();
  openApp('messages');state.thread=id;state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
@@ -724,7 +727,7 @@ function renderDay2Mail(){
   '<p>Damar<br>Kuasa Hukum PBK Group</p></div>'+
   (day2Chapter2Completed?
     '<div class="nakula-mail-decision-complete"><span>✓ Chapter 02 selesai</span><button type="button" data-day2-finish-ch02>Lihat Penutup Chapter</button></div>':
-    '<div class="nakula-mail-decision"><small>PERTEMUAN BESOK · DAY 3</small><h3>Satu nama dari matriks kewenangan.</h3><p>Catat bahwa identitas dan tanggung jawab Jenoah masih harus diverifikasi.</p><button type="button" data-day2-finish-ch02><strong>Selesaikan Chapter 02</strong><span>Progress tersimpan, Chapter 03 menyusul</span></button></div>')+
+    '<div class="nakula-mail-decision"><small>11.25 · PESAN PRIBADI</small><h3>Damar menghubungi Nakula.</h3><p>Undangan resminya sudah diterima. Kini ada percakapan pribadi dari mantan mentor Nakula yang perlu diselesaikan sebelum DAY 3.</p><button type="button" data-day2-damar-open><strong>'+(day2DamarDelivered?'Lanjutkan Chat Damar':'Buka Chat Damar')+'</strong><span>Between Two Counsels · 11.25–11.35</span></button></div>')+
   '</div>';
  content.innerHTML='<div class="nakula-mail-case">'+(opened?offer:inviteOpen?invitation:inbox)+'</div>';
  content.style.padding='0';content.style.overflowY='auto';content.scrollTop=0;
@@ -868,7 +871,7 @@ function renderDay2ChapterFinale(){
  requestAnimationFrame(()=>day2Chapter2Finale?.classList.add('visible'));
 }
 function finishDay2Chapter2(){
- if(!day2InvitationOpened||!day2Page312FindingSaved)return;
+ if(!day2InvitationOpened||!day2Page312FindingSaved||!day2DamarDone)return;
  day2Chapter2Completed=true;day2Page312Stage='complete';
  saveStoryState('CP02-CHAPTER-COMPLETE');
  renderDay2ChapterFinale();
@@ -1737,6 +1740,7 @@ function makeStorySnapshot(reason='progress'){
    day2OfferDueAt,day2OfferDelivered,day2OfferOpened,day2OfferDocRead,day2OfferChoice,day2OfferUnread,
    day2Page312Stage,day2Page312DueAt,day2Page312CurrentPage,day2Page312Viewed,
    day2Page312FindingSaved,day2InvitationDelivered,day2InvitationOpened,day2InvitationUnread,day2Chapter2Completed,
+   day2DamarDelivered,day2DamarCursor,day2DamarDone,damarUnread,damarAutoplayStarted,
    day3Stage,day3TransitionDueAt,day3ChecklistChecks:[...day3ChecklistChecks],
    day3ChecklistPresented,day3HarleyDelivered,day3ArticleOpened,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
@@ -1840,6 +1844,13 @@ function loadStoryState(){
  day2InvitationOpened=!!p.day2InvitationOpened;
  day2InvitationUnread=!!p.day2InvitationUnread&&!day2InvitationOpened;
  day2Chapter2Completed=!!p.day2Chapter2Completed;
+ day2DamarDelivered=!!p.day2DamarDelivered||saved.threads.some(t=>t.id==='damar');
+ day2DamarCursor=Number.isInteger(p.day2DamarCursor)?Math.max(0,Math.min(day2DamarTimeline.length,p.day2DamarCursor)):0;
+ day2DamarDone=!!p.day2DamarDone;
+ damarUnread=!!p.damarUnread;
+ damarAutoplayStarted=!!p.damarAutoplayStarted||day2DamarDelivered;
+ if(day2DamarDelivered)ensureDay2DamarContact();
+ if(day2Chapter2Completed)backfillDay2DamarForCompletedSave();
  day3Stage=['none','transition','alarm','checklist','harley'].includes(p.day3Stage)?p.day3Stage:'none';
  day3TransitionDueAt=Number.isFinite(p.day3TransitionDueAt)?p.day3TransitionDueAt:0;
  day3ChecklistChecks=Array.isArray(p.day3ChecklistChecks)&&p.day3ChecklistChecks.length===5?p.day3ChecklistChecks.map(Boolean):[false,false,false,false,false];
@@ -2027,6 +2038,7 @@ function initializeStorySave(){
  if(day2Page312Stage==='none'&&day2Page312Ready())queueDay2Page312();
  if(day2Page312Stage==='queued')scheduleDay2Page312();
  if(day2Page312Stage==='found'&&!day2InvitationDelivered)deliverDay2Invitation();
+ if(day2DamarDelivered&&!day2DamarDone&&day2DamarCursor>=day2DamarTimeline.length)scheduleDay2DamarFinale();
  if(day2Chapter2Completed&&day3Stage==='none')startDay3();
  if(day3Stage==='alarm')showDay3Alarm();
  if(day3Stage==='harley')scheduleDay3Harley();
@@ -2465,16 +2477,17 @@ document.addEventListener('click',e=>{
  if(t.dataset.thread==='adnan')markAdnanRead();
  if(t.dataset.thread==='unknown')markUnknownRead();
  if(t.dataset.thread==='nirmala')markNirmalaRead();
+ if(t.dataset.thread==='damar'){damarAutoplayStarted=true;markDamarRead();}
 },true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
  return arr.map(t=>{
-   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread)||(t.id==='nirmala'&&nirmalaUnread);
+   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread)||(t.id==='nirmala'&&nirmalaUnread)||(t.id==='damar'&&damarUnread);
    const preview=t.messages[t.messages.length-1]?.text||t.role||'';
    return '<button class="thread'+(unread?' is-unread':'')+'" data-thread="'+esc(t.id)+'" aria-label="'+esc(t.name)+(unread?', unread message':'')+'">'+
      (unread?'<span class="thread-unread" aria-hidden="true"></span>':'')+
-     '<span class="avatar harley-au-avatar '+esc(t.id)+'">'+esc(t.initials)+'</span>'+
+     '<span class="avatar harley-au-avatar '+esc(t.id)+'">'+(t.id==='damar'?'<img src="'+DAY2_DAMAR_PHOTO+'" alt="">':esc(t.initials))+'</span>'+
      '<span class="thread-main"><span class="thread-line"><span class="thread-name">'+esc(t.name)+'</span><span class="thread-date">'+esc(t.date||'')+'</span></span>'+
      '<span class="thread-preview">'+esc(preview)+'</span></span><span class="thread-arrow" aria-hidden="true">›</span></button>';
  }).join('');
@@ -2685,7 +2698,7 @@ render=function(){
  const video='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="6" width="15" height="12" rx="3"/><path d="M17 10l5-3v10l-5-3"/></svg>';
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
- $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+esc(thread.initials)+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
+ $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+(thread.id==='damar'?'<img src="'+DAY2_DAMAR_PHOTO+'" alt="">':esc(thread.initials))+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
  $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+filesCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
@@ -3217,6 +3230,8 @@ document.addEventListener('click',e=>{
  }
  const inviteOpen=e.target.closest('[data-day2-invite-open], [data-day2-invite-goto]');
  if(inviteOpen){e.preventDefault();e.stopImmediatePropagation();openDay2Invitation();return}
+ const damarOpen=e.target.closest('[data-day2-damar-open]');
+ if(damarOpen){e.preventDefault();e.stopImmediatePropagation();openDay2DamarChat();return}
  const finishChapter=e.target.closest('[data-day2-finish-ch02]');
  if(finishChapter){e.preventDefault();e.stopImmediatePropagation();finishDay2Chapter2();return}
  const closeChapter=e.target.closest('[data-day2-chapter-close]');
