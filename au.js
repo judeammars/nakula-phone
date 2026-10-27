@@ -319,7 +319,7 @@ function showUnknownCall(resumeSameAttempt=false){
  callScreen.hidden=false;
  callScreen.classList.remove('is-connected','is-angry');
  callCaption.classList.remove('is-visible');
- callStatus.textContent='incoming call…';
+ callStatus.textContent='panggilan masuk…';
  callCaption.textContent='';
  callScreen.querySelector('.nakula-call-actions').hidden=false;
  callScreen.querySelector('.nakula-call-hangup').hidden=true;
@@ -360,6 +360,7 @@ function retryUnknownAfterHangup(){
 }
 function nextUnknownSubtitle(){
  if(unknownStage!=='answered')return;
+ callCaption.classList.add('is-unknown-speaker');callCaption.classList.remove('is-nakula-speaker');
  const lines=unknownInterrupted?unknownAngryLines:unknownLines;
  if(callLineIndex>=lines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1200);return}
  callCaption.classList.remove('is-visible');
@@ -458,9 +459,10 @@ function showDay2MentariCall(){
  window.nakulaNarrativeClock.set(10,24,1);
  callScreen.hidden=false;
  callScreen.classList.remove('is-connected','is-angry');
- callCaption.classList.remove('is-visible');
+ callCaption.classList.remove('is-visible','is-nakula-speaker');
+ callCaption.classList.add('is-unknown-speaker');
  callCaption.textContent='';
- callStatus.textContent='incoming call…';
+ callStatus.textContent='panggilan masuk…';
  callScreen.querySelector('.nakula-call-actions').hidden=false;
  callScreen.querySelector('.nakula-call-hangup').hidden=true;
  ringPulse();
@@ -502,7 +504,10 @@ function nextDay2MentariSubtitle(){
  callSubtitleTimer=setTimeout(()=>{
   if(day2MentariCallStage!=='answered')return;
   const index=day2MentariLineIndex++;
-  callCaption.textContent=DAY2_MENTARI_LINES[index];
+  const line=DAY2_MENTARI_LINES[index];
+  callCaption.textContent=line.replace(/^(UNKNOWN|NAKULA):\s*/, '');
+  callCaption.classList.toggle('is-nakula-speaker',line.startsWith('NAKULA:'));
+  callCaption.classList.toggle('is-unknown-speaker',!line.startsWith('NAKULA:'));
   callCaption.classList.add('is-visible');
   // A longer beat before the name Mentari is spoken.
   callSubtitleTimer=setTimeout(nextDay2MentariSubtitle,index===7?2900:2500);
@@ -1489,7 +1494,15 @@ function chooseDay2FamilyPriority(choice){
   const text=choice==='consult'
    ?'Siap, Mas. Saya akan menghubungi Rania dan Harun terlebih dahulu untuk meminta persetujuan dan menentukan waktu yang nyaman. Kebutuhan keluarga kita catat terpisah dari strategi perkara.'
    :'Siap, Mas. Saya akan memeriksa kecocokan waktu dan lokasi kesaksian Rania serta Harun dengan catatan lapangan, setelah memperoleh persetujuan mereka. Kebutuhan mendesak keluarga tetap kita tindak lanjuti.';
+  const outgoing=choice==='consult'
+   ?'Nirmala, tolong hubungi Rania dan Harun. Pastikan mereka memahami tujuan pembicaraan kita dan pilih waktu yang nyaman bagi keluarga.'
+   :'Nirmala, tolong cocokkan kronologi keterangan Rania dan Harun dengan catatan lapangan. Pastikan ada persetujuan mereka sebelum memeriksa detailnya.';
+  n.messages.push({me:true,time:'10.19',dayOffset:1,day2FamilyInstruction:true,text:outgoing});
   n.messages.push({me:false,time:'10.20',dayOffset:1,day2FamilyFollowup:true,text});
+  n.messages.push({me:true,time:'10.21',dayOffset:1,day2FamilyAck:true,
+    text:choice==='consult'
+     ?'Baik. Utamakan kenyamanan mereka dan kabari saya setelah jadwalnya disepakati.'
+     :'Baik. Pisahkan keterangan awal dan hasil verifikasi. Terima kasih, Nirmala.'});
   n.date='10.20';
  }
  day2FamilyFollowup=true;nirmalaUnread=true;
