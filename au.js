@@ -417,6 +417,8 @@ let day2MentariLineIndex=0,day2MentariCallOutcome=null;
 let day2MentariPhotoDelivered=false,day2MentariPhotoDueAt=0,day2MentariPhotoTimer=null;
 let day2MentariPhotoOpened=false,day2MentariEvidenceSaved=false;
 const MENTARI_PHOTO_SRC='./gallery/portrait.jpg';
+// Photos reads the evidence-album state from the current story checkpoint.
+window.nakulaEvidenceAlbum={has:()=>day2MentariEvidenceSaved};
 const DAY2_MENTARI_LINES=[
  'UNKNOWN: Selamat pagi, Pak Nakula. Rupanya peringatan saya semalam belum cukup.',
  'NAKULA: Kalau Anda ingin membicarakan Zona B, silakan melalui kuasa hukum perusahaan Anda.',
@@ -2736,9 +2738,8 @@ function nakulaRenderChatBubbles(messages){
    (joinsNext?' chat-cluster-has-next':'')+
    ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink)?' chat-has-attachment':'');
   const attachment=m.day2MentariPhoto?
-   '<div class="nakula-mentari-photo-block"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
-    '<div class="nakula-mentari-actions"><button type="button" data-day2-mentari-view>Lihat di Foto</button>'+
-     '<button type="button" data-day2-mentari-save>'+(day2MentariEvidenceSaved?'✓ Bukti tersimpan':'Simpan sebagai Bukti')+'</button></div></div>':
+   '<div class="nakula-mentari-photo-block nakula-mentari-photo-inline"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
+    '<button type="button" class="nakula-mentari-download'+(day2MentariEvidenceSaved?' is-saved':'')+'" data-day2-mentari-save aria-label="'+(day2MentariEvidenceSaved?'Foto tersimpan ke album BUKTI':'Simpan foto ke album BUKTI')+'" title="Simpan ke album BUKTI">'+(day2MentariEvidenceSaved?'✓':'↓')+'</button></div>':
    m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
    m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
