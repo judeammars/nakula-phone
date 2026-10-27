@@ -3142,6 +3142,8 @@ function scheduleNirmalaReply(delay=880){
 
 function beginAutoType(){
  if(!inScripted()||isReceiving())return;
+ // The Day 3 response must be chosen explicitly before typing starts.
+ if(state.thread==='harley'&&day3LeakActive&&day3LeakCursor===0&&!day3LeakChoice)return;
  if(state.thread==='adnan'&&activeTimeline()[activeIndex()]?.choicePending)return;
  if(state.thread==='nirmala'&&activeTimeline()[activeIndex()]?.requiresFilesReview&&!day2FilesReviewed())return;
  const message=activeTimeline()[activeIndex()];if(!message?.me)return;
