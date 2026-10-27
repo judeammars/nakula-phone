@@ -816,9 +816,9 @@ function day2Page312PreviewHtml(){
    '<form class="nakula-page312-jump" data-day2-page-jump><label for="nakula-page312-number">Halaman</label><input id="nakula-page312-number" name="page" type="number" inputmode="numeric" min="1" max="'+DAY2_PAGE312_MAX_PAGE+'" value="'+page+'" required aria-label="Nomor halaman"><span>/ '+DAY2_PAGE312_MAX_PAGE+'</span><button type="submit">Buka</button></form>'+
    '<button type="button" data-day2-page-nav="1" '+(page>=DAY2_PAGE312_MAX_PAGE?'disabled':'')+' aria-label="Halaman berikutnya">›</button>'+
   '</div>'+
-  '<p class="nakula-page312-hint">'+(page===312?
+  '<p class="nakula-page312-hint"><strong>'+(page===312?
    'Halaman yang disebut Nirmala ditemukan. Catat rujukan matriks kewenangan sebelum melanjutkan.':
-   'Petunjuk Nirmala: halaman 312. Masukkan nomor halaman untuk melompat.')+'</p>'+
+   'Petunjuk Nirmala: halaman 312. Masukkan nomor halaman untuk melompat.')+'</strong></p>'+
   (page===312?
    (day2Page312FindingSaved?
     '<div class="nakula-page312-found"><strong>✓ Temuan disimpan</strong><span>Matriks otorisasi memerlukan verifikasi lanjutan. Undangan pertemuan dapat diperiksa di Mail.</span>'+
@@ -871,11 +871,21 @@ function renderDay2ChapterFinale(){
   day2Chapter2Finale.setAttribute('aria-label','Chapter 02 selesai');
   day2Chapter2Finale.innerHTML='<div class="nakula-ch02-finale-inner"><small>CHAPTER 02 COMPLETE</small><h2>THE PAPER TRAIL</h2><div class="nakula-ch02-finale-rule"></div>'+
    '<p>Every signature has a name. Not every name tells the truth.</p>'+
-   '<span>Progres tersimpan · Chapter 03 berikutnya</span><button type="button" data-day2-chapter-close>Kembali ke Home</button></div>';
+   '<span>Progres tersimpan · Chapter 03 berikutnya</span></div>';
   $au('phone').appendChild(day2Chapter2Finale);
  }
  day2Chapter2Finale.hidden=false;
  requestAnimationFrame(()=>day2Chapter2Finale?.classList.add('visible'));
+ // Keep the black title visible until DAY 3 fades over it, then hide.
+ setTimeout(()=>{
+  if(!day2Chapter2Completed||day3Stage!=='none'||currentStoryEnding)return;
+  state.app=null;state.view=null;state.thread=null;
+  layer('home');
+  startDay3();
+  setTimeout(()=>{
+   if(day2Chapter2Finale){day2Chapter2Finale.classList.remove('visible');day2Chapter2Finale.hidden=true}
+  },1200);
+ },3000);
 }
 function finishDay2Chapter2(){
  if(!day2InvitationOpened||!day2Page312FindingSaved||!day2DamarDone)return;
@@ -967,6 +977,7 @@ function renderDay3Checklist(){
   }
  }
  if(state.view==='note'&&Number(state.note)===DAY3_CHECKLIST_ID){
+  $au('phone').classList.toggle('nakula-day3-checklist-required',day3Stage==='checklist');
   content.innerHTML=day3ChecklistHtml();
   content.style.padding='0';
   content.style.overflowY='auto';
@@ -979,7 +990,7 @@ function checkDay3Item(index){
  const count=day3ChecklistChecks.filter(Boolean).length;
  const minute=DAY3_MORNING_MINUTES+count*6;
  window.nakulaNarrativeClock.restore(minute);
- if(count===5)day3Stage='harley';
+ if(count===5){day3Stage='harley';$au('phone').classList.remove('nakula-day3-checklist-required')}
  saveStoryState('CP03-checklist-'+count);
  if(state.screen==='app'&&state.app==='notes')render();
  if(count===5)scheduleDay3Harley();
@@ -2548,6 +2559,11 @@ enterPasscodeDigit=function(digit){
 };
 const oldLayer=layer;
 layer=function(which){
+ if(day3Stage==='checklist'&&day3ChecklistPresented&&state.screen!=='lock'
+  &&(which==='home'||which==='app'&&state.app!=='notes')){
+  state.app='notes';state.view='note';state.note=DAY3_CHECKLIST_ID;
+  oldLayer('app');render();return;
+ }
  oldLayer(which);
  ensureNakulaFilesIcon();
  $au('phone').classList.toggle('harley-au-mode',which==='app'&&state.app==='messages');
@@ -3335,6 +3351,9 @@ function nakulaFilesBack(){
 }
 const nakulaPriorBack=back;
 back=function(){
+ if(day3Stage==='checklist'&&day3ChecklistPresented&&state.screen==='app'&&state.app==='notes'){
+  state.view='note';state.note=DAY3_CHECKLIST_ID;render();return;
+ }
  if(state.screen==='app'&&state.app==='files'){nakulaFilesBack();return}
  nakulaPriorBack();
 };
