@@ -3215,3 +3215,37 @@
  #phone.in-app.harley-au-mode .nakula-mentari-photo-inline{max-width:calc(100% - 42px)}
  #phone.in-app.harley-au-mode .nakula-mentari-download{right:-39px;width:29px;height:29px}
 }
+
+/* CHAPTER 03.2–03.3 LEAK CHOICES / CASE PREPARATION */
+#phone.in-app .nakula-day3-leak-choice{margin:13px 14px 22px}
+#phone.in-app .nakula-day3-leak-choice button{line-height:1.4}
+#phone.in-app .nakula-day3-prep{box-sizing:border-box;display:flex;flex-direction:column;gap:13px;padding:22px 18px 36px;color:#212832;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+#phone.in-app.dark-ui .nakula-day3-prep{color:#f0f2f7}
+#phone.in-app .nakula-day3-prep-kicker{color:#b69843;letter-spacing:.09em;font-size:10px;font-weight:800}
+#phone.in-app .nakula-day3-prep h1{margin:0;font-size:26px;font-weight:760;line-height:1.15;letter-spacing:-.035em}
+#phone.in-app .nakula-day3-prep>p{margin:0 0 4px;color:#84909e;font-size:11px;line-height:1.55}
+#phone.in-app .nakula-day3-prep-count{background:#fff2cb;color:#775f2f;padding:12px;border-radius:13px;font-weight:700;font-size:12px}
+#phone.in-app.dark-ui .nakula-day3-prep-count{background:#413721;color:#ffdb83}
+#phone.in-app .nakula-day3-prep-row{display:flex;width:100%;align-items:center;gap:11px;padding:14px 12px;border:1px solid #e1e4e8;border-radius:14px;background:#fff;color:#242d38;text-align:left;font:inherit;cursor:pointer}
+#phone.in-app.dark-ui .nakula-day3-prep-row{background:#25262c;color:#f6f7fa;border-color:#444751}
+#phone.in-app .nakula-day3-prep-row.checked{opacity:.75;cursor:default}
+#phone.in-app .nakula-day3-prep-square{border:2px solid #caa843;color:#fff;border-radius:6px;width:23px;height:23px;flex:none;display:grid;place-items:center}
+#phone.in-app .nakula-day3-prep-row.checked .nakula-day3-prep-square{background:#d3ad38;border-color:#d3ad38}
+#phone.in-app .nakula-day3-prep-row>span:last-child{display:flex;flex-direction:column;gap:5px}
+#phone.in-app .nakula-day3-prep-row strong{font-size:12px;font-weight:720}
+#phone.in-app .nakula-day3-prep-row small{font-size:10px;color:#818b98;line-height:1.5;font-weight:430}
+#phone.in-app.dark-ui .nakula-day3-prep-row small{color:#aab0bd}
+#phone.in-app .nakula-day3-prep-complete{background:#f3ebcf;border:1px solid #d7c690;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:7px;color:#6a5726}
+#phone.in-app.dark-ui .nakula-day3-prep-complete{background:#312b20;color:#f5d684;border-color:#74613d}
+#phone.in-app .nakula-day3-prep-complete strong{font-size:13px}
+#phone.in-app .nakula-day3-prep-complete p{font-size:11px;line-height:1.55;margin:0}
+#phone.in-app .nakula-day3-prep-complete button,#phone.in-app .nakula-day3-calendar button{border:0;border-radius:10px;background:#397cdb;color:#fff;font:700 12px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;padding:12px;cursor:pointer}
+#phone.in-app .nakula-day3-calendar{padding:16px;margin:10px 0 18px;background:#edf2fb;border:1px solid #d0d9eb;border-radius:16px;color:#25374e;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+#phone.in-app.dark-ui .nakula-day3-calendar{background:#253041;border-color:#3d506b;color:#f2f6ff}
+#phone.in-app .nakula-day3-calendar>span{font-size:9px;font-weight:760;color:#658bce;letter-spacing:.09em}
+#phone.in-app .nakula-day3-calendar h3{font-size:16px;margin:10px 0 6px}
+#phone.in-app .nakula-day3-calendar p{font-size:11px;line-height:1.5}
+#phone.in-app .nakula-day3-calendar small{display:block;font-size:11px;margin-bottom:12px;color:#7990ac}
+#phone.in-app .nakula-day3-calendar button{width:100%}
+#phone.in-app .nakula-day3-prep-row:focus-visible,#phone.in-app .nakula-day3-prep-complete button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+@media(max-width:385px){#phone.in-app .nakula-day3-prep{padding:17px 12px 28px}}
