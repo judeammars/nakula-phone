@@ -2769,14 +2769,36 @@
 #phone.in-app .nakula-page312-jump span{
  font-size:10px;color:#d5dce9;white-space:nowrap;
 }
-#phone.in-app .nakula-page312-jump input{
+/* Keep page numbers legible in both iOS appearances. The global
+   dark-mode input rule otherwise paints white text on this light field. */
+#phone.in-app .nakula-page312-jump input,
+#phone.in-app.dark-ui .nakula-page312-jump input{
  flex:1;min-width:0;width:43px;
  border-radius:6px;border:1px solid #6c7890;
- background:#f6f7fa;color:#20242d;
+ background:#ffffff;
+ color:#172033;
+ -webkit-text-fill-color:#172033;
+ caret-color:#2563eb;
+ opacity:1;
  height:30px;box-sizing:border-box;
- font-size:13px;font-weight:650;text-align:center;
- padding:2px;
+ font-size:14px;font-weight:700;text-align:center;
+ padding:2px 4px;
  appearance:textfield;
+ -webkit-appearance:none;
+}
+#phone.in-app .nakula-page312-jump input:focus,
+#phone.in-app.dark-ui .nakula-page312-jump input:focus{
+ background:#ffffff;
+ color:#172033;
+ -webkit-text-fill-color:#172033;
+ border-color:#3b82f6;
+ box-shadow:inset 0 0 0 1px #3b82f6;
+}
+#phone.in-app .nakula-page312-jump input::selection,
+#phone.in-app.dark-ui .nakula-page312-jump input::selection{
+ background:#a9d0ff;
+ color:#172033;
+ -webkit-text-fill-color:#172033;
 }
 #phone.in-app .nakula-page312-jump input::-webkit-outer-spin-button,
 #phone.in-app .nakula-page312-jump input::-webkit-inner-spin-button{
