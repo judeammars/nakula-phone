@@ -1323,7 +1323,7 @@ const DAY2_NIRMALA_TEASER='Selamat pagi, Mas Nakula. Maaf mengganggu. Saya dan t
    notification, never the obsolete 06.xx timestamps in the reference chat. */
 const nirmalaTimeline=[
  {me:true,time:'07.26',text:'Pagi, Nirmala. Go ahead. Dari mana asal salinan dokumennya?'},
- {me:false,time:'07.27',text:'Server utama divisi operasional PBK memang tertutup, dan kami tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'},
+ {me:false,time:'07.27',text:'Server utama divisi operasional PBK memang tertutup, dan kamu tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'},
  {me:false,time:'07.27',text:'Pihak asuransi memberikan salinan email beserta lampiran aslinya untuk ditelaah. Tim forensik menyimpan salinan dan mencatat sumbernya.'},
  {me:true,time:'07.28',text:'Baik. Kita perlu pastikan keaslian berkas dan chain of custody. Ada hasil pemeriksaan tanda tangan digitalnya?'},
  {me:false,time:'07.29',text:'Ada, Mas. Timestamp yang terbaca di salinan itu Selasa, 20 Oktober pukul 02.00. Dua hari setelah insiden longsor tanggal 18. Tapi tanggal persetujuan di halaman dokumen tercantum 15 Oktober.'},
@@ -1894,12 +1894,13 @@ function saveStoryState(reason='progress'){
    conversations composed freely by a user. */
 function reconcileReviewPdfDialogueInSave(){
  const replacements=[
-  ['tanpa menebak identitasnya.','.'],
+  ['kata-katanya tanpa menebak identitasnya.','kata-katanya.'],
+  ['kata-katanya .','kata-katanya.'],
   ['Sudah, Pak. Actual food, not just coffee.','Sudah, Pak. Actual food.'],
   ['Good. Kita perlu pastikan keaslian berkas','Baik. Kita perlu pastikan keaslian berkas'],
   ['Excellent work, Nirmala. Apakah tim HHP','Apakah tim HHP'],
   ['Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya. Jangan menuduh ada pemalsuan sebelum verifikasi ahli selesai.','Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya.'],
-  ['Server utama divisi operasional PBK memang tertutup. Kami tidak mengakses server internal mereka. Tapi vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL ke pihak asuransi alat berat untuk klaim kerusakan.','Server utama divisi operasional PBK memang tertutup, dan kami tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'],
+  ['Server utama divisi operasional PBK memang tertutup. Kami tidak mengakses server internal mereka. Tapi vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL ke pihak asuransi alat berat untuk klaim kerusakan.','Server utama divisi operasional PBK memang tertutup, dan kamu tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'],
   ['Good work, Na. Timestamp itu petunjuk, bukan putusan. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.','Good work, Na. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.'],
   ['Good. Klien yang berhak menentukan sikap','Oke. Klien yang berhak menentukan sikap'],
   ['Pak, PBK mengirim kerangka penyelesaian Rp150 miliar. Prioritas saya adalah menginformasikan','Pak, PBK mengirimkan kerangka penyelesaian Rp150 miliar. Saya akan menginformasikan']
@@ -3200,7 +3201,7 @@ function nakulaAdditionalDocs(){
   ]
  });
  if(day2FamiliesReceived)files.push(
-  {id:'family_statements',name:'Zona_B_Family_Statements.pdf',kind:'PDF Document',size:'520 KB',folder:'PBK Group - Client',
+  {id:'family_statements',name:'Zona_B_Family_Statements.pdf',kind:'PDF Document',size:'520 KB',folder:'PBK GROUP - CLIENT',
    title:'ZONA B · FAMILY & WITNESS NOTES',badge:'RESTRICTED · CONSENT REQUIRED',
    metadata:[['Prepared by','Nirmala · Junior Associate'],['Date','26 October 2026'],['Contents','Preliminary statements'],['Status','Awaiting client confirmation']],
    body:[
@@ -3209,7 +3210,7 @@ function nakulaAdditionalDocs(){
     ['FAMILY PRIORITIES','Komunikasi berkala, penjelasan mengenai pilihan hukum, dan tindak lanjut kebutuhan mendesak. Persetujuan klien diperlukan sebelum membagikan kesaksian.'],
     ['LEGAL CAUTION','Catatan ini adalah informasi awal dan belum merupakan pernyataan saksi terverifikasi. Jangan memublikasikan identitas atau menyimpulkan tanggung jawab dari catatan ini saja.']
    ]},
-  {id:'family_intake',name:'Client_Contact_Plan.pdf',kind:'PDF Document',size:'340 KB',folder:'PBK Group - Client',
+  {id:'family_intake',name:'Client_Contact_Plan.pdf',kind:'PDF Document',size:'340 KB',folder:'PBK GROUP - CLIENT',
    title:'CLIENT RELATIONS · FAMILY CONTACT PLAN',badge:'CONFIDENTIAL · INTERNAL',
    metadata:[['Responsible','Nakula · Nirmala'],['Date','26 October 2026'],['Classification','Privileged client intake'],['Status','Consent and follow-up pending']],
    body:[
@@ -3288,7 +3289,7 @@ function renderNakulaFilesApp(){
  const root=nakulaFilesPath==='root';
  const detail=nakulaFilesPath==='document';
  const current=nakulaFilesAvailableDocs().find(d=>d.id===nakulaFilesDocId);
- const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='client'?'PBK Group - Client':nakulaFilesPath==='hhp'?'HHP':nakulaFilesPath==='downloads'?'Downloads':'Personal';
+ const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='client'?'PBK GROUP - CLIENT':nakulaFilesPath==='hhp'?'HHP':nakulaFilesPath==='downloads'?'Downloads':'Personal';
  head.innerHTML='<button type="button" class="plain-btn nakula-files-nav-back" data-nakula-files-back>‹ <span>'+
  (detail?current?.folder||'Files':root?'Home':'Browse')+'</span></button><span class="app-title">'+title+'</span>'+
  '<span class="nakula-files-head-right">'+(detail?'<button type="button" data-nakula-files-info aria-label="Get Info">ⓘ</button>':'')+'</span>';
@@ -3321,7 +3322,7 @@ function renderNakulaFilesApp(){
     '<button type="button" data-nakula-files-back>Kembali ke PBK Group</button>')+'</div></div>';
   }
  }else if(['pbk','client','hhp'].includes(nakulaFilesPath)){
-  const pathFolder=nakulaFilesPath==='client'?'PBK Group - Client':nakulaFilesPath==='hhp'?'HHP':'PBK Group';
+  const pathFolder=nakulaFilesPath==='client'?'PBK GROUP - CLIENT':nakulaFilesPath==='hhp'?'HHP':'PBK Group';
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
    '<h1>'+pathFolder+'</h1>'+
    (day2FilesReceived?
@@ -3344,7 +3345,7 @@ function renderNakulaFilesApp(){
     '<div class="nakula-files-empty"><div>◷</div><strong>Belum ada riwayat</strong><span>Dokumen yang baru dibuka akan muncul di sini.</span></div>'):
     '<div class="nakula-files-section-title">Lokasi</div><div class="nakula-files-location-list">'+
      nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group').length+' berkas':'Menunggu dokumen perkara')+
-     (day2FamiliesReceived?nakulaFilesFolder('client','PBK Group - Client',nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group - Client').length+' berkas'):'')+
+     (day2FamiliesReceived?nakulaFilesFolder('client','PBK GROUP - CLIENT',nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK GROUP - CLIENT').length+' berkas'):'')+
      (day2OfferDelivered?nakulaFilesFolder('hhp','HHP',nakulaFilesAvailableDocs().filter(d=>d.folder==='HHP').length+' berkas'):'')+
      nakulaFilesFolder('personal','Personal','On My iPhone')+
      nakulaFilesFolder('downloads','Downloads','On My iPhone')+
@@ -3400,7 +3401,7 @@ function nakulaReturnToNirmala(){
 function nakulaFilesBack(){
  if(nakulaFilesPath==='document'){
   const folder=nakulaFilesAvailableDocs().find(d=>d.id===nakulaFilesDocId)?.folder;
-  nakulaFilesPath=folder==='PBK Group - Client'?'client':folder==='HHP'?'hhp':'pbk';
+  nakulaFilesPath=folder==='PBK GROUP - CLIENT'?'client':folder==='HHP'?'hhp':'pbk';
   nakulaFilesDocId=null;nakulaFilesInfo=false;render();return;
  }
  if(nakulaFilesPath!=='root'){nakulaFilesPath='root';render();return}
