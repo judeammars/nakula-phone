@@ -23,7 +23,7 @@ const setIndex=(id,i)=>{if(id==='damar')day2DamarCursor=i;else if(id==='unknown'
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
-notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon">●</span><span><small>MESSAGES · now</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
+notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon">✉</span><span><small>PESAN · baru saja</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
 $au('phone').appendChild(notif);
 // The unread badge lives outside the icon artwork so it isn't clipped by the icon's rounded mask.
 const messagesDockIcon=document.querySelector('#dock .app-button[data-app="messages"]');
@@ -71,7 +71,7 @@ function setNotification(id){
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
  notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
- notif.querySelector('.harley-au-notif-body small').textContent='MESSAGES · now';
+ notif.querySelector('.harley-au-notif-body small').textContent='PESAN · baru saja';
 }
 
 function sound(){
@@ -589,8 +589,8 @@ const DAY2_OFFER_CHOICES=Object.freeze({
  consult:{
   label:'Konsultasikan kepada Klien',
   subtitle:'Jelaskan tawaran dan dengarkan sikap keluarga tanpa menekan mereka',
-  outgoing:'Pak, PBK mengirim kerangka penyelesaian Rp150 miliar. Prioritas saya adalah menginformasikan tawaran ini secara utuh kepada para klien, lalu mendengar kebutuhan dan sikap mereka tanpa memberi tekanan.',
-  reply:'Good. Klien yang berhak menentukan sikap setelah memahami pilihan dan konsekuensinya. Siapkan ringkasan yang mudah dimengerti, termasuk syarat-syarat yang belum jelas.'
+  outgoing:'Pak, PBK mengirimkan kerangka penyelesaian Rp150 miliar. Saya akan menginformasikan tawaran ini secara utuh kepada para klien, lalu mendengar kebutuhan dan sikap mereka tanpa memberi tekanan.',
+  reply:'Oke. Klien yang berhak menentukan sikap setelah memahami pilihan dan konsekuensinya. Siapkan ringkasan yang mudah dimengerti, termasuk syarat-syarat yang belum jelas.'
  },
  review:{
   label:'Telaah Strategi Bersama Adnan',
@@ -893,7 +893,7 @@ function hideDay2ChapterFinale(){
 const DAY3_MORNING_MINUTES=2*1440+4*60+30;
 const DAY3_CHECKLIST_ID=99303;
 const DAY3_CHECKLIST_ITEMS=Object.freeze([
- {time:'04.36',label:'Minum air putih',detail:'Bangun sepenuhnya. Tidak langsung mencari kopi.'},
+ {time:'04.36',label:'Minum air putih',detail:'Bangun sepenuhnya dan mulai rutinitas pagi.'},
  {time:'04.42',label:'Merapikan tempat tidur dan bersiap',detail:'Mandi, berpakaian, dan mulai hari dengan tenang.'},
  {time:'04.48',label:'Sarapan ringan',detail:'Makan sebelum jadwal kantor mulai padat.'},
  {time:'04.54',label:'Periksa Daily Case Notes',detail:'Ingat temuan Zona B, hak keluarga korban, dan tawaran PBK.'},
@@ -904,11 +904,11 @@ let day3ChecklistChecks=[false,false,false,false,false],day3ChecklistPresented=f
 let day3HarleyDelivered=0,day3HarleyTimer=null,day3ArticleOpened=false;
 const DAY3_HARLEY_MESSAGES=Object.freeze([
  {me:false,dayOffset:2,time:'05.00',day3Harley:true,
-  text:'NAKULA. Gue tahu ini jam lima pagi, but you need to see this.'},
+  text:"NAKULA. I know it's literally 5 AM, but seriously, check your phone right now."},
  {me:false,dayOffset:2,time:'05.00',day3Harley:true,
-  text:'Pertemuan lo sama Damar hari ini udah sampai ke telinga reporter. Kasus PBK ini terlalu besar buat tetap sepi. Belum tentu semua yang beredar akurat, Na.'},
+  text:'Jadwal ketemuan lo sama Damar hari ini udah bocor ke grup wartawan. Kasus PBK ini terlalu gurih buat didiemin, Na. Isunya udah mulai digoreng ke mana-mana, dan isinya banyak yang nggak akurat.'},
  {me:false,dayOffset:2,time:'05.01',day3Harley:true,day3NewsLink:true,
-  text:'Baca dulu tulisan Raka, teman jurnalis gue. Ada yang mulai menghubungkan tawaran settlement dengan agenda pertemuan kalian. Gue kirim link beritanya.'}
+  text:"Lo baca dulu tulisan Raka—temen jurnalis gue yang biasa pegang kanal hukum. Ada narasi aneh yang mulai nyambung-nyambungin tawaran settlement sama agenda kalian nanti siang. Wait, I'll drop the link here."}
 ]);
 function ensureDay3ChecklistNote(){
  if(day3Stage==='none'||day3Stage==='transition')return;
@@ -1305,17 +1305,17 @@ const DAY2_NIRMALA_TEASER='Selamat pagi, Mas Nakula. Maaf mengganggu. Saya dan t
    notification, never the obsolete 06.xx timestamps in the reference chat. */
 const nirmalaTimeline=[
  {me:true,time:'07.26',text:'Pagi, Nirmala. Go ahead. Dari mana asal salinan dokumennya?'},
- {me:false,time:'07.27',text:'Server utama divisi operasional PBK memang tertutup. Kami tidak mengakses server internal mereka. Tapi vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL ke pihak asuransi alat berat untuk klaim kerusakan.'},
+ {me:false,time:'07.27',text:'Server utama divisi operasional PBK memang tertutup, dan kami tidak mengakses server internal mereka. Namun ternyata vendor logistik di Kalimantan pernah meneruskan PDF persetujuan AMDAL kepada pihak asuransi alat berat untuk klaim kerusakan.'},
  {me:false,time:'07.27',text:'Pihak asuransi memberikan salinan email beserta lampiran aslinya untuk ditelaah. Tim forensik menyimpan salinan dan mencatat sumbernya.'},
- {me:true,time:'07.28',text:'Good. Kita perlu pastikan keaslian berkas dan chain of custody. Ada hasil pemeriksaan tanda tangan digitalnya?'},
+ {me:true,time:'07.28',text:'Baik. Kita perlu pastikan keaslian berkas dan chain of custody. Ada hasil pemeriksaan tanda tangan digitalnya?'},
  {me:false,time:'07.29',text:'Ada, Mas. Timestamp yang terbaca di salinan itu Selasa, 20 Oktober pukul 02.00. Dua hari setelah insiden longsor tanggal 18. Tapi tanggal persetujuan di halaman dokumen tercantum 15 Oktober.'},
  {me:false,time:'07.30',text:'Saya sudah masukkan salinan persetujuan, email vendor ke asuransi, dan laporan pemeriksaan metadata ke Files → PBK Group. Tolong cek dua berkas utama itu, Mas.',unlockFiles:true},
  {me:true,time:'07.33',text:'Saya sudah cocokkan tanggal dalam dokumen dengan laporan metadata. Ada ketidaksesuaian yang harus kita verifikasi lebih lanjut.',requiresFilesReview:true},
  {me:false,time:'07.34',text:'Betul, Mas. Salinan ini mengindikasikan perubahan atau penandatanganan setelah insiden. Tapi tim forensik belum menyimpulkan siapa yang mengubahnya.'},
- {me:true,time:'07.35',text:'Excellent work, Nirmala. Apakah tim HHP atau pihak internal PBK tahu salinan ini pernah dikirim ke asuransi?'},
+ {me:true,time:'07.35',text:'Apakah tim HHP atau pihak internal PBK tahu salinan ini pernah dikirim ke asuransi?'},
  {me:false,time:'07.36',text:'Sejauh yang dapat kami pastikan, belum ada bukti mereka mengetahui keberadaan salinan di pihak ketiga. Pak Damar tampaknya fokus pada akses ke server internal.'},
  {me:false,time:'07.37',text:'Temuan ini perlu saya masukkan ke draf permohonan dokumen sekarang, Mas?'},
- {me:true,time:'07.38',text:'Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya. Jangan menuduh ada pemalsuan sebelum verifikasi ahli selesai.'},
+ {me:true,time:'07.38',text:'Not yet. Amankan salinan asli, email sumber, dan catatan pemeriksaannya.'},
  {me:true,time:'07.38',text:'Cetak salinan dan laporan metadata dalam map merah. Letakkan di meja saya sebelum pukul 08.00. Saya mau Pak Adnan melihatnya sebelum briefing pukul sembilan.'},
  {me:false,time:'07.39',text:'Copy that, Mas. The red folder will be ready.'}
 ].map(m=>({...m,dayOffset:1,day2NirmalaScript:true}));
@@ -1471,7 +1471,7 @@ function finishDay2CalendarBriefing(){
    me:false,time:'09.18',dayOffset:1,day2BriefingOutcome:true,
    text:day2InvestigationChoice==='source'
     ?'Good work, Na. Rantai dokumen vendor dan asuransi perlu diverifikasi sebelum kita menjadikannya dasar argumentasi. Jangan abaikan validitas timestamp. Sekarang dengarkan keterangan keluarga korban.'
-    :'Good work, Na. Timestamp itu petunjuk, bukan putusan. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.'
+    :'Good work, Na. Minta laporan ahli dan amankan salinan sumber. Setelah ini, kita perlu mendengarkan keluarga korban.'
   });
   a.date='09.18';
  }
@@ -1551,7 +1551,7 @@ function prepareDay2MorningBrief(){
   day2BriefMessage(true,'07.15','Nomornya sama, Pak. Panggilan kedua lebih agresif. Saya simpan kedua log beserta kronologinya.'),
   day2BriefMessage(false,'07.16','Baik. Jangan hapus atau ubah catatan waktunya. Kalau ada panggilan baru, laporkan dulu kepada saya.')
  ]:[
-  day2BriefMessage(true,'07.15','Tidak ada nama baru, Pak. Tapi dia tahu perkara yang sedang kita tangani. Saya catat kata-katanya tanpa menebak identitasnya.'),
+  day2BriefMessage(true,'07.15','Tidak ada nama baru, Pak. Tapi dia tahu perkara yang sedang kita tangani. Saya catat kata-katanya.'),
   day2BriefMessage(false,'07.16','Good. That is the right approach. Kita bekerja dari fakta, bukan dari orang yang paling keras mengancam.')
  ];
  const common=[
@@ -1560,7 +1560,7 @@ function prepareDay2MorningBrief(){
   day2BriefMessage(false,'07.19','', {choiceResponse:'day2-brief'}),
   day2BriefMessage(true,'07.20','Understood. Saya hubungi Nirmala sekarang, Pak.'),
   day2BriefMessage(false,'07.21','And please tell me you already had breakfast. Nirmala has been reporting on your coffee habits.'),
-  day2BriefMessage(true,'07.22','Sudah, Pak. Actual food, not just coffee.'),
+  day2BriefMessage(true,'07.22','Sudah, Pak. Actual food.'),
   day2BriefMessage(false,'07.23','Good. See you at nine. Bring the discrepancies, not assumptions.')
  ];
  adnanTimeline.push(...tailored,...common);
@@ -2695,13 +2695,13 @@ function nakulaChatDayTitle(day){
  if(day===currentDay)return 'Today';
  if(day===currentDay-1)return 'Yesterday';
  const dayDate=new Date(Date.UTC(2026,9,25+day,5));
- return new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).format(dayDate);
+ return new Intl.DateTimeFormat('en-US',{weekday:'long',timeZone:'UTC'}).format(dayDate);
 }
 function nakulaChatHasPause(previous,current){
  if(!previous)return true;
  if(nakulaChatMessageDay(previous)!==nakulaChatMessageDay(current))return true;
  const prev=nakulaChatTimeMinutes(previous),cur=nakulaChatTimeMinutes(current);
- return prev!==null&&cur!==null&&cur-prev>=45;
+ return prev!==null&&cur!==null&&cur-prev>=30;
 }
 function nakulaChatSameCluster(a,b){
  if(!a||!b||a.me!==b.me||nakulaChatMessageDay(a)!==nakulaChatMessageDay(b))return false;
@@ -2785,9 +2785,9 @@ render=function(){
    '<button type="button" data-day2-brief-choice="evidence">Verifikasi Bukti <small>Periksa silang dokumen PBK</small></button>'+
    '<button type="button" data-day2-brief-choice="safety">Tangani Ancaman <small>Minta prosedur penanganan ancaman</small></button>'+
   '</div>':'';
- const aftermathCta=state.thread==='unknown'&&aftermathTriggered&&!day2MentariPhotoDelivered?
-  '<div class="nakula-incident-cta"><small>CALL LOG SAVED · NOTE CREATED</small><button type="button" data-au-open-adnan>Message Adnan</button></div>':'';
- const filesCta=state.thread==='nirmala'&&day2FilesReceived&&!day2FilesReviewed()
+ const aftermathCta=state.thread==='unknown'&&aftermathTriggered&&!day2MentariPhotoDelivered&&!day2ReportSent()?
+  '<div class="nakula-incident-cta"><small>LOG PANGGILAN TERSIMPAN · CATATAN DIBUAT</small><button type="button" data-au-open-adnan>Pesan Adnan</button></div>':'';
+ const filesCta=false&&state.thread==='nirmala'&&day2FilesReceived&&!day2FilesReviewed()
   ?'<div class="nakula-files-review-callout"><span>CASE EVIDENCE · ACTION REQUIRED</span><strong>Examine the PBK documents</strong><small>Open the approval and the signature report in Files to continue.</small><button type="button" data-nakula-files-open="1">Open Files</button></div>':'';
  const delivered=state.thread==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length&&thread.messages.length>0&&thread.messages[thread.messages.length-1].me?
   '<div class="nakula-message-delivered">Delivered</div>':'';
