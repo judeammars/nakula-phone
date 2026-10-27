@@ -358,18 +358,32 @@ function retryUnknownAfterHangup(){
  saveStoryState('angry-redial');
  callRetryTimer=setTimeout(showUnknownCall,3200);
 }
+// Give each spoken line a readable, human pause instead of swapping
+// subtitles at a rigid two-to-three-second pace. Short lines also linger.
+function nakulaSubtitleHoldMs(text,opts={}){
+ const words=String(text||'').trim().split(/\s+/).filter(Boolean).length;
+ const normal=Math.max(4700,Math.min(9000,2650+words*235));
+ const extra=(opts.angry?850:0)+(opts.beforeMentari?1900:0);
+ return normal+extra;
+}
+function showNakulaCallSubtitle(speaker,text){
+ const name=speaker==='nakula'?'Nakula':'Unknown';
+ callCaption.textContent=name+': '+text;
+ callCaption.classList.toggle('is-nakula-speaker',speaker==='nakula');
+ callCaption.classList.toggle('is-unknown-speaker',speaker!=='nakula');
+}
 function nextUnknownSubtitle(){
  if(unknownStage!=='answered')return;
- callCaption.classList.add('is-unknown-speaker');callCaption.classList.remove('is-nakula-speaker');
  const lines=unknownInterrupted?unknownAngryLines:unknownLines;
- if(callLineIndex>=lines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1200);return}
+ if(callLineIndex>=lines.length){callSubtitleTimer=setTimeout(closeUnknownCall,1800);return}
  callCaption.classList.remove('is-visible');
  callSubtitleTimer=setTimeout(()=>{
   if(unknownStage!=='answered')return;
-  callCaption.textContent=lines[callLineIndex++];
+  const line=lines[callLineIndex++];
+  showNakulaCallSubtitle('unknown',line);
   callCaption.classList.add('is-visible');
-  callSubtitleTimer=setTimeout(nextUnknownSubtitle,unknownInterrupted?2800:(callLineIndex===1?3700:3400));
- },210);
+  callSubtitleTimer=setTimeout(nextUnknownSubtitle,nakulaSubtitleHoldMs(line,{angry:unknownInterrupted}));
+ },410);
 }
 callScreen.addEventListener('click',e=>{
  const button=e.target.closest('[data-nakula-call]');
@@ -499,7 +513,7 @@ function finishDay2MentariCall(outcome){
 function nextDay2MentariSubtitle(){
  if(day2MentariCallStage!=='answered')return;
  if(day2MentariLineIndex>=DAY2_MENTARI_LINES.length){
-  callSubtitleTimer=setTimeout(()=>finishDay2MentariCall('answered'),1150);
+  callSubtitleTimer=setTimeout(()=>finishDay2MentariCall('answered'),1800);
   return;
  }
  callCaption.classList.remove('is-visible');
@@ -507,13 +521,14 @@ function nextDay2MentariSubtitle(){
   if(day2MentariCallStage!=='answered')return;
   const index=day2MentariLineIndex++;
   const line=DAY2_MENTARI_LINES[index];
-  callCaption.textContent=line.replace(/^(UNKNOWN|NAKULA):\s*/, '');
-  callCaption.classList.toggle('is-nakula-speaker',line.startsWith('NAKULA:'));
-  callCaption.classList.toggle('is-unknown-speaker',!line.startsWith('NAKULA:'));
+  const isNakula=line.startsWith('NAKULA:');
+  const spoken=line.replace(/^(UNKNOWN|NAKULA):\s*/, '');
+  showNakulaCallSubtitle(isNakula?'nakula':'unknown',spoken);
   callCaption.classList.add('is-visible');
-  // A longer beat before the name Mentari is spoken.
-  callSubtitleTimer=setTimeout(nextDay2MentariSubtitle,index===7?2900:2500);
- },210);
+  // The pause just before Mentari's name is spoken remains intentional.
+  callSubtitleTimer=setTimeout(nextDay2MentariSubtitle,
+   nakulaSubtitleHoldMs(spoken,{beforeMentari:index===6}));
+ },410);
 }
 function handleDay2MentariCallButton(action){
  if(action==='decline'&&day2MentariCallStage==='ringing'){
