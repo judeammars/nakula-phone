@@ -3142,13 +3142,24 @@
 }
 
 /* REVIEW PDF OCT 27 — message notifications, subtitles, evidence & checklist */
+/* Dusty, desaturated call subtitles: gentle contrast instead of neon. */
 #nakula-unknown-call .nakula-call-caption.is-unknown-speaker{
- color:#ff6578;
- text-shadow:0 2px 14px rgba(0,0,0,.7);
+ color:#bd929c;
+ text-shadow:0 2px 12px rgba(0,0,0,.55);
 }
 #nakula-unknown-call .nakula-call-caption.is-nakula-speaker{
- color:#67aeff;
- text-shadow:0 2px 14px rgba(0,0,0,.75);
+ color:#94aec2;
+ text-shadow:0 2px 12px rgba(0,0,0,.55);
+}
+/* Retain tension without brightening the angry callback's captions. */
+#nakula-unknown-call.is-angry .nakula-call-caption.is-unknown-speaker{
+ color:#c19aa3;
+ font-size:clamp(17px,4.5vw,19px);
+ font-weight:630;
+ letter-spacing:0;
+}
+#nakula-unknown-call.is-angry .nakula-call-voice i{
+ background:#b9929d;
 }
 #phone .harley-au-notif-icon{
  border-radius:9px;background:#22c95a;flex:none;
