@@ -1305,7 +1305,7 @@ const DAY3_LEAK_CHOICES=Object.freeze({
  official:{
   label:'Pilih klarifikasi melalui jalur resmi',
   detail:'Batasi komentar agar tidak memengaruhi perkara.',
-  outgoing:'Har, kalau ada yang perlu diklarifikasi, tim kami akan sampaikan secara resmi. Percakapan kita tetap off the record, ya.',
+  outgoing:'Harley, kalau ada yang perlu diklarifikasi, tim kami akan sampaikan secara resmi. Percakapan kita tetap off the record, ya.',
   reply:'Understood. Off the record means off the record. Gue nggak akan kutip lo, dan akan cek lagi narasi yang beredar.'
  }
 });
@@ -2175,7 +2175,12 @@ function loadStoryState(){
   ||!saved.threads.every(t=>t&&typeof t.id==='string'&&Array.isArray(t.messages)&&t.messages.length<=80)
   ||!saved.threads.some(t=>t.id==='harley')||!saved.threads.some(t=>t.id==='adnan')
   ||!window.nakulaNarrativeClock.restore(saved.storyMinutes))return false;
- threads=saved.threads.map(t=>({...t,messages:t.messages.map(m=>t.id==='adnan'?migrateOldAngryAdnanMessage({...m}):{...m})}));
+ threads=saved.threads.map(t=>({...t,messages:t.messages.map(m=>{
+  if(t.id==='adnan')return migrateOldAngryAdnanMessage({...m});
+  if(t.id==='harley'&&m.me&&m.text==='Har, kalau ada yang perlu diklarifikasi, tim kami akan sampaikan secara resmi. Percakapan kita tetap off the record, ya.')
+   return {...m,text:'Harley, kalau ada yang perlu diklarifikasi, tim kami akan sampaikan secara resmi. Percakapan kita tetap off the record, ya.'};
+  return {...m};
+ })}));
  adnanTimeline.splice(0,adnanTimeline.length,...saved.adnanTimeline.map(m=>migrateOldAngryAdnanMessage({...m})));
  unknownTimeline.splice(0,unknownTimeline.length,...saved.unknownTimeline.map(m=>({...m})));
  if(Array.isArray(saved.nirmalaTimeline))nirmalaTimeline.splice(0,nirmalaTimeline.length,...saved.nirmalaTimeline.map(m=>({...m})));
