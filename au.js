@@ -3126,7 +3126,7 @@ function nakulaAdditionalDocs(){
   ]
  });
  if(day2FamiliesReceived)files.push(
-  {id:'family_statements',name:'Zona_B_Family_Statements.pdf',kind:'PDF Document',size:'520 KB',folder:'PBK Group',
+  {id:'family_statements',name:'Zona_B_Family_Statements.pdf',kind:'PDF Document',size:'520 KB',folder:'PBK Group - Client',
    title:'ZONA B · FAMILY & WITNESS NOTES',badge:'RESTRICTED · CONSENT REQUIRED',
    metadata:[['Prepared by','Nirmala · Junior Associate'],['Date','26 October 2026'],['Contents','Preliminary statements'],['Status','Awaiting client confirmation']],
    body:[
@@ -3135,7 +3135,7 @@ function nakulaAdditionalDocs(){
     ['FAMILY PRIORITIES','Komunikasi berkala, penjelasan mengenai pilihan hukum, dan tindak lanjut kebutuhan mendesak. Persetujuan klien diperlukan sebelum membagikan kesaksian.'],
     ['LEGAL CAUTION','Catatan ini adalah informasi awal dan belum merupakan pernyataan saksi terverifikasi. Jangan memublikasikan identitas atau menyimpulkan tanggung jawab dari catatan ini saja.']
    ]},
-  {id:'family_intake',name:'Client_Contact_Plan.pdf',kind:'PDF Document',size:'340 KB',folder:'PBK Group',
+  {id:'family_intake',name:'Client_Contact_Plan.pdf',kind:'PDF Document',size:'340 KB',folder:'PBK Group - Client',
    title:'CLIENT RELATIONS · FAMILY CONTACT PLAN',badge:'CONFIDENTIAL · INTERNAL',
    metadata:[['Responsible','Nakula · Nirmala'],['Date','26 October 2026'],['Classification','Privileged client intake'],['Status','Consent and follow-up pending']],
    body:[
@@ -3146,7 +3146,7 @@ function nakulaAdditionalDocs(){
    ]}
  );
  if(day2OfferDelivered)files.push({
-  id:'settlement',name:'PBK_Settlement_Framework.pdf',kind:'PDF Document',size:'480 KB',folder:'PBK Group',
+  id:'settlement',name:'PBK_Settlement_Framework.pdf',kind:'PDF Document',size:'480 KB',folder:'HHP',
   title:'USULAN KERANGKA PENYELESAIAN ZONA B',badge:'PROPOSAL NEGOSIASI · BELUM DISETUJUI',
   metadata:[['Disampaikan oleh','HHP Legal Counsel (kuasa hukum PBK)'],['Diterima','26 October 2026 · 10.45'],['Nilai indikatif','Maksimum agregat Rp150 miliar'],['Status','Penawaran awal, belum mengikat']],
   body:[
@@ -3214,9 +3214,9 @@ function renderNakulaFilesApp(){
  const root=nakulaFilesPath==='root';
  const detail=nakulaFilesPath==='document';
  const current=nakulaFilesAvailableDocs().find(d=>d.id===nakulaFilesDocId);
- const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='downloads'?'Downloads':'Personal';
+ const title=detail?'Quick Look':root?'Files':nakulaFilesPath==='pbk'?'PBK Group':nakulaFilesPath==='client'?'PBK Group - Client':nakulaFilesPath==='hhp'?'HHP':nakulaFilesPath==='downloads'?'Downloads':'Personal';
  head.innerHTML='<button type="button" class="plain-btn nakula-files-nav-back" data-nakula-files-back>‹ <span>'+
- (detail?'PBK Group':root?'Home':'Browse')+'</span></button><span class="app-title">'+title+'</span>'+
+ (detail?current?.folder||'Files':root?'Home':'Browse')+'</span></button><span class="app-title">'+title+'</span>'+
  '<span class="nakula-files-head-right">'+(detail?'<button type="button" data-nakula-files-info aria-label="Get Info">ⓘ</button>':'')+'</span>';
  let body='';
  if(detail&&current){
@@ -3246,16 +3246,17 @@ function renderNakulaFilesApp(){
     (day2InvitationDelivered?'<button type="button" data-day2-invite-goto>Buka Undangan</button>':
     '<button type="button" data-nakula-files-back>Kembali ke PBK Group</button>')+'</div></div>';
   }
- }else if(nakulaFilesPath==='pbk'){
+ }else if(['pbk','client','hhp'].includes(nakulaFilesPath)){
+  const pathFolder=nakulaFilesPath==='client'?'PBK Group - Client':nakulaFilesPath==='hhp'?'HHP':'PBK Group';
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE / CASES</div>'+
-   '<h1>PBK Group</h1>'+
+   '<h1>'+pathFolder+'</h1>'+
    (day2FilesReceived?
-    '<p class="nakula-files-help">Shared by Nirmala · 26 Oct 2026</p><div class="nakula-files-document-list">'+nakulaFilesAvailableDocs().map(nakulaFilesRow).join('')+'</div>'+
-    (day2FamiliesReceived
+    '<p class="nakula-files-help">'+(nakulaFilesPath==='hhp'?'Diterima dari HHP · 26 Oktober 2026':'Dibagikan oleh Nirmala · 26 Oktober 2026')+'</p><div class="nakula-files-document-list">'+nakulaFilesAvailableDocs().filter(d=>d.folder===pathFolder).map(nakulaFilesRow).join('')+'</div>'+
+    (nakulaFilesPath==='client'&&day2FamiliesReceived
      ?(!day2FamilyDocsReady()?'<p class="nakula-files-tip">Review Zona_B_Family_Statements.pdf and Client_Contact_Plan.pdf to understand the families’ needs.</p>':'')
-     :day2CaseBriefAvailable()
+     :nakulaFilesPath==='pbk'&&day2CaseBriefAvailable()
        ?(!day2CaseBriefRead?'<p class="nakula-files-tip">Open CASE_BRIEF_PBK.pdf before the 09.00 briefing.</p>':'')
-       :!day2FilesReviewed()?'<p class="nakula-files-tip">Open AMDAL_Approval_Final.pdf and Digital_Signature_Report.pdf to compare the dates.</p>':''):
+       :nakulaFilesPath==='pbk'&&!day2FilesReviewed()?'<p class="nakula-files-tip">Buka AMDAL_Approval_Final.pdf dan Digital_Signature_Report.pdf untuk membandingkan tanggal.</p>':''):
     '<div class="nakula-files-empty"><div>◌</div><strong>No documents yet</strong><span>Nirmala will send the case materials to this folder.</span></div>')+'</div>';
  }else if(nakulaFilesPath==='downloads'||nakulaFilesPath==='personal'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div>'+
@@ -3268,7 +3269,9 @@ function renderNakulaFilesApp(){
     (day2FilesReceived?'<div class="nakula-files-section-title">Recently Opened</div>'+nakulaFilesAvailableDocs().slice(-3).map(nakulaFilesRow).join(''):
     '<div class="nakula-files-empty"><div>◷</div><strong>No Recents</strong><span>Your recently opened case files will appear here.</span></div>'):
     '<div class="nakula-files-section-title">Locations</div><div class="nakula-files-location-list">'+
-     nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?nakulaFilesAvailableDocs().length+' items':'Waiting for shared documents')+
+     nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group').length+' berkas':'Menunggu dokumen perkara')+
+     (day2FamiliesReceived?nakulaFilesFolder('client','PBK Group - Client',nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group - Client').length+' berkas'):'')+
+     (day2OfferDelivered?nakulaFilesFolder('hhp','HHP',nakulaFilesAvailableDocs().filter(d=>d.folder==='HHP').length+' berkas'):'')+
      nakulaFilesFolder('personal','Personal','On My iPhone')+
      nakulaFilesFolder('downloads','Downloads','On My iPhone')+
     '</div>')+'</div>'+
@@ -3321,7 +3324,11 @@ function nakulaReturnToNirmala(){
  render();
 }
 function nakulaFilesBack(){
- if(nakulaFilesPath==='document'){nakulaFilesPath='pbk';nakulaFilesDocId=null;nakulaFilesInfo=false;render();return}
+ if(nakulaFilesPath==='document'){
+  const folder=nakulaFilesAvailableDocs().find(d=>d.id===nakulaFilesDocId)?.folder;
+  nakulaFilesPath=folder==='PBK Group - Client'?'client':folder==='HHP'?'hhp':'pbk';
+  nakulaFilesDocId=null;nakulaFilesInfo=false;render();return;
+ }
  if(nakulaFilesPath!=='root'){nakulaFilesPath='root';render();return}
  goHome();
 }
@@ -3344,11 +3351,11 @@ document.addEventListener('click',e=>{
  const mailAttachment=e.target.closest('[data-day2-offer-attachment]');
  if(mailAttachment&&day2OfferDelivered){
   e.preventDefault();e.stopImmediatePropagation();
-  nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument('settlement');
+  nakulaFilesPath='hhp';openApp('files');nakulaOpenFilesDocument('settlement');
   return;
  }
  const returnOffer=e.target.closest('[data-day2-offer-from-files]');
- if(returnOffer){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('offer');return}
+ if(returnOffer){e.preventDefault();e.stopImmediatePropagation();openDay2OfferMail('offer');setTimeout(()=>{const pane=$au('app-content');const target=pane?.querySelector('.nakula-mail-decision, .nakula-mail-decision-complete, .nakula-mail-task-info');if(target){pane.scrollTo({top:Math.max(0,target.offsetTop-90),behavior:'smooth'})}},90);return}
  const decision=e.target.closest('[data-day2-offer-choice]');
  if(decision){e.preventDefault();e.stopImmediatePropagation();chooseDay2Offer(decision.dataset.day2OfferChoice);return}
  const offerAdnan=e.target.closest('[data-day2-offer-adnan]');
@@ -3426,7 +3433,7 @@ document.addEventListener('click',e=>{
  const openFamily=e.target.closest('[data-nakula-calendar-families], [data-nakula-family-files-open]');
  if(openFamily){
   e.preventDefault();e.stopImmediatePropagation();
-  if(day2FamiliesReceived){nakulaFilesPath='pbk';openApp('files')}
+  if(day2FamiliesReceived){nakulaFilesPath='client';openApp('files')}
   return;
  }
  const chooseFamily=e.target.closest('[data-nakula-family-choice]');
