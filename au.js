@@ -17,9 +17,9 @@ let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,la
 let harleyAutoplayStarted=false,adnanAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null,adnanNextTimer=null,adnanAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
 const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered)||(state.thread==='damar'&&day2DamarDelivered));
-const activeTimeline=()=>state.thread==='damar'?day2DamarTimeline:state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
-const activeIndex=()=>state.thread==='damar'?day2DamarCursor:state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
-const setIndex=(id,i)=>{if(id==='damar')day2DamarCursor=i;else if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
+const activeTimeline=()=>state.thread==='harley'&&day3LeakActive?day3LeakTimeline:state.thread==='damar'?day2DamarTimeline:state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
+const activeIndex=()=>state.thread==='harley'&&day3LeakActive?day3LeakCursor:state.thread==='damar'?day2DamarCursor:state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
+const setIndex=(id,i)=>{if(id==='harley'&&day3LeakActive)day3LeakCursor=i;else if(id==='damar')day2DamarCursor=i;else if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
@@ -1147,6 +1147,7 @@ function openDay3Article(){
  if(day3HarleyDelivered!==DAY3_HARLEY_MESSAGES.length)return;
  day3ArticleOpened=true;
  saveStoryState('CP03-Harley-article-opened');
+ scheduleDay3Leak();
  openApp('safari');state.view='day3-article';render();
 }
 document.addEventListener('click',e=>{
@@ -2052,6 +2053,8 @@ function makeStorySnapshot(reason='progress'){
    day2DamarDelivered,day2DamarCursor,day2DamarDone,damarUnread,damarAutoplayStarted,
    day3Stage,day3TransitionDueAt,day3ChecklistChecks:[...day3ChecklistChecks],
    day3ChecklistPresented,day3HarleyDelivered,day3ArticleOpened,
+   day3LeakDueAt,day3LeakIntroDelivered,day3LeakChoice,day3LeakCursor,day3LeakActive,
+   day3PrepDueAt,day3AdnanDelivered,day3PrepChecks:[...day3PrepChecks],day3PrepReady,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -2223,6 +2226,16 @@ function loadStoryState(){
  day3ChecklistPresented=!!p.day3ChecklistPresented;
  day3HarleyDelivered=Number.isInteger(p.day3HarleyDelivered)?Math.max(0,Math.min(3,p.day3HarleyDelivered)):0;
  day3ArticleOpened=!!p.day3ArticleOpened;
+ day3LeakDueAt=Number.isFinite(p.day3LeakDueAt)?p.day3LeakDueAt:0;
+ day3LeakIntroDelivered=!!p.day3LeakIntroDelivered;
+ day3LeakActive=!!p.day3LeakActive||day3LeakIntroDelivered;
+ day3LeakCursor=Number.isInteger(p.day3LeakCursor)?Math.min(2,Math.max(0,p.day3LeakCursor)):0;
+ if(['verify','boundaries','official'].includes(p.day3LeakChoice))applyDay3LeakChoice(p.day3LeakChoice);
+ day3PrepDueAt=Number.isFinite(p.day3PrepDueAt)?p.day3PrepDueAt:0;
+ day3AdnanDelivered=!!p.day3AdnanDelivered||saved.threads.some(t=>t.id==='adnan'&&t.messages.some(m=>m.day3MeetingPrep));
+ day3PrepChecks=Array.isArray(p.day3PrepChecks)&&p.day3PrepChecks.length===3?p.day3PrepChecks.map(Boolean):[false,false,false];
+ day3PrepReady=!!p.day3PrepReady||day3PrepChecks.every(Boolean);
+ if(day3AdnanDelivered)ensureDay3PrepNote();
  if(day3Stage==='harley'&&day3ChecklistChecks.every(Boolean))day3ChecklistPresented=true;
  if(day3Stage!=='none'&&day3Stage!=='transition')ensureDay3ChecklistNote();
  if(day2Chapter2Completed)day2Page312Stage='complete';
@@ -2409,6 +2422,8 @@ function initializeStorySave(){
  if(day2Chapter2Completed&&day3Stage==='none')startDay3();
  if(day3Stage==='alarm')showDay3Alarm();
  if(day3Stage==='harley')scheduleDay3Harley();
+ if(day3ArticleOpened&&!day3LeakIntroDelivered)scheduleDay3Leak();
+ if(day3LeakActive&&day3LeakCursor>=day3LeakTimeline.length&&!day3AdnanDelivered)scheduleDay3Prep();
  if(day3Stage==='transition')scheduleDay3Transition();
 }
 window.nakulaStorySave=Object.freeze({
@@ -2997,7 +3012,7 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink)?' chat-has-attachment':'');
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink||m.day3MeetingNote)?' chat-has-attachment':'');
   const attachment=m.day2MentariPhoto?
    '<div class="nakula-mentari-photo-block nakula-mentari-photo-inline"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
     '<button type="button" class="nakula-mentari-download'+(day2MentariEvidenceSaved?' is-saved':'')+'" data-day2-mentari-save aria-label="'+(day2MentariEvidenceSaved?'Foto tersimpan ke album BUKTI':'Simpan foto ke album BUKTI')+'" title="Simpan ke album BUKTI">'+(day2MentariEvidenceSaved?'✓':'↓')+'</button></div>':
@@ -3005,7 +3020,8 @@ function nakulaRenderChatBubbles(messages){
    m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Buka Calendar</small></span><span aria-hidden="true">›</span></button>':
    m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 dokumen · Buka di Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':
-   m.day3NewsLink?'<button type="button" class="nakula-file-attachment nakula-day3-news-link" data-day3-article><span class="nakula-file-attachment-icon">NEWS</span><span><strong>Kasus Zona B: Pertemuan Pengacara Jadi Sorotan</strong><small>The Civic Ledger · Buka di Safari</small></span><span aria-hidden="true">›</span></button>':'';
+   m.day3NewsLink?'<button type="button" class="nakula-file-attachment nakula-day3-news-link" data-day3-article><span class="nakula-file-attachment-icon">NEWS</span><span><strong>Kasus Zona B: Pertemuan Pengacara Jadi Sorotan</strong><small>The Civic Ledger · Buka di Safari</small></span><span aria-hidden="true">›</span></button>':
+   m.day3MeetingNote?'<button type="button" class="nakula-file-attachment" data-day3-prep-notes><span class="nakula-file-attachment-icon">NOTE</span><span><strong>Case Preparation · 10.00</strong><small>3 fokus · Buka Notes</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
 }
@@ -3038,10 +3054,13 @@ render=function(){
    if(state.screen==='app'&&state.app==='notes'){
     decorateDailyCaseNotesUI();
     renderDay3Checklist();
+    renderDay3Prep();
    }
    if(state.screen==='app'&&state.app==='safari')decorateDay3Safari();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
-   if(state.screen==='app'&&state.app==='calendar')renderDay2Calendar();
+   if(state.screen==='app'&&state.app==='calendar'){
+    renderDay2Calendar();decorateDay3Calendar();
+   }
    if(state.screen==='app'&&state.app==='mail')renderDay2Mail();
    if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
    if(state.screen==='app'&&state.app==='messages'){
@@ -3054,6 +3073,7 @@ render=function(){
  const thread=threadById(state.thread),script=activeTimeline(),index=activeIndex(),next=script[index],done=!next&&!isReceiving();
  const bubbles=nakulaRenderChatBubbles(thread.messages);
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
+ const day3LeakChoiceUI=state.thread==='harley'&&day3LeakActive&&day3LeakCursor===0&&!day3LeakChoice?'<div class="nakula-day2-brief-choice nakula-day3-leak-choice" role="group" aria-label="Respons terhadap kabar bocor"><span>PILIH LANGKAH NAKULA</span>'+Object.entries(DAY3_LEAK_CHOICES).map(([id,x])=>'<button type="button" data-day3-leak-choice="'+id+'">'+esc(x.label)+' <small>'+esc(x.detail)+'</small></button>').join('')+'</div>':'';
  const day2ChoiceUI=state.thread==='adnan'&&next?.choiceId==='day2-brief'&&!day2BriefChoice?
   '<div class="nakula-day2-brief-choice" role="group" aria-label="Choose Nakula’s reply">'+
    '<span>BAGAIMANA NAKULA HARUS MERESPONS?</span>'+
@@ -3074,7 +3094,7 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+(thread.id==='damar'?'<img src="'+DAY2_DAMAR_PHOTO+'" alt="">':esc(thread.initials))+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+filesCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+day3LeakChoiceUI+filesCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
@@ -3090,6 +3110,10 @@ render=function(){
   scheduleAdnanReply();
  }
  if(inHarley()){
+  if(day3LeakActive&&day3LeakChoice&&day3LeakCursor<day3LeakTimeline.length&&!incomingThread&&!typing&&!ready){
+   if(day3LeakTimeline[day3LeakCursor].me)setTimeout(()=>{if(inHarley()&&day3LeakActive&&day3LeakChoice)beginAutoType()},500);
+   else receive('harley');
+  }
   scheduleHarleyReply();
   // A fully received message is the resume boundary, not a partial keypress.
   if(harleyAutoplayStarted&&!incomingThread&&!typing&&!ready&&timeline[cursor]&&!timeline[cursor].me&&!storyHarleyResumeScheduled){
@@ -3154,7 +3178,7 @@ function beginAutoType(){
         clearTimeout(harleyAutoSendTimer);
         harleyAutoSendTimer=setTimeout(()=>{
           harleyAutoSendTimer=null;
-          if(inHarley()&&!typing&&ready&&timeline[cursor]===message)sendScripted();
+          if(inHarley()&&!typing&&ready&&activeTimeline()[activeIndex()]===message)sendScripted();
         },620);
       }else if(state.thread==='nirmala'&&nirmalaAutoplayStarted){
         clearTimeout(nirmalaAutoSendTimer);
@@ -3186,20 +3210,22 @@ function receive(id=state.thread){
  incomingThread=id;
  if(inScripted()&&state.thread===id)render();
  function one(){
-  const script=id==='damar'?day2DamarTimeline:id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
-  const current=id==='damar'?day2DamarCursor:id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
+  const script=id==='harley'&&day3LeakActive?day3LeakTimeline:id==='damar'?day2DamarTimeline:id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
+  const current=id==='harley'&&day3LeakActive?day3LeakCursor:id==='damar'?day2DamarCursor:id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
   const next=script[current];
   if(!next||next.me){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
-   if(id==='harley'&&current>=script.length)queueUnknownCall();
+   if(id==='harley'&&!day3LeakActive&&current>=script.length)queueUnknownCall();
+   if(id==='harley'&&day3LeakActive&&current>=script.length)scheduleDay3Prep();
    if(id==='damar'&&current>=script.length)scheduleDay2DamarFinale();
    if(id==='adnan'&&day2BriefPrepared&&day2Stage==='complete'&&current>=script.length)finishDay2MorningBrief();
    if(id==='nirmala'&&current>=script.length)scheduleDay2RedFolder();
    saveStoryState('incoming-sequence-finished');
    return;
   }
-  if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
+  if(id==='harley'&&day3LeakActive)window.nakulaNarrativeClock.set(5,Number(next.time.split('.')[1])||12,2);
+  else if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
   if(id==='damar')setDay2DamarClock(next);
   syncDay2BriefClock(next);
   const thread=threadById(id);
@@ -3207,6 +3233,7 @@ function receive(id=state.thread){
   if(id==='nirmala'&&next.unlockFiles)day2FilesReceived=true;
   saveStoryState('incoming-message');
   if(id==='adnan'&&next.day2OfferAdvice)queueDay2Page312();
+  if(id==='harley'&&next.day3LeakReply)scheduleDay3Prep();
   if(inScripted()&&state.thread===id){render();sound()}
   else if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
   setTimeout(one,next.text.length>160?1800:1250);
@@ -3221,7 +3248,8 @@ function sendScripted(){
  if(!m?.me||m.choicePending||(id==='nirmala'&&m.requiresFilesReview&&!day2FilesReviewed()))return;
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
  syncDay2BriefClock(m);
- if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
+ if(id==='harley'&&day3LeakActive)window.nakulaNarrativeClock.set(5,Number(m.time.split('.')[1])||12,2);
+ else if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
  if(id==='damar')setDay2DamarClock(m);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;
@@ -3240,6 +3268,7 @@ function sendScripted(){
  if(script[current+1]&&!script[current+1].me)receive(id);
  if(id==='nirmala'&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
  if(id==='damar'&&day2DamarCursor>=day2DamarTimeline.length)scheduleDay2DamarFinale();
+ if(id==='harley'&&day3LeakActive&&day3LeakCursor>=day3LeakTimeline.length)scheduleDay3Prep();
 }
 /* Morning Brief reply selection. The selected version is the exact message
    the scripted keyboard types, with its consequence saved immediately. */
