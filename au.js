@@ -2657,6 +2657,10 @@ render=function(){
    clearTimeout(nirmalaNextTimer);nirmalaNextTimer=null;
    clearTimeout(nirmalaAutoSendTimer);nirmalaAutoSendTimer=null;
  }
+ if(!(state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='damar')){
+  clearTimeout(damarNextTimer);damarNextTimer=null;
+  clearTimeout(damarAutoSendTimer);damarAutoSendTimer=null;
+ }
  if(!inScripted()){
    keyboardVisible=false;typingRun++;if(typingTimer)clearTimeout(typingTimer);typing=false;ready=false;
    oldRender();
@@ -2704,6 +2708,12 @@ render=function(){
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
  if(state.thread==='nirmala')scheduleNirmalaReply();
+ if(state.thread==='damar'){
+  if(day2DamarCursor<day2DamarTimeline.length){
+   if(day2DamarTimeline[day2DamarCursor].me)scheduleDamarReply();
+   else if(!incomingThread)receive('damar');
+  }else if(!day2DamarDone)scheduleDay2DamarFinale();
+ }
  if(state.thread==='adnan'){
   if(day2Stage==='complete')queueDay2BriefIncoming();
   scheduleAdnanReply();
@@ -2781,6 +2791,12 @@ function beginAutoType(){
           nirmalaAutoSendTimer=null;
           if(inScripted()&&state.thread==='nirmala'&&!typing&&ready&&nirmalaTimeline[nirmalaCursor]===message)sendScripted();
         },620);
+      }else if(state.thread==='damar'&&damarAutoplayStarted){
+        clearTimeout(damarAutoSendTimer);
+        damarAutoSendTimer=setTimeout(()=>{
+         damarAutoSendTimer=null;
+         if(inScripted()&&state.thread==='damar'&&!typing&&ready&&day2DamarTimeline[day2DamarCursor]===message)sendScripted();
+        },620);
       }else if(state.thread==='adnan'&&adnanAutoplayStarted){
         clearTimeout(adnanAutoSendTimer);
         adnanAutoSendTimer=setTimeout(()=>{
@@ -2799,19 +2815,21 @@ function receive(id=state.thread){
  incomingThread=id;
  if(inScripted()&&state.thread===id)render();
  function one(){
-  const script=id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
-  const current=id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
+  const script=id==='damar'?day2DamarTimeline:id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
+  const current=id==='damar'?day2DamarCursor:id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
   const next=script[current];
   if(!next||next.me){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
    if(id==='harley'&&current>=script.length)queueUnknownCall();
+   if(id==='damar'&&current>=script.length)scheduleDay2DamarFinale();
    if(id==='adnan'&&day2BriefPrepared&&day2Stage==='complete'&&current>=script.length)finishDay2MorningBrief();
    if(id==='nirmala'&&current>=script.length)scheduleDay2RedFolder();
    saveStoryState('incoming-sequence-finished');
    return;
   }
   if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
+  if(id==='damar')setDay2DamarClock(next);
   syncDay2BriefClock(next);
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
@@ -2833,6 +2851,7 @@ function sendScripted(){
  typingRun++;clearTimeout(typingTimer);keyboardVisible=false;
  syncDay2BriefClock(m);
  if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
+ if(id==='damar')setDay2DamarClock(m);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;
  saveStoryState('outgoing-message');
@@ -2849,6 +2868,7 @@ function sendScripted(){
  }
  if(script[current+1]&&!script[current+1].me)receive(id);
  if(id==='nirmala'&&nirmalaCursor>=nirmalaTimeline.length)scheduleDay2RedFolder();
+ if(id==='damar'&&day2DamarCursor>=day2DamarTimeline.length)scheduleDay2DamarFinale();
 }
 /* Morning Brief reply selection. The selected version is the exact message
    the scripted keyboard types, with its consequence saved immediately. */
