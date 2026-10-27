@@ -23,7 +23,7 @@ const setIndex=(id,i)=>{if(id==='damar')day2DamarCursor=i;else if(id==='unknown'
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
-notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon">✉</span><span><small>PESAN · baru saja</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
+notif.innerHTML='<button class="harley-au-notif-body" type="button"><span class="harley-au-notif-icon"><svg viewBox="0 0 32 32" width="25" height="25" aria-hidden="true"><path fill="#fff" d="M16 6C8.8 6 4 10.7 4 16c0 3.2 1.7 5.9 4.5 7.7L7 28l5-2.3c1.3.4 2.6.5 4 .5 7.3 0 12.5-4.7 12.5-10.2S23.3 6 16 6z"/></svg></span><span><small>PESAN · baru saja</small><strong>Harley Mahira</strong><span>Na, masih bangun? Need a quick legal perspective buat tulisan editorial gue besok.</span></span></button><button type="button" class="harley-au-notif-close" aria-label="Close notification">×</button>';
 $au('phone').appendChild(notif);
 // The unread badge lives outside the icon artwork so it isn't clipped by the icon's rounded mask.
 const messagesDockIcon=document.querySelector('#dock .app-button[data-app="messages"]');
