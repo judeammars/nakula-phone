@@ -2813,9 +2813,9 @@ function nakulaRenderChatBubbles(messages){
   const attachment=m.day2MentariPhoto?
    '<div class="nakula-mentari-photo-block nakula-mentari-photo-inline"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
     '<button type="button" class="nakula-mentari-download'+(day2MentariEvidenceSaved?' is-saved':'')+'" data-day2-mentari-save aria-label="'+(day2MentariEvidenceSaved?'Foto tersimpan ke album BUKTI':'Simpan foto ke album BUKTI')+'" title="Simpan ke album BUKTI">'+(day2MentariEvidenceSaved?'✓':'↓')+'</button></div>':
-   m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Open evidence in Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 received documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
-   m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Open Calendar</small></span><span aria-hidden="true">›</span></button>':
-   m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 documents · Open in Files</small></span><span aria-hidden="true">›</span></button>':
+   m.unlockFiles?'<button type="button" class="nakula-file-attachment" data-nakula-files-open aria-label="Buka dokumen bukti di Files"><span class="nakula-file-attachment-icon">PDF</span><span><strong>PBK Group · Evidence</strong><small>3 dokumen diterima · Buka di Files</small></span><span aria-hidden="true">›</span></button>':
+   m.day2RedFolder?'<button type="button" class="nakula-file-attachment" data-nakula-calendar-open><span class="nakula-file-attachment-icon">09</span><span><strong>Internal Case Briefing</strong><small>09.00 · Buka Calendar</small></span><span aria-hidden="true">›</span></button>':
+   m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 dokumen · Buka di Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':
    m.day3NewsLink?'<button type="button" class="nakula-file-attachment nakula-day3-news-link" data-day3-article><span class="nakula-file-attachment-icon">NEWS</span><span><strong>Kasus Zona B: Pertemuan Pengacara Jadi Sorotan</strong><small>The Civic Ledger · Buka di Safari</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
@@ -3267,10 +3267,10 @@ function nakulaFilesEsc(v){return esc(v)}
 function nakulaFilesRow(doc){
  const read=day2ReadFileIds.has(doc.id);
  return '<button class="nakula-files-row'+(read?' is-read':'')+'" type="button" data-nakula-file="'+doc.id+
-  '" aria-label="'+nakulaFilesEsc(doc.name)+(read?', already read':', unread')+'">'+
+  '" aria-label="'+nakulaFilesEsc(doc.name)+(read?', sudah dibaca':', belum dibaca')+'">'+
  '<span class="nakula-files-doc-icon" aria-hidden="true">PDF</span>'+
  '<span class="nakula-files-row-copy"><strong>'+nakulaFilesEsc(doc.name)+'</strong><small>'+doc.kind+' · '+doc.size+'</small></span>'+
- (read?'<span class="nakula-files-read-indicator" aria-hidden="true">✓ Read</span>':'')+
+ (read?'<span class="nakula-files-read-indicator" aria-hidden="true">✓ Dibaca</span>':'')+
  '<span class="nakula-files-chevron" aria-hidden="true">›</span></button>';
 }
 function nakulaFilesFolder(id,name,details){
@@ -3295,21 +3295,21 @@ function renderNakulaFilesApp(){
  let body='';
  if(detail&&current){
   body='<div class="nakula-files-preview">'+
-   '<div class="nakula-files-preview-top"><span class="nakula-files-doc-icon">PDF</span><div><strong>'+nakulaFilesEsc(current.name)+'</strong><small>'+current.size+' · Local preview</small></div></div>'+
+   '<div class="nakula-files-preview-top"><span class="nakula-files-doc-icon">PDF</span><div><strong>'+nakulaFilesEsc(current.name)+'</strong><small>'+current.size+' · Pratinjau lokal</small></div></div>'+
    (nakulaFilesInfo?
-    '<section class="nakula-files-info"><h2>Information</h2>'+current.metadata.map(([k,v])=>
+    '<section class="nakula-files-info"><h2>Informasi Dokumen</h2>'+current.metadata.map(([k,v])=>
       '<div class="nakula-files-info-row"><span>'+nakulaFilesEsc(k)+'</span><strong>'+nakulaFilesEsc(v)+'</strong></div>').join('')+
-     '<p>These are case-story documents. Dates and metadata are fictional and provided for investigation gameplay.</p></section>':
+     '<p>Dokumen ini merupakan bagian dari cerita fiktif. Tanggal dan metadata dibuat untuk kebutuhan investigasi dalam game.</p></section>':
     '<article class="nakula-files-sheet"><div class="nakula-files-watermark">PBK GROUP · CASE MATERIALS</div><div class="nakula-files-sheet-label">'+nakulaFilesEsc(current.badge)+'</div>'+
      '<h2>'+nakulaFilesEsc(current.title)+'</h2><div class="nakula-files-sheet-rule"></div>'+
      current.body.map(([k,v])=>'<div class="nakula-files-field"><strong>'+nakulaFilesEsc(k)+'</strong><p>'+nakulaFilesEsc(v)+'</p></div>').join('')+
     '<div class="nakula-files-sheet-footer">REVIEW COPY · LEGAL CASE FILE</div></article>')+
-   '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Back to Preview':'Get Info')+'</button>'+
+   '<div class="nakula-files-actions"><button type="button" data-nakula-files-info>'+ (nakulaFilesInfo?'Kembali ke Dokumen':'Info Dokumen')+'</button>'+
     (current.id==='casebrief'&&day2CaseBriefRead&&!day2BriefingDone
      ?'<button type="button" data-nakula-files-start-briefing>Mulai Briefing</button>'
      :current.id==='settlement'
       ?'<button type="button" data-day2-offer-from-files>Kembali ke Tawaran</button>'
-      :'<button type="button" data-nakula-files-back>Back to PBK Group</button>')+'</div></div>';
+      :'<button type="button" data-nakula-files-back>Kembali ke Folder</button>')+'</div></div>';
   if(current.id==='operational_addendum'){
    body='<div class="nakula-files-preview nakula-page312-preview">'+
     '<div class="nakula-files-preview-top"><span class="nakula-files-doc-icon">PDF</span><div><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Salinan pemeriksaan</small></div></div>'+
@@ -3327,22 +3327,22 @@ function renderNakulaFilesApp(){
    (day2FilesReceived?
     '<p class="nakula-files-help">'+(nakulaFilesPath==='hhp'?'Diterima dari HHP · 26 Oktober 2026':'Dibagikan oleh Nirmala · 26 Oktober 2026')+'</p><div class="nakula-files-document-list">'+nakulaFilesAvailableDocs().filter(d=>d.folder===pathFolder).map(nakulaFilesRow).join('')+'</div>'+
     (nakulaFilesPath==='client'&&day2FamiliesReceived
-     ?(!day2FamilyDocsReady()?'<p class="nakula-files-tip">Review Zona_B_Family_Statements.pdf and Client_Contact_Plan.pdf to understand the families’ needs.</p>':'')
+     ?(!day2FamilyDocsReady()?'<p class="nakula-files-tip">Baca Zona_B_Family_Statements.pdf dan Client_Contact_Plan.pdf untuk memahami kebutuhan keluarga.</p>':'')
      :nakulaFilesPath==='pbk'&&day2CaseBriefAvailable()
-       ?(!day2CaseBriefRead?'<p class="nakula-files-tip">Open CASE_BRIEF_PBK.pdf before the 09.00 briefing.</p>':'')
+       ?(!day2CaseBriefRead?'<p class="nakula-files-tip">Baca CASE_BRIEF_PBK.pdf sebelum briefing pukul 09.00.</p>':'')
        :nakulaFilesPath==='pbk'&&!day2FilesReviewed()?'<p class="nakula-files-tip">Buka AMDAL_Approval_Final.pdf dan Digital_Signature_Report.pdf untuk membandingkan tanggal.</p>':''):
-    '<div class="nakula-files-empty"><div>◌</div><strong>No documents yet</strong><span>Nirmala will send the case materials to this folder.</span></div>')+'</div>';
+    '<div class="nakula-files-empty"><div>◌</div><strong>Belum ada dokumen</strong><span>Nirmala akan mengirim materi perkara ke folder ini.</span></div>')+'</div>';
  }else if(nakulaFilesPath==='downloads'||nakulaFilesPath==='personal'){
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div>'+
    '<h1>'+(nakulaFilesPath==='downloads'?'Downloads':'Personal')+'</h1>'+
-   '<div class="nakula-files-empty"><div>◌</div><strong>Nothing here</strong><span>No files in this folder.</span></div></div>';
+   '<div class="nakula-files-empty"><div>◌</div><strong>Folder kosong</strong><span>Belum ada berkas dalam folder ini.</span></div></div>';
  }else{
   body='<div class="nakula-files-browser"><div class="nakula-files-kicker">ON MY IPHONE</div><h1>'+(nakulaFilesTab==='recents'?'Recents':'Browse')+'</h1>'+
-   '<div class="nakula-files-search">⌕ <span>Search</span></div>'+
+   '<div class="nakula-files-search">⌕ <span>Cari</span></div>'+
    (nakulaFilesTab==='recents'?
-    (day2FilesReceived?'<div class="nakula-files-section-title">Recently Opened</div>'+nakulaFilesAvailableDocs().slice(-3).map(nakulaFilesRow).join(''):
-    '<div class="nakula-files-empty"><div>◷</div><strong>No Recents</strong><span>Your recently opened case files will appear here.</span></div>'):
-    '<div class="nakula-files-section-title">Locations</div><div class="nakula-files-location-list">'+
+    (day2FilesReceived?'<div class="nakula-files-section-title">Baru Dibuka</div>'+nakulaFilesAvailableDocs().slice(-3).map(nakulaFilesRow).join(''):
+    '<div class="nakula-files-empty"><div>◷</div><strong>Belum ada riwayat</strong><span>Dokumen yang baru dibuka akan muncul di sini.</span></div>'):
+    '<div class="nakula-files-section-title">Lokasi</div><div class="nakula-files-location-list">'+
      nakulaFilesFolder('pbk','PBK Group',day2FilesReceived?nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group').length+' berkas':'Menunggu dokumen perkara')+
      (day2FamiliesReceived?nakulaFilesFolder('client','PBK Group - Client',nakulaFilesAvailableDocs().filter(d=>d.folder==='PBK Group - Client').length+' berkas'):'')+
      (day2OfferDelivered?nakulaFilesFolder('hhp','HHP',nakulaFilesAvailableDocs().filter(d=>d.folder==='HHP').length+' berkas'):'')+
@@ -3361,12 +3361,12 @@ function renderNakulaFilesApp(){
    '<strong>Tindak Lanjut Keluarga</strong><small>Kedua dokumen telah diperiksa. Pilih langkah berikutnya.</small>'+
    '<button type="button" data-nakula-family-task-open>Pilih Langkah</button></section>':'';
  const chapterNext=day2CaseBriefAvailable()&&!day2BriefingDone&&day2CaseBriefRead&&!detail?
-  '<div class="nakula-files-return-bar"><span>✓ Case brief reviewed · 09.00</span><button type="button" data-nakula-calendar-open>Open Calendar Briefing</button></div>':'';
+  '<div class="nakula-files-return-bar"><span>✓ Case brief sudah dibaca · 09.00</span><button type="button" data-nakula-calendar-open>Buka Briefing di Calendar</button></div>':'';
  // Completed tasks belong in the saved story state, not in permanent
  // status bars at the foot of every Files screen.
  const familyNext='';
  const callout=day2FilesReviewed()&&!day2RedFolderDelivered&&!day2BriefingDone&&!detail&&day2FilesReceived?
-  '<div class="nakula-files-active-action"><span>Evidence review complete. Continue the conversation.</span><button type="button" data-nakula-files-return>Back to Nirmala’s Chat</button></div>':'';
+  '<div class="nakula-files-active-action"><span>Pemeriksaan bukti selesai. Lanjutkan percakapan.</span><button type="button" data-nakula-files-return>Kembali ke Chat Nirmala</button></div>':'';
  content.innerHTML='<div class="nakula-files-screen">'+familyChoice+callout+body+investigationChoice+chapterNext+familyNext+'</div>';
  if(!detail)scheduleDay2FamilyTask();
 }
