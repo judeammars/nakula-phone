@@ -153,7 +153,7 @@ function buildUnknownIncidentReport(){
 // with a clean call log; revisiting Phone within this playthrough keeps its entries.
 let unknownCallHistory=[];
 try{localStorage.removeItem('myphone-ios-nakula-unknown-call-history')}catch{}
-let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callLineIndex=0;
+let callRetryTimer=null,callSubtitleTimer=null,callRingTimer=null,callDurationTimer=null,callLineIndex=0;
 const unknownLines=[
  'Pak Nakula, saya sarankan Anda berhenti mengusut insiden Zona B.',
  'PBK Group sudah menawarkan penyelesaian kepada keluarga itu. Jangan bawa perkara ini lebih jauh.',
@@ -189,10 +189,27 @@ callScreen.innerHTML=
 $au('phone').appendChild(callScreen);
 const callStatus=callScreen.querySelector('#nakula-call-status');
 const callCaption=callScreen.querySelector('#nakula-call-caption');
+// Keep the visible 00:00 timer based on real elapsed time, not the fictional
+// story clock. One timer is shared by the DAY 1 call and the Mentari callback.
+function updateUnknownCallDuration(){
+ if(!callConnectedAt||callScreen.hidden||
+  (unknownStage!=='answered'&&day2MentariCallStage!=='answered'))return;
+ const seconds=Math.max(0,Math.floor((Date.now()-callConnectedAt)/1000));
+ const minutes=String(Math.floor(seconds/60)).padStart(2,'0');
+ const remainder=String(seconds%60).padStart(2,'0');
+ callStatus.textContent=minutes+':'+remainder+' · connected';
+}
+function startUnknownCallDuration(){
+ clearInterval(callDurationTimer);
+ callDurationTimer=null;
+ updateUnknownCallDuration();
+ callDurationTimer=setInterval(updateUnknownCallDuration,250);
+}
 function clearUnknownTimers(){
  clearInterval(callRingTimer);callRingTimer=null;
  clearTimeout(callRetryTimer);callRetryTimer=null;
  clearTimeout(callSubtitleTimer);callSubtitleTimer=null;
+ clearInterval(callDurationTimer);callDurationTimer=null;
 }
 function ringPulse(){
  try{
@@ -378,7 +395,7 @@ callScreen.addEventListener('click',e=>{
   callLineIndex=0;
   callScreen.classList.add('is-connected');
   callScreen.classList.toggle('is-angry',unknownInterrupted);
-  callStatus.textContent='00:00 · connected';
+  startUnknownCallDuration();
   callScreen.querySelector('.nakula-call-actions').hidden=true;
   callScreen.querySelector('.nakula-call-hangup').hidden=false;
   saveStoryState('call-answered');
@@ -498,7 +515,7 @@ function handleDay2MentariCallButton(action){
   day2MentariLineIndex=0;
   callScreen.classList.add('is-connected');
   callScreen.classList.remove('is-angry');
-  callStatus.textContent='00:00 · connected';
+  startUnknownCallDuration();
   callScreen.querySelector('.nakula-call-actions').hidden=true;
   callScreen.querySelector('.nakula-call-hangup').hidden=false;
   saveStoryState('CP02-05-answered');
@@ -888,7 +905,7 @@ const DAY3_HARLEY_MESSAGES=Object.freeze([
  {me:false,dayOffset:2,time:'05.00',day3Harley:true,
   text:'Pertemuan lo sama Damar hari ini udah sampai ke telinga reporter. Kasus PBK ini terlalu besar buat tetap sepi. Belum tentu semua yang beredar akurat, Na.'},
  {me:false,dayOffset:2,time:'05.01',day3Harley:true,day3NewsLink:true,
-  text:'Baca dulu. Ada yang mulai menghubungkan tawaran settlement dengan agenda pertemuan kalian. Gue kirim link beritanya.'}
+  text:'Baca dulu tulisan Raka, teman jurnalis gue. Ada yang mulai menghubungkan tawaran settlement dengan agenda pertemuan kalian. Gue kirim link beritanya.'}
 ]);
 function ensureDay3ChecklistNote(){
  if(day3Stage==='none'||day3Stage==='transition')return;
@@ -1078,7 +1095,7 @@ function renderDay3Article(){
   '<div class="nakula-day3-news-category">HUKUM & AKUNTABILITAS</div>'+
   '<h1>Kasus Zona B: Pertemuan Pengacara PBK dan Keluarga Korban Jadi Sorotan</h1>'+
   '<p class="nakula-day3-news-lead">Rencana pertemuan antara Nakula Shankara Bumi dan Damar dikabarkan beredar di kalangan peliput perkara PBK Group. Pertanyaan mengenai penyelesaian dan tanggung jawab operasional belum terjawab.</p>'+
-  '<div class="nakula-day3-news-byline"><strong>Harley Mahira</strong><span>Selasa, 27 Oktober 2026 · 04.58 WIB · Jakarta</span></div>'+
+  '<div class="nakula-day3-news-byline"><strong>Raka Pradipta</strong><span>Reporter · The Civic Ledger · Selasa, 27 Oktober 2026 · 04.58 WIB · Jakarta</span></div>'+
   '<div class="nakula-day3-news-divider"></div>'+
   '<p><strong>JAKARTA.</strong> Perkembangan penanganan longsor di area Zona B yang dikaitkan dengan operasi PBK Group kembali menarik perhatian publik setelah kabar mengenai agenda pertemuan antar-kuasa hukum beredar sejak malam sebelumnya.</p>'+
   '<p>Dua nama yang disebut dalam agenda tersebut adalah Nakula Shankara Bumi, kuasa hukum keluarga korban, dan Damar, pengacara yang mewakili kepentingan PBK Group. Pertemuan disebut dijadwalkan berlangsung hari ini. Hingga berita ini disusun, belum ada konfirmasi publik mengenai hasil atau ruang lingkup pembahasan.</p>'+
