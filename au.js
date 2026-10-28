@@ -1661,7 +1661,11 @@ document.addEventListener('click',e=>{
  if(target.hasAttribute('data-day3-meeting-begin')){
   if(day3MeetingStarted)showDay3Meeting();else beginDay3Meeting();
  }else if(target.hasAttribute('data-day3-meeting-back')){
-  if(state.app==='calendar'){state.view=null;render();}
+  if(state.app==='calendar'){
+  state.view=null;
+  const root=$au('app-content');if(root){root.style.padding='';root.style.overflowY='';}
+  render();
+}
  }else if(target.hasAttribute('data-day3-meeting-next')){
   if(state.app==='calendar'&&state.view==='day3-meeting')advanceDay3Meeting();
  }else if(target.hasAttribute('data-day3-meeting-choice')){
@@ -3288,6 +3292,8 @@ render=function(){
     decorateDailyCaseNotesUI();
     renderDay3Checklist();
     renderDay3Prep();
+    if(state.view==='note'&&Number(state.note)===DAY3_MEETING_NOTE_ID)
+     $au('app-content')?.querySelector('[data-action="edit-note"]')?.remove();
    }
    if(state.screen==='app'&&state.app==='safari')decorateDay3Safari();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
