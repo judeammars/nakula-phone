@@ -1466,6 +1466,211 @@ document.addEventListener('click',e=>{
  if(cal){e.preventDefault();e.stopImmediatePropagation();openApp('calendar');render();return}
 },true);
 
+
+/* CHAPTER 03.4 / 03.5 — ACROSS THE TABLE / A NAME IS NOT A SIGNATURE
+   Meeting transcripts progress one beat at a time at the player's pace.
+   This records Nakula's evidence strategy without treating any allegation
+   as proven and without retroactively changing previous choices. */
+const DAY3_MEETING_NOTE_ID=99305;
+const DAY3_MEETING_OPTIONS=Object.freeze({
+ original:{
+  label:'Minta dokumen otorisasi asli',
+  short:'Verifikasi sumber asli',
+  focus:'Keaslian berkas dan validitas otorisasi asli',
+  prompt:'Pak Jenoah, saya minta dokumen persetujuan primer, beserta jejak autentikasi dan pihak yang memverifikasinya.',
+  answer:'Saya bisa meminta tim tata kelola menginventarisasi catatan yang tersedia. Tapi saya tidak akan menjanjikan sesuatu yang belum saya lihat sendiri.'
+ },
+ authority:{
+  label:'Pertanyakan kewenangan Jenoah',
+  short:'Uji kewenangan',
+  focus:'Ruang lingkup kewenangan dan hak pengesahan',
+  prompt:'Apa batas kewenangan Anda saat dokumen itu disusun, dan siapa yang boleh menyetujui tindakan operasional atas nama Anda?',
+  answer:'Batas kewenangan saya tercantum pada pedoman internal. Yang belum jelas justru apakah tindakan yang Anda tanyakan termasuk di dalam batas itu.'
+ },
+ chronology:{
+  label:'Telusuri kronologi persetujuan',
+  short:'Periksa kronologi',
+  focus:'Urutan waktu penerbitan dan tanda tangan elektronik',
+  prompt:'Bisa jelaskan kapan persetujuan itu mulai diproses dan kapan Anda pertama kali mengetahuinya?',
+  answer:'Saya tidak mau menjawab dengan perkiraan waktu. Kalau ada log yang bisa diperiksa bersama secara sah, saya ingin melihatnya lebih dulu.'
+ }
+});
+const DAY3_MEETING_INTRO=Object.freeze([
+ {speaker:'System',time:'09.45',text:'Pengingat Calendar · Pertemuan PBK Group dimulai pukul 10.00.'},
+ {speaker:'Adnan',time:'10.00',text:'Na, kita masuk dengan fakta. Biarkan mereka menjelaskan posisi lebih dulu.'},
+ {speaker:'Damar',time:'10.02',text:'Selamat pagi. Terima kasih sudah hadir. Saya harap pertemuan ini bisa berlangsung produktif.'},
+ {speaker:'Nakula',time:'10.03',text:'Pagi, Mas. Kami hadir untuk meminta klarifikasi atas dokumen dan memastikan hak keluarga terdampak tidak diabaikan.'},
+ {speaker:'Damar',time:'10.05',text:'Saya memahami posisi AHP. Tapi hadir di sini bukan berarti klien kami mengakui kesalahan ataupun menyetujui semua dugaan yang beredar.'},
+ {speaker:'Nakula',time:'10.06',text:'Saya juga tidak datang untuk meminta pengakuan tanpa bukti. Kita mulai dari adendum operasional Zona B, halaman 312.'},
+ {speaker:'Jenoah',time:'10.10',text:'My name is on the authorization matrix. That much is true.'},
+ {speaker:'Nakula',time:'10.11',text:'And your signature?'},
+ {speaker:'Jenoah',time:'10.12',text:"That's precisely what I want you to verify, Mr. Bumi."},
+ {speaker:'Damar',time:'10.13',text:'Jenoah, I believe we should let the counsels handle this.'},
+ {speaker:'Jenoah',time:'10.14',text:"He's asking me a question, Damar. I'm answering it."}
+]);
+const DAY3_MEETING_OUTCOME=Object.freeze([
+ {speaker:'Damar',time:'10.29',text:'Kami akan meninjau permintaan dokumen berdasarkan ruang lingkup dan kewajiban kerahasiaan yang berlaku. Tidak semua catatan dapat diserahkan begitu saja.'},
+ {speaker:'Nakula',time:'10.32',text:'Kami tidak meminta kesimpulan sekarang. Kami meminta dasar untuk menguji pernyataan yang sudah dibuat.'},
+ {speaker:'Adnan',time:'10.37',text:'Baik. Kita catat permintaan dan keberatan masing-masing. Tindak lanjut harus didokumentasikan.'},
+ {speaker:'Damar',time:'10.42',text:'Saya akan memberi jawaban tertulis melalui jalur resmi. Sampai saat itu, anggap semua pokok tadi belum disepakati.'}
+]);
+let day3MeetingStarted=false,day3MeetingCursor=0,day3MeetingChoice=null;
+let day3MeetingFinished=false,day3MeetingNotesOpened=false;
+function day3MeetingTranscript(){
+ const arr=[...DAY3_MEETING_INTRO];
+ if(day3MeetingChoice){
+  const branch=DAY3_MEETING_OPTIONS[day3MeetingChoice];
+  arr.push({speaker:'Nakula',time:'10.18',text:branch.prompt});
+  arr.push({speaker:'Jenoah',time:'10.22',text:branch.answer});
+  arr.push(...DAY3_MEETING_OUTCOME);
+ }
+ return arr;
+}
+function day3MeetingCanBegin(){
+ return day3AdnanDelivered&&day3PrepReady&&day3Stage==='harley'&&!currentStoryEnding;
+}
+function beginDay3Meeting(){
+ if(!day3MeetingCanBegin())return;
+ day3MeetingStarted=true;
+ const clock=window.nakulaNarrativeClock;
+ if(clock.minutes()<2*1440+9*60+45)clock.set(9,45,2);
+ saveStoryState('CP03-04-meeting-opened');
+ showDay3Meeting();
+}
+function showDay3Meeting(){
+ if(!day3MeetingStarted)return;
+ if(state.screen!=='app'||state.app!=='calendar')openApp('calendar');
+ state.view='day3-meeting';
+ render();
+}
+function advanceDay3Meeting(){
+ if(!day3MeetingStarted||day3MeetingFinished)return;
+ const limit=day3MeetingChoice?day3MeetingTranscript().length:DAY3_MEETING_INTRO.length;
+ if(day3MeetingCursor>=limit)return; // Decision requires an explicit choice.
+ day3MeetingCursor++;
+ if(day3MeetingCursor<=DAY3_MEETING_INTRO.length){
+  const event=DAY3_MEETING_INTRO[day3MeetingCursor-1];
+  if(event&&event.time.startsWith('10.'))window.nakulaNarrativeClock.set(10,Number(event.time.slice(-2)),2);
+ }else{
+  const event=day3MeetingTranscript()[day3MeetingCursor-1];
+  if(event)window.nakulaNarrativeClock.set(10,Number(event.time.slice(-2)),2);
+ }
+ saveStoryState('CP03-04-meeting-line-'+day3MeetingCursor);
+ render();
+}
+function chooseDay3MeetingApproach(choice){
+ if(!day3MeetingStarted||day3MeetingFinished||day3MeetingChoice||
+   day3MeetingCursor!==DAY3_MEETING_INTRO.length||!DAY3_MEETING_OPTIONS[choice])return;
+ day3MeetingChoice=choice;
+ saveStoryState('CP03-05-evidence-focus-'+choice);
+ render();
+}
+function ensureDay3MeetingNotes(){
+ if(!day3MeetingFinished)return null;
+ let note=notes.find(n=>Number(n.id)===DAY3_MEETING_NOTE_ID);
+ if(note)return note;
+ const choice=DAY3_MEETING_OPTIONS[day3MeetingChoice];
+ note={id:DAY3_MEETING_NOTE_ID,title:'27 OKT · NOTULEN PERTEMUAN PBK',
+  date:'27 Oktober 2026 · 10.45',day3MeetingMinutes:true,
+  body:'PBK GROUP · CATATAN PERTEMUAN\n\nPihak terkait: Nakula Shankara Bumi, Adnan W., Damar (HHP), Jenoah Arthur Pangestu.\n\n'+
+   'Temuan yang belum diverifikasi:\n• Nama Jenoah terdapat pada matriks kewenangan (hal. 312).\n• Identitas penandatangan dan persetujuan tindakan tertentu belum dapat disimpulkan dari nama tersebut saja.\n\n'+
+   'Fokus pertanyaan Nakula: '+(choice?.focus||'Belum dicatat')+'.\n\n'+
+   'Tindak lanjut: Mintakan tanggapan resmi, catatan otorisasi, dan dokumen pendukung melalui jalur yang sesuai. Jangan menyamakan pertemuan dengan persetujuan settlement.\n\n'+
+   'Status: Tidak ada kesepakatan ataupun temuan pidana final dalam pertemuan ini.'};
+ notes.unshift(note);
+ return note;
+}
+function finishDay3Meeting(){
+ if(!day3MeetingStarted||day3MeetingFinished||!day3MeetingChoice||
+    day3MeetingCursor!==day3MeetingTranscript().length)return;
+ day3MeetingFinished=true;
+ window.nakulaNarrativeClock.set(10,45,2);
+ ensureDay3MeetingNotes();
+ saveStoryState('CP03-05-meeting-complete');
+ render();
+}
+function openDay3MeetingNotes(){
+ if(!day3MeetingFinished)return;
+ ensureDay3MeetingNotes();
+ day3MeetingNotesOpened=true;
+ saveStoryState('CP03-05-minutes-opened');
+ openApp('notes');state.view='note';state.note=DAY3_MEETING_NOTE_ID;render();
+}
+function day3MeetingHtml(){
+ const list=day3MeetingTranscript();
+ const visible=list.slice(0,day3MeetingCursor);
+ const current=visible.at(-1);
+ const atDecision=day3MeetingCursor===DAY3_MEETING_INTRO.length&&!day3MeetingChoice;
+ const transcript=visible.map((m,i)=>{
+  const role=m.speaker==='System'?'system':m.speaker==='Nakula'?'nakula':m.speaker==='Jenoah'?'jenoah':m.speaker==='Damar'?'damar':'adnan';
+  return '<div class="nakula-day3-meeting-turn '+role+'">'+
+   '<div class="nakula-day3-meeting-turn-head"><strong>'+esc(m.speaker)+'</strong><span>'+esc(m.time)+'</span></div>'+
+   '<p>'+esc(m.text)+'</p></div>';
+ }).join('');
+ return '<div class="nakula-day3-meeting">'+
+  '<div class="nakula-day3-meeting-top"><span>PRIVATE MEETING · 27 OCT 2026</span><strong>'+
+   (day3MeetingFinished?'10.45':current?.time||'09.45')+'</strong></div>'+
+  '<h1>'+(day3MeetingCursor>=7?'A Name Is Not a Signature':'Across the Table')+'</h1>'+
+  '<p class="nakula-day3-meeting-description">PBK Group · Nakula / Adnan · Damar / Jenoah</p>'+
+  '<div class="nakula-day3-meeting-progress"><span style="width:'+Math.round(day3MeetingCursor/list.length*100)+'%"></span></div>'+
+  '<div class="nakula-day3-meeting-transcript" role="log" aria-live="off">'+transcript+'</div>'+
+  (!day3MeetingCursor?'<div class="nakula-day3-meeting-intro"><strong>10.00 · Pertemuan dimulai</strong><p>Pernyataan yang disampaikan belum tentu merupakan fakta yang telah diverifikasi. Baca percakapannya secara berurutan.</p></div>':'')+
+  (atDecision?'<div class="nakula-day3-meeting-choices"><span>PILIH PENDEKATAN NAKULA</span><p>Strategi ini akan dicatat untuk penyelidikan selanjutnya. Belum menentukan ending.</p>'+
+   Object.entries(DAY3_MEETING_OPTIONS).map(([id,x])=>
+    '<button type="button" data-day3-meeting-choice="'+id+'"><strong>'+esc(x.label)+'</strong><small>'+esc(x.focus)+'</small></button>').join('')+'</div>':'')+
+  (day3MeetingFinished?
+   '<div class="nakula-day3-meeting-complete"><strong>✓ Meeting concluded · 10.45</strong><p>Damar akan memberi tanggapan tertulis. Tidak ada kesepakatan yang disahkan hari ini.</p>'+
+   '<button type="button" data-day3-meeting-minutes>Catat Hasil di Notes</button>'+
+   '<button type="button" class="secondary" data-day3-meeting-back>Kembali ke Calendar</button></div>':
+   day3MeetingCursor===list.length&&day3MeetingChoice?
+    '<button type="button" class="nakula-day3-meeting-next" data-day3-meeting-finish>Akhiri Pertemuan · 10.45</button>':
+   !atDecision?
+    '<button type="button" class="nakula-day3-meeting-next" data-day3-meeting-next>'+
+     (day3MeetingCursor===0?'Mulai Percakapan':'Lanjutkan Percakapan')+'</button>':'')+
+  '</div>';
+}
+function renderDay3Meeting(){
+ if(state.screen!=='app'||state.app!=='calendar'||state.view!=='day3-meeting')return;
+ const header=$au('app-header'),root=$au('app-content');
+ if(!header||!root)return;
+ header.innerHTML='<button class="plain-btn" type="button" data-day3-meeting-back><span class="chev-left">‹</span> Calendar</button><span class="app-title">PBK Meeting</span><span style="width:63px"></span>';
+ root.innerHTML=day3MeetingHtml();root.style.padding='0';root.style.overflowY='auto';
+ // Keep the latest exchange and decision in view without a rapid auto-scroll.
+ requestAnimationFrame(()=>{if(state.app==='calendar'&&state.view==='day3-meeting')root.scrollTop=root.scrollHeight;});
+}
+function decorateDay3MeetingCalendarCard(){
+ if(state.screen!=='app'||state.app!=='calendar'||state.view==='day3-meeting')return;
+ const card=$au('app-content')?.querySelector('.nakula-day3-calendar');
+ if(!card)return;
+ let button=card.querySelector('[data-day3-meeting-begin]');
+ if(button)return;
+ button=document.createElement('button');
+ button.type='button';button.dataset.day3MeetingBegin='';
+ button.disabled=!day3MeetingCanBegin();
+ button.textContent=day3MeetingFinished?'Baca Ulang Transkrip':day3MeetingStarted?'Lanjutkan Pertemuan':day3MeetingCanBegin()?'Mulai Pertemuan · 10.00':'Selesaikan Checklist Notes Dahulu';
+ card.appendChild(button);
+ if(day3MeetingFinished){
+  const note=document.createElement('button');note.type='button';note.dataset.day3MeetingMinutes='';
+  note.textContent='Buka Notulen Pertemuan';card.appendChild(note);
+ }
+}
+document.addEventListener('click',e=>{
+ const target=e.target.closest('[data-day3-meeting-begin], [data-day3-meeting-back], [data-day3-meeting-next], [data-day3-meeting-choice], [data-day3-meeting-finish], [data-day3-meeting-minutes]');
+ if(!target)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(target.hasAttribute('data-day3-meeting-begin')){
+  if(day3MeetingStarted)showDay3Meeting();else beginDay3Meeting();
+ }else if(target.hasAttribute('data-day3-meeting-back')){
+  if(state.app==='calendar'){state.view=null;render();}
+ }else if(target.hasAttribute('data-day3-meeting-next')){
+  if(state.app==='calendar'&&state.view==='day3-meeting')advanceDay3Meeting();
+ }else if(target.hasAttribute('data-day3-meeting-choice')){
+  if(state.app==='calendar'&&state.view==='day3-meeting')chooseDay3MeetingApproach(target.dataset.day3MeetingChoice);
+ }else if(target.hasAttribute('data-day3-meeting-finish')){
+  if(state.app==='calendar'&&state.view==='day3-meeting')finishDay3Meeting();
+ }else if(target.hasAttribute('data-day3-meeting-minutes'))openDay3MeetingNotes();
+},true);
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
