@@ -2275,6 +2275,7 @@ function makeStorySnapshot(reason='progress'){
    day3ChecklistPresented,day3HarleyDelivered,day3ArticleOpened,
    day3LeakDueAt,day3LeakIntroDelivered,day3LeakChoice,day3LeakCursor,day3LeakActive,
    day3PrepDueAt,day3AdnanDelivered,day3PrepChecks:[...day3PrepChecks],day3PrepReady,
+   day3MeetingStarted,day3MeetingCursor,day3MeetingChoice,day3MeetingFinished,day3MeetingNotesOpened,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -2461,6 +2462,13 @@ function loadStoryState(){
  day3PrepChecks=Array.isArray(p.day3PrepChecks)&&p.day3PrepChecks.length===3?p.day3PrepChecks.map(Boolean):[false,false,false];
  day3PrepReady=!!p.day3PrepReady||day3PrepChecks.every(Boolean);
  if(day3AdnanDelivered)ensureDay3PrepNote();
+ day3MeetingStarted=!!p.day3MeetingStarted||!!p.day3MeetingFinished;
+ day3MeetingCursor=Number.isInteger(p.day3MeetingCursor)?Math.max(0,Math.min(DAY3_MEETING_INTRO.length+2+DAY3_MEETING_OUTCOME.length,p.day3MeetingCursor)):0;
+ day3MeetingChoice=Object.prototype.hasOwnProperty.call(DAY3_MEETING_OPTIONS,p.day3MeetingChoice)?p.day3MeetingChoice:null;
+ if(!day3MeetingChoice)day3MeetingCursor=Math.min(day3MeetingCursor,DAY3_MEETING_INTRO.length);
+ day3MeetingFinished=!!p.day3MeetingFinished&&!!day3MeetingChoice&&day3MeetingCursor===DAY3_MEETING_INTRO.length+2+DAY3_MEETING_OUTCOME.length;
+ day3MeetingNotesOpened=!!p.day3MeetingNotesOpened;
+ if(day3MeetingFinished)ensureDay3MeetingNotes();
  if(day3Stage==='harley'&&day3ChecklistChecks.every(Boolean))day3ChecklistPresented=true;
  if(day3Stage!=='none'&&day3Stage!=='transition')ensureDay3ChecklistNote();
  if(day2Chapter2Completed)day2Page312Stage='complete';
@@ -3284,7 +3292,8 @@ render=function(){
    if(state.screen==='app'&&state.app==='safari')decorateDay3Safari();
    if(state.screen==='app'&&state.app==='settings')renderNewGameSettingsControl();
    if(state.screen==='app'&&state.app==='calendar'){
-    renderDay2Calendar();decorateDay3Calendar();
+    if(state.view==='day3-meeting')renderDay3Meeting();
+    else {renderDay2Calendar();decorateDay3Calendar();decorateDay3MeetingCalendarCard();}
    }
    if(state.screen==='app'&&state.app==='mail')renderDay2Mail();
    if(state.screen==='app'&&state.app==='phone')renderNakulaRecents();
