@@ -3260,3 +3260,134 @@
 #phone.in-app .nakula-day3-calendar button{width:100%}
 #phone.in-app .nakula-day3-prep-row:focus-visible,#phone.in-app .nakula-day3-prep-complete button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
 @media(max-width:385px){#phone.in-app .nakula-day3-prep{padding:17px 12px 28px}}
+
+/* CHAPTER 03.4 / 03.5 — MEETING VIEW: muted legal briefing */
+#phone.in-app .nakula-day3-calendar [data-day3-meeting-begin]{
+ margin-top:8px;background:#243d60;color:#e4edf8;
+}
+#phone.in-app .nakula-day3-calendar [data-day3-meeting-begin]:disabled{
+ cursor:default;background:#676c75;color:#d1d3d9;opacity:.73;
+}
+#phone.in-app .nakula-day3-calendar [data-day3-meeting-minutes]{
+ margin-top:8px;background:transparent;color:inherit;border:1px solid #6e8bad;
+}
+#phone.in-app .nakula-day3-meeting{
+ box-sizing:border-box;min-height:100%;padding:22px 17px 40px;
+ color:#ebedf2;background:#171a20;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-day3-meeting-top{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ color:#9fa9b8;font-size:9px;font-weight:690;letter-spacing:.065em;
+}
+#phone.in-app .nakula-day3-meeting-top strong{
+ color:#d9dfe7;font-size:12px;letter-spacing:0;
+ font-variant-numeric:tabular-nums;
+}
+#phone.in-app .nakula-day3-meeting h1{
+ margin:14px 0 8px;font-size:24px;font-weight:740;
+ letter-spacing:-.035em;line-height:1.15;
+}
+#phone.in-app .nakula-day3-meeting-description{
+ color:#adb4c0;font-size:11px;line-height:1.55;margin:0;
+}
+#phone.in-app .nakula-day3-meeting-progress{
+ height:3px;border-radius:3px;margin:17px 0 16px;overflow:hidden;
+ background:#353a45;
+}
+#phone.in-app .nakula-day3-meeting-progress span{
+ display:block;height:100%;background:#8fabc3;transition:width .2s ease;
+ border-radius:3px;
+}
+#phone.in-app .nakula-day3-meeting-transcript{
+ display:flex;flex-direction:column;gap:11px;
+}
+#phone.in-app .nakula-day3-meeting-turn{
+ padding:11px 12px 12px;border-radius:13px;
+ border:1px solid #3a3f49;background:#252931;
+}
+#phone.in-app .nakula-day3-meeting-turn.nakula{
+ background:#20303c;border-color:#3a5664;
+}
+#phone.in-app .nakula-day3-meeting-turn.jenoah{
+ background:#2b2b35;border-color:#50505c;
+}
+#phone.in-app .nakula-day3-meeting-turn.system{
+ background:transparent;border:1px dashed #454e5b;
+}
+#phone.in-app .nakula-day3-meeting-turn-head{
+ display:flex;justify-content:space-between;gap:8px;align-items:center;
+}
+#phone.in-app .nakula-day3-meeting-turn-head strong{
+ color:#bdc2cf;font-size:10px;font-weight:760;letter-spacing:.015em;
+}
+#phone.in-app .nakula-day3-meeting-turn.nakula .nakula-day3-meeting-turn-head strong{color:#9cbacb}
+#phone.in-app .nakula-day3-meeting-turn.jenoah .nakula-day3-meeting-turn-head strong{color:#c3b6cc}
+#phone.in-app .nakula-day3-meeting-turn-head span{color:#939ca9;font-size:10px;font-variant-numeric:tabular-nums}
+#phone.in-app .nakula-day3-meeting-turn p{
+ margin:7px 0 0;font-size:12px;line-height:1.65;color:#eff0f2;
+ overflow-wrap:anywhere;
+}
+#phone.in-app .nakula-day3-meeting-intro{
+ margin-top:15px;padding:12px;background:#252b33;border-radius:12px;
+}
+#phone.in-app .nakula-day3-meeting-intro strong{font-size:12px}
+#phone.in-app .nakula-day3-meeting-intro p{
+ margin:7px 0 0;font-size:11px;line-height:1.6;color:#b9c1cd;
+}
+#phone.in-app .nakula-day3-meeting-next{
+ display:block;min-height:44px;width:100%;
+ border:0;border-radius:11px;margin-top:17px;
+ background:#8faabf;color:#141b24;
+ font:700 12px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app .nakula-day3-meeting-choices{
+ display:flex;flex-direction:column;gap:9px;margin:20px 0 0;
+ padding:15px 12px;border:1px solid #465363;border-radius:14px;
+ background:#222831;
+}
+#phone.in-app .nakula-day3-meeting-choices>span{
+ color:#bbc7d6;font-size:10px;font-weight:780;letter-spacing:.065em;
+}
+#phone.in-app .nakula-day3-meeting-choices>p{
+ margin:0 0 7px;color:#aab3c0;font-size:11px;line-height:1.55;
+}
+#phone.in-app .nakula-day3-meeting-choices button{
+ display:flex;flex-direction:column;gap:5px;text-align:left;
+ padding:12px 11px;background:#303c4b;border:1px solid #516076;
+ border-radius:10px;color:#f4f7fa;cursor:pointer;
+}
+#phone.in-app .nakula-day3-meeting-choices button strong{font-size:12px}
+#phone.in-app .nakula-day3-meeting-choices button small{
+ font-size:10px;line-height:1.45;color:#aebdce;
+}
+#phone.in-app .nakula-day3-meeting-complete{
+ display:flex;flex-direction:column;gap:10px;
+ padding:15px;margin-top:18px;
+ border:1px solid #61716f;border-radius:13px;background:#283631;
+}
+#phone.in-app .nakula-day3-meeting-complete strong{
+ color:#bdd3cd;font-size:12px;
+}
+#phone.in-app .nakula-day3-meeting-complete p{
+ margin:0;color:#ced8d5;font-size:11px;line-height:1.55;
+}
+#phone.in-app .nakula-day3-meeting-complete button{
+ border:0;border-radius:10px;min-height:42px;
+ background:#a5bfb7;color:#14241e;
+ font:700 12px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+}
+#phone.in-app .nakula-day3-meeting-complete button.secondary{
+ background:transparent;color:#d0d7dd;border:1px solid #71817e;
+}
+#phone.in-app .nakula-day3-meeting button:focus-visible{
+ outline:2px solid #b9d4ee;outline-offset:3px;
+}
+@media(max-width:385px){
+ #phone.in-app .nakula-day3-meeting{padding:17px 12px 29px}
+ #phone.in-app .nakula-day3-meeting-turn{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ #phone.in-app .nakula-day3-meeting-progress span{transition:none}
+}
