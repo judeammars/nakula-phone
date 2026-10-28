@@ -487,9 +487,13 @@ const dockApps=[{id:'phone',label:'Phone'},{id:'safari',label:'Safari'},{id:'mes
 // original icon because the source pack has no matching contacts asset.
 // Keep the previous SVG/PNG inside each icon for graceful offline fallback.
 const ios26IconBase='https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_';
+// The third-party iOS26 pack has the wrong artwork for Settings (purple diamonds).
+// Use the actual gray gear icon from Apple. appIcon() already supplies the
+// embedded settingsIconPng gear as an offline fallback if Apple can't be reached.
+const officialSettingsIcon='https://developer.apple.com/assets/elements/icons/settings-ios/settings-ios-256x256_2x.png';
 const ios26IconSources=Object.freeze(Object.fromEntries(
  ['photos','notes','calculator','mail','settings','clock','phone','safari','messages','music','files']
-  .map(id=>[id,ios26IconBase+id+'.png'])
+  .map(id=>[id,id==='settings'?officialSettingsIcon:ios26IconBase+id+'.png'])
 ));
 function ios26IconArt(id,legacy){
  const src=ios26IconSources[id];
