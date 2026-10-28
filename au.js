@@ -3499,7 +3499,8 @@ function ensureNakulaFilesIcon(){
  const btn=document.createElement('button');
  btn.type='button';btn.className='app-button nakula-files-app-button';
  btn.dataset.app='files';btn.setAttribute('aria-label','Open Files');
- btn.innerHTML='<span class="app-icon icon-files"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="9" width="54" height="46" rx="12" fill="#fff"/><path d="M13 21h38v26H13z" fill="#f7faff"/><path d="M12 22h17l5-5h18c3 0 5 2 5 5v26c0 3-2 5-5 5H12c-3 0-5-2-5-5V27c0-3 2-5 5-5Z" fill="#438cf4"/><path d="M12 22h17l5-5h18" fill="none" stroke="#78b3ff" stroke-width="2.5"/></svg></span><span class="app-name">Files</span>';
+ const originalFilesIcon='<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="9" width="54" height="46" rx="12" fill="#fff"/><path d="M13 21h38v26H13z" fill="#f7faff"/><path d="M12 22h17l5-5h18c3 0 5 2 5 5v26c0 3-2 5-5 5H12c-3 0-5-2-5-5 0-5V27c0-3 2-5 5-5Z" fill="#438cf4"/><path d="M12 22h17l5-5h18" fill="none" stroke="#78b3ff" stroke-width="2.5"/></svg>';
+ btn.innerHTML='<span class="app-icon icon-files">'+ios26IconArt('files',originalFilesIcon)+'</span><span class="app-name">Files</span>';
  grid.appendChild(btn);
 }
 function nakulaFilesEsc(v){return esc(v)}
