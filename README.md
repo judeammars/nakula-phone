@@ -18,3 +18,11 @@ After connecting this repository in **Vercel → Project Settings → Git**, eve
 ## Updating content
 
 Edit `index.html` and commit changes to `main`. For visual revisions, keep the lock screen and interactive app navigation working and test on desktop and mobile.
+
+## Mentari's personal history
+
+`mentari.js` adds an archived Messages conversation and a local fictional Reminders list. The archive is installed after checkpoint restoration and excluded from story saves. Reading it does not advance the narrative clock. Reminder completion and photo favorites use separate browser storage, so existing saves and New Game remain compatible.
+
+In Photos, open Albums → Favorites → Meja dekat jendela → Info, or search for Mentari. The same photo can be opened from the archived chat. All earlier gallery indices are preserved.
+
+Asset: `gallery/window-table.jpg`, generated with the built-in Imagegen tool. Prompt: an ordinary candid smartphone photo of two coffee cups on a wooden cafe table beside a window, an empty chair, soft late-afternoon light, subdued brown and ashy gray colors, vertical 3:4 framing, no people, text, logos, or watermarks.
