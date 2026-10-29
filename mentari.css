@@ -38,3 +38,10 @@
 #phone.in-app.nakula-photos-mode .np-photo-details{width:100%;padding:9px 0 0;border-top:1px solid #fff2;text-align:center;color:#a8a5aa;font-size:12px;line-height:1.5}
 #phone.in-app.nakula-photos-mode .np-photo-details p{color:#ded8d1;font-size:14px;margin:7px 0 0}
 @media(max-width:360px){.nm-reminder-row{padding:14px 10px;gap:9px}.nm-reminder-title{font-size:14px}.nm-chat-photo{width:160px}}
+
+.nm-archive .nm-chat-profile-photo{display:block;width:180px;max-width:min(180px,68vw);height:auto;padding:0;border-radius:14px;overflow:hidden;border:1px solid #ffffff24;cursor:pointer;background:#171b20}
+.nm-archive .nm-chat-profile-photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
+.nm-profile-photo-viewer[hidden]{display:none!important}
+.nm-profile-photo-viewer{position:absolute;inset:0;background:rgba(0,0,0,.96);z-index:120;display:flex;align-items:center;justify-content:center;padding:56px 16px;box-sizing:border-box}
+.nm-profile-photo-viewer img{width:100%;max-height:100%;object-fit:contain;display:block}
+.nm-profile-photo-dismiss{position:absolute;right:17px;top:57px;border:0;background:#2e333a;color:#fff;cursor:pointer;font-size:24px;width:35px;height:35px;border-radius:50%;display:grid;place-items:center;z-index:2}
