@@ -520,7 +520,7 @@ const getSaved=(key,fallback)=>{try{let value=localStorage.getItem('myphone-ios-
 // restart these without erasing any personal writing.
 const isTemporaryUnknownIncidentNote=n=>n&&Number(n.id)===9901;
 const isStoryCaseSummaryNote=n=>n&&(n.dailyCase===true||Number(n.id)>=99201&&Number(n.id)<=99299);
-const isStoryOnlyNote=n=>isTemporaryUnknownIncidentNote(n)||isStoryCaseSummaryNote(n)||(n&&(n.day3Checklist===true||Number(n.id)===99303||n.day3MeetingPrep===true||Number(n.id)===99304||n.day3MeetingMinutes===true||Number(n.id)===99305||n.day3OtherSignatureNote===true||Number(n.id)===99306));
+const isStoryOnlyNote=n=>isTemporaryUnknownIncidentNote(n)||isStoryCaseSummaryNote(n)||(n&&(n.day3Checklist===true||Number(n.id)===99303||n.day3MeetingPrep===true||Number(n.id)===99304||n.day3MeetingMinutes===true||Number(n.id)===99305||n.day3OtherSignatureNote===true||Number(n.id)===99306||n.day4CaseNote===true||Number(n.id)===99307));
 const setSaved=(key,value)=>{
  try{
   const stored=key==='notes'&&Array.isArray(value)
@@ -855,6 +855,7 @@ document.addEventListener('input',e=>{if(e.target.id==='message-search'){let que
 document.addEventListener('keydown',e=>{if(state.screen==='app'&&state.app==='calculator'){const km={'/':'÷','*':'×','-':'−','+':'+','Enter':'=','=':'=','%':'%','Backspace':'Backspace',',':'.','Escape':'AC'};const k=Object.prototype.hasOwnProperty.call(km,e.key)?km[e.key]:e.key;if(/^\d$/.test(k)||['.','÷','×','−','+','=','%','Backspace','AC'].includes(k)){e.preventDefault();calculatorPress(k);render();return;}}if($('passcode-layer')?.classList.contains('show')){if(/^\d$/.test(e.key)){enterPasscodeDigit(e.key);return;} if(e.key==='Backspace'){deletePasscodeDigit(); return;} if(e.key==='Escape'){hidePasscode(); return;}} if(e.key==='Escape'){if(state.screen==='app')back();else if(state.screen==='home')lock()}if(e.key==='Enter'&&e.target.id==='chat-input'&&!e.shiftKey){e.preventDefault();$('chat-form')?.requestSubmit()}});
 </script>
 <script src="./au.js" defer></script>
+<script src="./chapter04.js" defer></script>
 <script src="./mentari.js" defer></script>
 </body>
 </html>
