@@ -367,6 +367,7 @@ html,body{height:100%;background:#000;}
 
 </style>
 <link rel="stylesheet" href="./au.css">
+<link rel="stylesheet" href="./mentari.css">
 </head>
 <body>
 <main class="site">
@@ -549,14 +550,15 @@ if(!getSaved('dark-theme-default-v1',false)){
  setSaved('dark',true);
  setSaved('dark-theme-default-v1',true);
 }
-let photoTab='albums',photoSection='recents',photoSelecting=false,photoSelected=new Set(),photoMenuOpen=false,photoSort='newest',photoSearch='';
+let photoTab='albums',photoSection='recents',photoSelecting=false,photoSelected=new Set(),photoMenuOpen=false,photoSort='newest',photoSearch='',photoInfoOpen=false;
 const photoItems=[
 {name:'After hours at work',src:'./gallery/workdesk.jpg'},
 {name:'Little companion',src:'./gallery/cat.jpg'},
 {name:'Night drive',src:'./gallery/nightdrive.jpg'},
 {name:'Coffee break',src:'./gallery/coffee.jpg'},
 {name:'A familiar face',src:'./gallery/portrait.jpg'},
-{name:'New York',cls:'image-one',real:true}
+{name:'New York',cls:'image-one',real:true},
+{name:'Meja dekat jendela',src:'./gallery/window-table.jpg',caption:'Akhirnya sama-sama sempat.',detail:'Foto lama · 18.42',keywords:'Mentari kopi kafe jendela'}
 ];
 const nakulaPlaylist=[{"title":"Intro","artist":"The xx"},{"title":"Retrograde","artist":"James Blake"},{"title":"On the Nature of Daylight","artist":"Max Richter"},{"title":"Nights","artist":"Frank Ocean"},{"title":"About Today","artist":"The National"},{"title":"In a Sentimental Mood","artist":"Duke Ellington & John Coltrane"},{"title":"How to Disappear Completely","artist":"Radiohead"},{"title":"Near Light","artist":"Ólafur Arnalds"},{"title":"Self Control","artist":"Frank Ocean"},{"title":"Sparks","artist":"Coldplay"},{"title":"Apocalypse","artist":"Cigarettes After Sex"},{"title":"The Night We Met","artist":"Lord Huron"},{"title":"Experience","artist":"Ludovico Einaudi"},{"title":"Vienna","artist":"Billy Joel"},{"title":"The Rip","artist":"Portishead"},{"title":"To Build a Home","artist":"The Cinematic Orchestra"}];
 const safariHeadlines={"daily":[{"category":"ENVIRONMENT","date":"24 OCT","source":"Mongabay","title":"Walhi Kritik Pemerintah: Karhutla Tak Bisa Dibebankan ke Masyarakat Adat","preview":"Walhi menyoroti izin korporasi dan lemahnya pengawasan kebakaran di kawasan konsesi.","url":"https://mongabay.co.id/2026/10/24/gelagapan-tangani-karhutla-pemerintah-malah-kambinghitamkan-tradisi-masyarakat-adat/"},{"category":"MBG","date":"23 OCT","source":"Ombudsman RI / Pikiran Rakyat","title":"331 Orang Terdampak Dugaan Keracunan MBG, Ombudsman Desak Evaluasi","preview":"Ombudsman Jawa Barat meminta pembenahan keamanan pangan usai insiden Cirebon.","url":"https://ombudsman.go.id/perwakilan/news/r/pwkmedia--kasus-dugaan-keracunan-mbg-cirebon-ombudsman-desak-evaluasi--"},{"category":"POLITICS","date":"22 OCT","source":"Reuters","title":"Sekutu Koalisi Prabowo Menjauh dari MBG di Tengah Krisis dan Dugaan Korupsi","preview":"Masalah keamanan pangan dan tata kelola memicu kritik dari partai-partai pendukung.","url":"https://www.reuters.com/world/asia-pacific/indonesian-presidents-allies-distance-themselves-flagship-free-meals-programme-2026-10-22/"},{"category":"ENVIRONMENT","date":"21 OCT","source":"Jikalahari","title":"Dua Tahun Prabowo–Gibran: Jikalahari Sebut Pencegahan Karhutla Gagal","preview":"Lembaga lingkungan mengkritik respons negara terhadap kebakaran dan dampak asap.","url":"https://jikalahari.or.id/database/publikasi-jikalahari/dua-tahun-prabowo-gibran-tak-cegah-karhutla-gagal-beri-rakyat-lingkungan-hidup-yang-baik-dan-sehat/"},{"category":"ACCOUNTABILITY","date":"20 OCT","source":"DPR RI","title":"Anggota DPR Kritik Karhutla Berulang: Pencegahan Tak Pernah Dievaluasi","preview":"Johan Rosihan dari PKS meminta evaluasi nyata, bukan sekadar operasi pemadaman.","url":"https://emedia.dpr.go.id/news/2026/10/20/kritik-penanganan-karhutla-johan-rosihan-tak-ada-evaluasi-tak-ada-tindakan-pencegahan"}],"weekly":[{"category":"ENVIRONMENT","date":"24 OCT","source":"Mongabay","title":"Walhi Kritik Pemerintah: Karhutla Tak Bisa Dibebankan ke Masyarakat Adat","preview":"Walhi menyoroti izin korporasi dan lemahnya pengawasan kebakaran di kawasan konsesi.","url":"https://mongabay.co.id/2026/10/24/gelagapan-tangani-karhutla-pemerintah-malah-kambinghitamkan-tradisi-masyarakat-adat/"},{"category":"POLITICS","date":"22 OCT","source":"Reuters","title":"Sekutu Koalisi Prabowo Menjauh dari MBG di Tengah Krisis dan Dugaan Korupsi","preview":"Masalah keamanan pangan dan tata kelola memicu kritik dari partai-partai pendukung.","url":"https://www.reuters.com/world/asia-pacific/indonesian-presidents-allies-distance-themselves-flagship-free-meals-programme-2026-10-22/"},{"category":"ENVIRONMENT","date":"21 OCT","source":"Jikalahari","title":"Dua Tahun Prabowo–Gibran: Jikalahari Sebut Pencegahan Karhutla Gagal","preview":"Lembaga lingkungan mengkritik respons negara terhadap kebakaran dan dampak asap.","url":"https://jikalahari.or.id/database/publikasi-jikalahari/dua-tahun-prabowo-gibran-tak-cegah-karhutla-gagal-beri-rakyat-lingkungan-hidup-yang-baik-dan-sehat/"},{"category":"CIVIL SOCIETY","date":"20 OCT","source":"Katadata","title":"Aksi Dua Tahun Prabowo–Gibran: Mahasiswa Tuntut Tanggung Jawab atas Karhutla","preview":"Demonstran menyoroti asap, korporasi, serta akses layanan publik.","url":"https://katadata.co.id/amp/berita/nasional/6ad7782abf94f/aksi-2-tahun-prabowo-gibran-di-tugu-tani-bencana-karhutla-jadi-sorotan-utama"},{"category":"ACCOUNTABILITY","date":"20 OCT","source":"DPR RI","title":"Anggota DPR Kritik Karhutla Berulang: Pencegahan Tak Pernah Dievaluasi","preview":"Johan Rosihan dari PKS meminta evaluasi nyata, bukan sekadar operasi pemadaman.","url":"https://emedia.dpr.go.id/news/2026/10/20/kritik-penanganan-karhutla-johan-rosihan-tak-ada-evaluasi-tak-ada-tindakan-pencegahan"},{"category":"MBG","date":"23 OCT","source":"Ombudsman RI / Pikiran Rakyat","title":"331 Orang Terdampak Dugaan Keracunan MBG, Ombudsman Desak Evaluasi","preview":"Ombudsman Jawa Barat meminta pembenahan keamanan pangan usai insiden Cirebon.","url":"https://ombudsman.go.id/perwakilan/news/r/pwkmedia--kasus-dugaan-keracunan-mbg-cirebon-ombudsman-desak-evaluasi--"}]};
@@ -638,7 +640,7 @@ function requestUnlock(){showPasscode()}
 function enterPasscodeDigit(d){ if(passcodeValue.length>=4) return; const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';} passcodeValue+=d; updatePasscodeDots(); if(passcodeValue.length===4){ if(passcodeValue===PHONE_PIN){ hidePasscode();  state.app=null; state.view=null; layer('home'); } else { const layerEl=$('passcode-layer'); if(layerEl){ layerEl.classList.remove('shake'); void layerEl.offsetWidth; layerEl.classList.add('shake'); setTimeout(()=>layerEl.classList.remove('shake'),320);} clearPasscode('Wrong PIN'); } }}
 function deletePasscodeDigit(){ if(!passcodeValue.length) return; passcodeValue=passcodeValue.slice(0,-1); updatePasscodeDots(); const fb=$('passcode-feedback'); if(fb){fb.textContent=''; fb.dataset.error='0';}}
 
-function openApp(id){state.app=id;state.view=null;state.thread=null;state.photo=null;if(id==='photos'){photoTab='albums';photoSection='recents';photoSelecting=false;photoSelected.clear();photoMenuOpen=false;photoSort='newest';photoSearch='';}layer('app');render()}
+function openApp(id){state.app=id;state.view=null;state.thread=null;state.photo=null;if(id==='photos'){photoTab='albums';photoSection='recents';photoSelecting=false;photoSelected.clear();photoMenuOpen=false;photoSort='newest';photoSearch='';photoInfoOpen=false;}layer('app');render()}
 function showToast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove('show'),1900)}
 function back(){if(state.app==='messages'&&state.view==='convo'){state.view=null;state.thread=null;render();return}if(state.app==='notes'&&state.view){state.view=null;state.note=null;render();return}if(state.app==='photos'&&state.view){state.view=null;state.photo=null;render();return}goHome()}
 function pageHeader(left,title,right=''){return `<button class="plain-btn" data-action="back"><span class="chev-left">‹</span> ${esc(left)}</button><span class="app-title">${esc(title)}</span><span style="width:63px;display:flex;justify-content:flex-end">${right}</span>`}
@@ -715,8 +717,8 @@ function npTabBar(){
  ).join('')+'</nav>';
 }
 function renderPhotosHeader(){
- const single=state.view==='photo',recents=photoTab==='albums'&&['recents','evidence'].includes(photoSection);
- const label=single?(photoSection==='evidence'?'BUKTI':'Recents'):recents?'Albums':'Home';
+ const single=state.view==='photo',recents=photoTab==='albums'&&['recents','evidence','favorites'].includes(photoSection);
+ const label=single?(photoSection==='evidence'?'BUKTI':photoSection==='favorites'?'Favorites':'Photos'):recents?'Albums':'Home';
  const backAction=single?'close-photo':recents?'albums-home':'home';
  const left='<button class="np-back" type="button" data-photos-action="'+backAction+'"><span aria-hidden="true" class="np-chevron">‹</span>'+label+'</button>';
  const actions=single?'<button class="np-more" type="button" data-photos-action="menu" aria-label="Photo options">•••</button>':
@@ -731,7 +733,9 @@ function renderPhotosContent(){
   if(!p){state.view=null;return renderPhotosContent()}
   const image=p.src?'<img src="'+esc(p.src)+'" alt="'+esc(p.name)+'" class="np-full-img">':
    '<div class="np-full-img np-image-placeholder '+esc(p.cls||'')+'" role="img" aria-label="'+esc(p.name)+'"></div>';
-  return '<div class="np-viewer"><div class="np-viewer-stage">'+image+'</div><div class="np-viewer-info"><strong>'+esc(p.name)+'</strong><span>'+(Number(state.photo)+1)+' of '+photoItems.length+'</span></div></div>';
+  const isFavorite=favorites.includes(Number(state.photo));
+  const details=photoInfoOpen?'<div class="np-photo-details"><span>'+esc(p.detail||'Dari galeri Nakula')+'</span>'+(p.caption?'<p>'+esc(p.caption)+'</p>':'')+'</div>':'';
+  return '<div class="np-viewer"><div class="np-viewer-stage">'+image+'</div><div class="np-viewer-info"><strong>'+esc(p.name)+'</strong><span>'+(Number(state.photo)+1)+' of '+photoItems.length+'</span><div class="np-photo-tools"><button type="button" data-favorite="'+Number(state.photo)+'" aria-pressed="'+isFavorite+'" aria-label="'+(isFavorite?'Hapus dari Favorites':'Tambahkan ke Favorites')+'">'+(isFavorite?'♥':'♡')+'</button><button type="button" data-photos-action="info" aria-label="Informasi foto" aria-expanded="'+photoInfoOpen+'">ⓘ</button></div>'+details+'</div></div>';
  }
  let panel='';
  const items=npItems();
@@ -739,10 +743,13 @@ function renderPhotosContent(){
   if(photoSection==='albums-home'){
    const cover=photoItems[0];
    panel='<div class="np-title-area"><h1>Albums</h1><p>My Albums</p></div>'+
-    '<button type="button" data-photos-action="open-recents" class="np-album-card"><span class="np-album-cover"><img src="'+esc(cover.src)+'" alt="" loading="lazy"></span><strong>Recents</strong><small>'+photoItems.length+' Photos</small></button>'+
-    (window.nakulaEvidenceAlbum?.has?.()?'<button type="button" data-photos-action="open-evidence" class="np-album-card nakula-evidence-album"><span class="np-album-cover"><img src="./gallery/portrait.jpg" alt="" loading="lazy"></span><strong>BUKTI</strong><small>1 Foto tersimpan</small></button>':'');
+    '<div class="np-album-grid"><button type="button" data-photos-action="open-recents" class="np-album-card"><span class="np-album-cover"><img src="'+esc(cover.src)+'" alt="" loading="lazy"></span><strong>Recents</strong><small>'+photoItems.length+' Photos</small></button>'+
+    '<button type="button" data-photos-action="open-favorites" class="np-album-card"><span class="np-album-cover">'+(items.find(({i})=>favorites.includes(i))?npAlbumFavoriteCover(items):'<span class="np-favorite-placeholder" aria-hidden="true">♥</span>')+'</span><strong>Favorites</strong><small>'+items.filter(({i})=>favorites.includes(i)).length+' Photos</small></button>'+
+    (window.nakulaEvidenceAlbum?.has?.()?'<button type="button" data-photos-action="open-evidence" class="np-album-card nakula-evidence-album"><span class="np-album-cover"><img src="./gallery/portrait.jpg" alt="" loading="lazy"></span><strong>BUKTI</strong><small>1 Foto tersimpan</small></button>':'')+'</div>';
   }else if(photoSection==='evidence'){
    panel='<div class="np-title-area"><h1>BUKTI</h1><p>Foto disimpan sebagai bukti kasus</p></div>'+npGrid(items.filter(({p})=>p.src==='./gallery/portrait.jpg'&&window.nakulaEvidenceAlbum?.has?.()));
+  }else if(photoSection==='favorites'){
+   panel='<div class="np-title-area"><h1>Favorites</h1><p>'+items.filter(({i})=>favorites.includes(i)).length+' Photos</p></div>'+npGrid(items.filter(({i})=>favorites.includes(i)));
   }else{
    panel='<div class="np-title-area"><h1>Recents</h1></div>'+npGrid(items);
   }
@@ -754,10 +761,17 @@ function renderPhotosContent(){
  }else{
   panel='<div class="np-title-area"><h1>Search</h1></div>'+
    '<label class="np-search-field">'+npIcon('search')+'<input id="np-search" type="search" value="'+esc(photoSearch)+'" placeholder="Photos" autocomplete="off" aria-label="Search photos"></label>'+
-   '<div class="np-search-results">'+npGrid(items.filter(({p})=>p.name.toLowerCase().includes(photoSearch.toLowerCase().trim())))+'</div>';
+   '<div class="np-search-results">'+npGrid(items.filter(({p})=>npPhotoMatches(p,photoSearch)))+'</div>';
  }
  const selectedText=photoSelecting?'<div class="np-selection-info">'+photoSelected.size+' Selected</div>':'';
  return '<div class="np-gallery-shell"><div class="np-scroll">'+selectedText+panel+'</div>'+npTabBar()+'</div>';
+}
+function npAlbumFavoriteCover(items){
+ const p=items.find(({i})=>favorites.includes(i))?.p;
+ return p?.src?'<img src="'+esc(p.src)+'" alt="" loading="lazy">':'<span class="np-favorite-placeholder" aria-hidden="true">♥</span>';
+}
+function npPhotoMatches(photo,query){
+ return [photo.name,photo.caption,photo.keywords].filter(Boolean).join(' ').toLowerCase().includes(query.toLowerCase().trim());
 }
 
 function render(){if(state.screen!=='app'){return;}let h='',content='',app=state.app;const b='<span class="chev-left">‹</span> Home';
@@ -810,15 +824,17 @@ document.addEventListener('click',e=>{
  if(photoTabButton&&state.screen==='app'&&state.app==='photos'){
   photoTab=photoTabButton.dataset.photosTab;
   if(photoTab==='albums')photoSection='albums-home';
-  photoSelecting=false;photoSelected.clear();photoMenuOpen=false;state.view=null;state.photo=null;render();return;
+  photoSelecting=false;photoSelected.clear();photoMenuOpen=false;photoInfoOpen=false;state.view=null;state.photo=null;render();return;
  }
  const photoActionButton=e.target.closest('[data-photos-action]');
  if(photoActionButton&&state.screen==='app'&&state.app==='photos'){
   const action=photoActionButton.dataset.photosAction;
-  if(action==='close-photo'){state.view=null;state.photo=null;}
+  if(action==='close-photo'){state.view=null;state.photo=null;photoInfoOpen=false;photoMenuOpen=false;}
   else if(action==='albums-home'){photoSection='albums-home';}
   else if(action==='open-recents'){photoSection='recents';}
   else if(action==='open-evidence'){photoSection='evidence';}
+  else if(action==='open-favorites'){photoSection='favorites';}
+  else if(action==='info'){photoInfoOpen=!photoInfoOpen;}
   else if(action==='home'){goHome();return;}
   else if(action==='select'){photoSelecting=!photoSelecting;photoSelected.clear();photoMenuOpen=false;}
   else if(action==='menu'){photoMenuOpen=!photoMenuOpen;}
@@ -832,12 +848,13 @@ document.addEventListener('input',e=>{
  if(e.target?.id!=='np-search'||state.screen!=='app'||state.app!=='photos')return;
  photoSearch=e.target.value;
  const slot=document.querySelector('.np-search-results');
- if(slot)slot.innerHTML=npGrid(npItems().filter(({p})=>p.name.toLowerCase().includes(photoSearch.toLowerCase().trim())));
+ if(slot)slot.innerHTML=npGrid(npItems().filter(({p})=>npPhotoMatches(p,photoSearch)));
 });
 document.addEventListener('submit',e=>{if(e.target.id==='chat-form'){e.preventDefault();let field=$('chat-input');if(!field)return;let value=field.value.trim();if(!value)return;let t=threads.find(x=>x.id===state.thread);if(!t)return;t.messages.push({me:true,text:value});t.date='now';setSaved('threads',threads);render();$('chat-input')?.focus();return}if(e.target.id==='letter-form'){e.preventDefault();let d=new FormData(e.target);let name=String(d.get('name')||'').trim(),message=String(d.get('message')||'').trim();if(!name||!message)return;letters.unshift({name,message,date:new Date().toLocaleDateString('en-US')});letters=letters.slice(0,30);setSaved('letters',letters);render();showToast('Saved on this device');return}if(e.target.id==='note-form'){e.preventDefault();let d=new FormData(e.target),title=String(d.get('title')||'').trim(),body=String(d.get('body')||'').trim();if(!title)return;if(state.note!==null){let n=notes.find(x=>String(x.id)===String(state.note));if(n){n.title=title;n.body=body;n.date='Edited now'}}else{state.note=Date.now();notes.unshift({id:state.note,title,body,date:'Just now'})}setSaved('notes',notes);state.view='note';render();showToast('Note saved');return}});
 document.addEventListener('input',e=>{if(e.target.id==='message-search'){let query=e.target.value.trim().toLowerCase();$('thread-list').innerHTML=threadMarkup(threads.filter(t=>t.name.toLowerCase().includes(query)||t.messages.some(m=>m.text.toLowerCase().includes(query))))}});
 document.addEventListener('keydown',e=>{if(state.screen==='app'&&state.app==='calculator'){const km={'/':'÷','*':'×','-':'−','+':'+','Enter':'=','=':'=','%':'%','Backspace':'Backspace',',':'.','Escape':'AC'};const k=Object.prototype.hasOwnProperty.call(km,e.key)?km[e.key]:e.key;if(/^\d$/.test(k)||['.','÷','×','−','+','=','%','Backspace','AC'].includes(k)){e.preventDefault();calculatorPress(k);render();return;}}if($('passcode-layer')?.classList.contains('show')){if(/^\d$/.test(e.key)){enterPasscodeDigit(e.key);return;} if(e.key==='Backspace'){deletePasscodeDigit(); return;} if(e.key==='Escape'){hidePasscode(); return;}} if(e.key==='Escape'){if(state.screen==='app')back();else if(state.screen==='home')lock()}if(e.key==='Enter'&&e.target.id==='chat-input'&&!e.shiftKey){e.preventDefault();$('chat-form')?.requestSubmit()}});
 </script>
 <script src="./au.js" defer></script>
+<script src="./mentari.js" defer></script>
 </body>
 </html>

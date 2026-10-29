@@ -1,0 +1,40 @@
+/* Ordinary personal details, in the phone's existing visual language. */
+.icon-reminders{background:#fafafa}
+#phone.in-app .harley-au-avatar.mentari,
+#phone.in-app .harley-au-head-avatar.mentari{background:linear-gradient(145deg,#a39283,#716b68);color:#fff}
+.nm-head-space{width:88px}
+#phone.in-app .nm-archive .bubble-row{position:relative}
+#phone.in-app .nm-archive .bubble-row:has(.nm-chat-photo){display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.nm-chat-photo{display:block;flex:none;width:180px;max-width:72%;border:0;padding:0;border-radius:17px;overflow:hidden;background:#39342e}
+.nm-chat-photo img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
+.nm-archive-footer{flex:none;padding:13px 16px max(30px,env(safe-area-inset-bottom));text-align:center;font-size:11px;color:#8d8d93;border-top:1px solid #8882;background:inherit}
+.nm-reminders{--reminder-accent:#9e7b65;color:var(--text)}
+.nm-reminder-heading{display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px;gap:12px;color:var(--reminder-accent)}
+.nm-reminder-heading h1{font-size:32px;line-height:1.1;letter-spacing:-.05em;margin:0;font-weight:750}
+.nm-reminder-heading>span{font-size:32px;font-weight:700}
+.nm-reminder-subtitle{font-size:12px;color:#818187;margin:10px 0 22px}
+.nm-reminder-list{border-radius:14px;overflow:hidden;background:#fff}
+.nm-reminder-row{display:flex;align-items:flex-start;gap:12px;padding:17px 14px;border-bottom:1px solid #8882;min-height:65px}
+.nm-reminder-row:last-child{border:0}
+.nm-reminder-row>div{min-width:0;flex:1;padding-top:3px}
+.nm-reminder-check{flex:none;display:grid;place-items:center;background:transparent;color:var(--reminder-accent);width:27px;height:27px;border:1.5px solid #b2b1b5;border-radius:50%;font-size:17px;padding:0}
+.nm-reminder-check[aria-checked="true"]{background:var(--reminder-accent);border-color:var(--reminder-accent);color:#fff}
+.nm-reminder-title{display:block;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.nm-reminder-row p{font-size:12px;line-height:1.5;color:#86848a;margin:7px 0 0}
+.nm-reminder-row.is-complete .nm-reminder-title{color:#8d8a8a;text-decoration:line-through}
+.nm-text-link{background:transparent;border:0;padding:10px 0 0;min-height:35px;font-size:13px;color:var(--reminder-accent);text-align:left}
+.nm-text-link span{padding-left:5px}
+.nm-completed-toggle{margin-top:16px;min-height:44px}
+.nm-reminder-empty{padding:8px 17px;font-size:14px;color:#8d8a8a}
+#phone.in-app.dark-ui .nm-reminders{--reminder-accent:#c4a68d;color:#f3f3f5}
+#phone.in-app.dark-ui .nm-reminder-list{background:#1c1c1e}
+#phone.in-app.nakula-photos-mode .np-album-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:23px 18px;padding:0 21px 25px}
+#phone.in-app.nakula-photos-mode .np-album-grid .np-album-card{margin:0;min-width:0}
+#phone.in-app.nakula-photos-mode .np-album-grid .np-album-cover{width:100%}
+.np-favorite-placeholder{width:100%;height:100%;display:grid;place-items:center;font-size:44px;color:#8d8791}
+#phone.in-app.nakula-photos-mode .np-photo-tools{display:flex;align-items:center;justify-content:center;gap:30px}
+#phone.in-app.nakula-photos-mode .np-photo-tools button{display:grid;place-items:center;min-width:44px;min-height:44px;background:transparent;color:#b0bfd0;border:0;font-size:26px;padding:0}
+#phone.in-app.nakula-photos-mode .np-photo-tools [aria-pressed="true"]{color:#c9959c}
+#phone.in-app.nakula-photos-mode .np-photo-details{width:100%;padding:9px 0 0;border-top:1px solid #fff2;text-align:center;color:#a8a5aa;font-size:12px;line-height:1.5}
+#phone.in-app.nakula-photos-mode .np-photo-details p{color:#ded8d1;font-size:14px;margin:7px 0 0}
+@media(max-width:360px){.nm-reminder-row{padding:14px 10px;gap:9px}.nm-reminder-title{font-size:14px}.nm-chat-photo{width:160px}}

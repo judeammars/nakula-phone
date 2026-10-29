@@ -2285,7 +2285,7 @@ function makeStorySnapshot(reason='progress'){
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
    adnanIncidentPending,phoneRecentsFilter,storyAwaitingSilenceChoice,day2Stage,day2TransitionDueAt
   },
-  threads:threads.map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
+  threads:threads.filter(t=>t.id!=='mentari').map(t=>({...t,messages:t.messages.map(m=>({...m}))})),
   adnanTimeline:adnanTimeline.map(m=>({...m})),
   unknownTimeline:unknownTimeline.map(m=>({...m})),
   nirmalaTimeline:nirmalaTimeline.map(m=>({...m})),
