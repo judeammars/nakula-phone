@@ -3462,3 +3462,48 @@
 @media(prefers-reduced-motion:reduce){
  .nakula-ch03-finale{transition:none}
 }
+
+
+/* CHAPTER 04.1–04.3 · MUTED CONFIDENTIAL CONTACT */
+#phone.in-app .nakula-ch04-choice{
+ display:flex;flex-direction:column;gap:9px;
+ padding:15px 12px;margin:15px 12px 20px;
+ border:1px solid #555f6b;border-radius:14px;
+ background:#262c35;color:#dce1e7;
+ box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+#phone.in-app .nakula-ch04-choice small,
+#phone.in-app .nakula-ch04-file-action small{
+ font-size:10px;letter-spacing:.07em;color:#b5c4d2;font-weight:800;
+}
+#phone.in-app .nakula-ch04-choice p,
+#phone.in-app .nakula-ch04-file-action p{
+ margin:3px 0 5px;font-size:11px;line-height:1.7;color:#cad2dc;
+}
+#phone.in-app .nakula-ch04-choice button{
+ background:#394856;color:#f2f4f6;
+ border:1px solid #647482;border-radius:10px;
+ padding:12px 11px;text-align:left;font:650 12px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app .nakula-ch04-choice button:active{background:#4c5e6c}
+#phone.in-app .nakula-ch04-attachment{
+ display:flex;width:calc(100% - 28px);margin:12px 14px 20px;
+}
+#phone.in-app .nakula-ch04-file-action{
+ display:flex;flex-direction:column;gap:9px;
+ margin:15px 3px 8px;padding:14px 12px;
+ border:1px solid #617787;background:#273540;
+ border-radius:14px;
+}
+#phone.in-app .nakula-ch04-file-action button{
+ min-height:43px;border-radius:10px;
+ background:#acbecd;color:#1c2a35;border:0;
+ font:700 12px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ cursor:pointer;
+}
+#phone.in-app .nakula-ch04-choice button:focus-visible,
+#phone.in-app .nakula-ch04-file-action button:focus-visible{
+ outline:2px solid #bfd6e8;outline-offset:3px;
+}
+.nakula-ch04-finale h2{font-size:22px;letter-spacing:.015em}
