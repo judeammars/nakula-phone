@@ -110,7 +110,7 @@ function nextHarley(){
  if(s.stage!=='harley'||s.harleyCount>=3)return;
  const t=thread('harley');if(!t)return;
  const m=harley[s.harleyCount];deliver(t,m,'day4Harley');
- s.harleyCount++;bumpTime(7,18+s.harleyCount-1);harleyUnread=true;
+ s.harleyCount++;bumpTime(7,18+s.harleyCount-1);api.markIncoming('harley');
  save('CP04-01-Harley-'+s.harleyCount);notify('harley');resume();
 }
 function markHarleySeen(){
@@ -151,7 +151,7 @@ function nextNirmala(){
  if(!s.replyDone||s.nirmalaCount>=3)return;
  const t=thread('nirmala');if(!t)return;
  const m=nirmala[s.nirmalaCount];
- deliver(t,m,'day4Nirmala');s.nirmalaCount++;nirmalaUnread=true;
+ deliver(t,m,'day4Nirmala');s.nirmalaCount++;api.markIncoming('nirmala');
  bumpTime(8,16+s.nirmalaCount);save('CP04-03-Nirmala-'+s.nirmalaCount);
  notify('nirmala');resume();
 }
@@ -268,6 +268,9 @@ document.addEventListener('click',e=>{
  }
  if(e.target.closest('[data-thread="marjorie"]'))window.nakulaChapter04.markRead('marjorie');
 },true);
+document.querySelector('.nakula-day2-morning-notice')?.addEventListener('click',()=>{
+ if(s.stage==='harley'&&state.screen==='lock')requestUnlock();
+});
 document.addEventListener('submit',e=>{
  if(e.target.id==='chat-form'&&state.thread==='marjorie'){e.preventDefault();e.stopImmediatePropagation()}
 },true);
