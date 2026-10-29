@@ -2,6 +2,15 @@
 (function(){
 'use strict';
 const archive={id:'mentari',name:'Mentari',initials:'M',date:'Lama',messages:[
+ {me:false,time:'20.14',section:'Suatu malam',text:'',profileSuggestionPhoto:true},
+ {me:false,time:'20.15',text:'Tidak akan ada yang tertarik dengan pengacara tanpa foto profil tampan, Nakula, coba saja pakai'},
+ {me:true,time:'20.16',text:'Saya pengacara, Mentari. Bukan model.'},
+ {me:false,time:'20.16',text:'Itu foto profil Instagram, bukan iklan parfum.'},
+ {me:true,time:'20.17',text:'Kapan kamu mengambil foto itu?'},
+ {me:false,time:'20.17',text:'Tadi. Waktu kamu lebih sibuk dengan ponselmu daripada steak di depanmu.'},
+ {me:true,time:'20.18',text:'Saya pertimbangkan.'},
+ {me:false,time:'20.18',text:'Artinya iya. Jangan lupa dipasang, ya.'},
+ {me:true,time:'20.19',text:'Iya, Mentari.'},
  {me:false,time:'18.12',section:'Suatu sore',text:'Meja dekat jendela masih kosong. Aku pesankan yang biasa?'},
  {me:true,time:'18.13',text:'Boleh. Saya masih di jalan.'},
  {me:false,time:'18.13',text:'Pelan-pelan. Kopinya bisa dipesan lagi.'},
@@ -36,7 +45,7 @@ const reminderItems=[
 ];
 const savedReminders=getSaved('personal-reminders-v1',{});
 const completed=new Set(reminderItems.filter(x=>savedReminders?.[x.id]===true).map(x=>x.id));
-let showCompleted=false,archiveWasOpen=false;
+let showCompleted=false,archiveWasOpen=false,profilePhotoViewer=null;
 
 icons.reminders='<rect x="9" y="5" width="46" height="54" rx="9" fill="#fafafa"/><g fill="#bd877e"><circle cx="21" cy="20" r="3.5"/></g><circle cx="21" cy="32" r="3.5" fill="#b4a178"/><circle cx="21" cy="44" r="3.5" fill="#849cae"/><path d="M30 20h15M30 32h15M30 44h15" stroke="#b7b8bc" stroke-width="2.4" stroke-linecap="round"/>';
 if(!document.querySelector('#apps-grid [data-app="reminders"]')){
@@ -59,11 +68,11 @@ function renderArchive(scrollTop){
  $('app-header').innerHTML='<button type="button" class="harley-au-back" data-action="back" aria-label="Back to Messages"><span aria-hidden="true">‹</span><span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar mentari">M</span><span class="harley-au-head-name">Mentari</span></div><span class="nm-head-space"></span>';
  const bubbles=archive.messages.map((m,i)=>{
   const previous=archive.messages[i-1],next=archive.messages[i+1];
-  const samePrevious=previous&&previous.me===m.me&&!m.section&&!previous.photo;
-  const sameNext=next&&next.me===m.me&&!next.section&&!m.photo;
+  const samePrevious=previous&&previous.me===m.me&&!m.section&&!previous.photo&&!previous.profileSuggestionPhoto;
+  const sameNext=next&&next.me===m.me&&!next.section&&!m.photo&&!m.profileSuggestionPhoto;
   const divider=m.section?'<div class="date-divider nakula-chat-time-divider" role="separator">'+esc(m.section)+' <span>· '+esc(m.time)+'</span></div>':'';
-  const image=m.photo?'<button type="button" class="nm-chat-photo" data-mentari-open="photo" aria-label="Lihat foto meja dekat jendela di Photos"><img src="./gallery/window-table.jpg" alt="Dua gelas kopi di meja dekat jendela" loading="lazy" width="180" height="240"></button>':'';
-  return divider+'<div class="bubble-row '+(m.me?'me':'them')+(samePrevious?' chat-cluster-follow':'')+(sameNext?' chat-cluster-has-next':'')+'"><div class="bubble" title="'+esc(m.time)+'">'+esc(m.text)+'</div>'+image+'</div>';
+  const image=m.profileSuggestionPhoto?'<button type="button" class="nm-chat-photo nm-chat-profile-photo" data-mentari-open="profile-photo" aria-label="Lihat foto Nakula yang dikirim Mentari"><img src="./gallery/nakula-mentari-dinner.webp" alt="Nakula melihat ponsel di restoran berdinding merah" loading="lazy" width="180" height="225"></button>':m.photo?'<button type="button" class="nm-chat-photo" data-mentari-open="photo" aria-label="Lihat foto meja dekat jendela di Photos"><img src="./gallery/window-table.jpg" alt="Dua gelas kopi di meja dekat jendela" loading="lazy" width="180" height="240"></button>':'';
+  return divider+'<div class="bubble-row '+(m.me?'me':'them')+(samePrevious?' chat-cluster-follow':'')+(sameNext?' chat-cluster-has-next':'')+'">'+(m.text?'<div class="bubble" title="'+esc(m.time)+'">'+esc(m.text)+'</div>':'')+image+'</div>';
  }).join('');
  $('app-content').innerHTML='<div class="conversation harley-au-conversation nm-archive"><div class="convo-scroll" id="chat-scroll">'+bubbles+'</div><div class="nm-archive-footer">Percakapan lama</div></div>';
  const sc=$('chat-scroll');
@@ -98,6 +107,11 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-personal-completed]')&&state.app==='reminders'){
   e.preventDefault();e.stopImmediatePropagation();showCompleted=!showCompleted;render();return;
  }
+ if(e.target.closest('[data-mentari-photo-dismiss]')){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(profilePhotoViewer)profilePhotoViewer.hidden=true;
+  return;
+ }
  const link=e.target.closest('[data-mentari-open]');
  if(!link)return;
  e.preventDefault();e.stopImmediatePropagation();
@@ -106,10 +120,27 @@ document.addEventListener('click',e=>{
   // openApp may keep the player in a mandatory Notes checklist.
   if(state.app!=='messages')return;
   state.thread='mentari';state.view='convo';render();
+ }else if(link.dataset.mentariOpen==='profile-photo'){
+  if(!profilePhotoViewer){
+   profilePhotoViewer=document.createElement('div');
+   profilePhotoViewer.className='nm-profile-photo-viewer';
+   profilePhotoViewer.setAttribute('role','dialog');
+   profilePhotoViewer.setAttribute('aria-modal','true');
+   profilePhotoViewer.setAttribute('aria-label','Foto Nakula dari Mentari');
+   profilePhotoViewer.innerHTML='<button type="button" class="nm-profile-photo-dismiss" data-mentari-photo-dismiss aria-label="Tutup foto">×</button><img src="./gallery/nakula-mentari-dinner.webp" alt="Foto Nakula saat makan malam">';
+   $('phone').appendChild(profilePhotoViewer);
+  }
+  profilePhotoViewer.hidden=false;
+  profilePhotoViewer.querySelector('[data-mentari-photo-dismiss]')?.focus();
  }else if(link.dataset.mentariOpen==='photo'&&memoryPhoto>=0){
   openApp('photos');
   if(state.app!=='photos')return;
   photoTab='albums';photoSection='favorites';state.photo=memoryPhoto;state.view='photo';photoInfoOpen=true;render();
+ }
+},true);
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&profilePhotoViewer&&!profilePhotoViewer.hidden){
+  e.preventDefault();e.stopImmediatePropagation();profilePhotoViewer.hidden=true;
  }
 },true);
 })();
