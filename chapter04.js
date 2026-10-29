@@ -116,7 +116,7 @@ function nextHarley(){
 function markHarleySeen(){
  if(s.stage!=='harley'||s.harleyCount!==3||s.harleySeen||
  state.screen!=='app'||state.app!=='messages'||state.view!=='convo'||state.thread!=='harley')return;
- s.harleySeen=true;save('CP04-01-Harley-read');resume();
+ s.harleySeen=true;api.markRead('harley');save('CP04-01-Harley-read');resume();
 }
 function marjorieThread(){
  let t=thread('marjorie');
@@ -196,6 +196,7 @@ function decorate(){
  if(state.app==='messages'&&state.view==='convo'){
   if(state.thread==='harley')markHarleySeen();
   if(state.thread==='marjorie'){
+   if(s.marjorieUnread){s.marjorieUnread=false;save('CP04-read-Marjorie');api.syncBadge()}
    const scroll=document.getElementById('chat-scroll');if(!scroll)return;
    document.querySelector('#app-content .convo-local')?.remove();
    const input=document.getElementById('chat-input');if(input){input.readOnly=true;input.placeholder='Pilih respons di atas'}
@@ -210,6 +211,7 @@ function decorate(){
     scroll.scrollTop=scroll.scrollHeight;
    }
   }
+  if(state.thread==='nirmala'&&s.nirmalaCount>0){api.markRead('nirmala')}
   if(state.thread==='nirmala'&&s.nirmalaCount===3&&!document.querySelector('[data-day4-open-file]')){
    const scroll=document.getElementById('chat-scroll');if(scroll){
     scroll.insertAdjacentHTML('beforeend','<button type="button" class="nakula-file-attachment nakula-ch04-attachment" data-day4-open-file><span class="nakula-file-attachment-icon">PDF</span><span><strong>Vendor_Distribution_Index_Redacted.pdf</strong><small>Salinan tersensor · Buka di Files</small></span><span aria-hidden="true">›</span></button>');
