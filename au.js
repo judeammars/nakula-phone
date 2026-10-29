@@ -33,7 +33,7 @@ unreadBadge.textContent='1';
 unreadBadge.setAttribute('aria-label','1 unread message');
 messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
 function syncHarleyBadge(){
- const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread)+Number(damarUnread)+Number(jenoahUnread);
+ const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread)+Number(damarUnread)+Number(jenoahUnread)+Number(window.nakulaChapter04?.unreadCount?.()||0);
  unreadBadge.textContent=String(count);
  unreadBadge.setAttribute('aria-label',count+' unread messages');
  unreadBadge.classList.toggle('is-hidden',!count||state.screen==='lock');
@@ -73,7 +73,7 @@ function setNotification(id){
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)||id==='jenoah'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)||id==='jenoah'||id==='marjorie'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='PESAN · baru saja';
 }
 
@@ -102,7 +102,7 @@ function showNotif(play=false){
 }
 function openStoryThread(id){
  if(state.screen!=='home'&&state.screen!=='app')return;
- if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else if(id==='damar')markDamarRead();else if(id==='jenoah')markJenoahRead();else markHarleyRead();
+ if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else if(id==='damar')markDamarRead();else if(id==='jenoah')markJenoahRead();else if(id==='marjorie')window.nakulaChapter04?.markRead('marjorie');else markHarleyRead();
  openApp('messages');state.thread=id;state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
@@ -1856,7 +1856,7 @@ function showDay3ChapterComplete(){
   day3ClosingOverlay.innerHTML='<div class="nakula-ch03-finale-inner"><small>CHAPTER 03 COMPLETE</small>'+
    '<h2>THE OTHER SIGNATURE</h2><div class="nakula-ch03-finale-rule"></div>'+
    '<p>A name on a page is not the whole chain of command.</p>'+
-   '<span>Progres tersimpan · Chapter 04 belum dibuka</span>'+
+   '<span>Progres tersimpan · Berikutnya: Chapter 04</span>'+
    '<button type="button" data-day3-chapter-close>Kembali ke Home</button></div>';
   $au('phone').appendChild(day3ClosingOverlay);
  }
@@ -1890,7 +1890,7 @@ document.addEventListener('click',e=>{
  if(close){
   e.preventDefault();e.stopImmediatePropagation();
   if(day3ClosingOverlay){day3ClosingOverlay.classList.remove('visible');day3ClosingOverlay.hidden=true}
-  state.view=null;state.thread=null;goHome();return;
+  state.view=null;state.thread=null;goHome();window.nakulaChapter04?.start();return;
  }
 },true);
 
@@ -2476,10 +2476,11 @@ document.addEventListener('click',e=>{
 
 function makeStorySnapshot(reason='progress'){
  const incident=notes.find(n=>Number(n.id)===9901);
+ const ch04=window.nakulaChapter04?.getState?.()||window.__nakulaChapter04Cached||null;
  return {
   version:STORY_SLOT_VERSION,reason,savedAt:Date.now(),
-  checkpoint:day3Stage!=='none'?'CP03':day2Stage!=='none'?'CP02':aftermathTriggered?'CP01':'CP00',
-  chapter:currentStoryEnding?'ENDING':day3Stage!=='none'?'CH03':day2Stage!=='none'?'CH02':aftermathTriggered?'CH01_COMPLETE':'CH01',
+  checkpoint:ch04&&ch04.stage!=='none'?'CP04':day3Stage!=='none'?'CP03':day2Stage!=='none'?'CP02':aftermathTriggered?'CP01':'CP00',
+  chapter:currentStoryEnding?'ENDING':ch04&&ch04.stage!=='none'?'CH04':day3Stage!=='none'?'CH03':day2Stage!=='none'?'CH02':aftermathTriggered?'CH01_COMPLETE':'CH01',
   endingId:currentStoryEnding,
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
@@ -2512,7 +2513,8 @@ function makeStorySnapshot(reason='progress'){
   nirmalaTimeline:nirmalaTimeline.map(m=>({...m})),
   callLog:unknownCallHistory.map(x=>({...x})),
   incidentNote:aftermathTriggered&&incident?{...incident}:null,
-  dailyCaseNotes:dailyCaseNotes.map(n=>({...n}))
+  dailyCaseNotes:dailyCaseNotes.map(n=>({...n})),
+  chapter04:ch04
  };
 }
 function saveStoryState(reason='progress'){
@@ -2592,6 +2594,7 @@ function loadStoryState(){
   ||!Array.isArray(saved.unknownTimeline)||saved.unknownTimeline.length>8
   ||(saved.nirmalaTimeline&&(!Array.isArray(saved.nirmalaTimeline)||saved.nirmalaTimeline.length>30))
   ||!Array.isArray(saved.callLog)||saved.callLog.length>30)return false;
+ window.__nakulaChapter04Cached=saved.chapter04&&typeof saved.chapter04==='object'?saved.chapter04:null;
  const p=saved.progress;
  dailyCaseNotes=Array.isArray(saved.dailyCaseNotes)?
   saved.dailyCaseNotes.filter(n=>n&&n.dailyCase===true&&Number.isInteger(n.id)
@@ -3169,7 +3172,7 @@ day2MorningNotice.addEventListener('click',()=>{
 
 let day2AlarmAudio=null,day2AlarmSoundTimer=null;
 function playDay2AlarmChime(){
- if(day2Stage!=='alarm'&&day3Stage!=='alarm')return;
+ if(day2Stage!=='alarm'&&day3Stage!=='alarm'&&window.nakulaChapter04?.getState?.().stage!=='alarm')return;
  try{
   const AC=window.AudioContext||window.webkitAudioContext;
   if(!AC)return;
@@ -3960,7 +3963,7 @@ function nakulaAdditionalDocs(){
  });
  return files;
 }
-function nakulaFilesAvailableDocs(){const routing=day3OtherSignatureDocument();return [...nakulaFilesDocs,...nakulaAdditionalDocs(),...(routing?[routing]:[])]}
+function nakulaFilesAvailableDocs(){const routing=day3OtherSignatureDocument(),extras=window.nakulaChapter04?.docs?.()||[];return [...nakulaFilesDocs,...nakulaAdditionalDocs(),...(routing?[routing]:[]),...extras]}
 
 let nakulaFilesPath='root',nakulaFilesTab='browse',nakulaFilesDocId=null,nakulaFilesInfo=false;
 let day2ReadFileIds=new Set();
@@ -4280,5 +4283,31 @@ document.addEventListener('keydown',e=>{
   e.preventDefault();deferDay2FamilyTask();
  }
 });
+
+/* Chapter 04 uses the existing native UI, story save, clock and Files reader. */
+window.nakulaChapter04Bridge=Object.freeze({
+ day3Complete:()=>day3ChapterComplete,
+ save:reason=>saveStoryState(reason),
+ clock:(hour,minute,offset)=>window.nakulaNarrativeClock.set(hour,minute,offset),
+ restoreClock:minute=>window.nakulaNarrativeClock.restore(minute),
+ showAlarm:(time,label,hint)=>{
+  const t=day2Alarm.querySelector('.nakula-day2-alarm-time');
+  const n=day2Alarm.querySelector('.nakula-day2-alarm-name');
+  const h=day2Alarm.querySelector('.nakula-day2-alarm-hint');
+  if(t)t.textContent=time;
+  if(n)n.textContent=label;
+  if(h)h.textContent=hint;
+  day2Alarm.setAttribute('aria-label','Chapter 04 alarm '+time);
+  day2Alarm.hidden=false;day2MorningNotice.hidden=true;
+  if(!day2AlarmSoundTimer){playDay2AlarmChime();day2AlarmSoundTimer=setInterval(playDay2AlarmChime,2800)}
+ },
+ stopAlarm:()=>{stopDay2AlarmAudio();day2Alarm.hidden=true;day2MorningNotice.hidden=true},
+ markIncoming:id=>{if(id==='harley')harleyUnread=true;else if(id==='nirmala')nirmalaUnread=true;syncHarleyBadge()},
+ notify:id=>{if(state.screen!=='lock'){setNotification(id);notif.classList.add('show');sound()}},
+ syncBadge:syncHarleyBadge,
+ currentFile:()=>nakulaFilesDocId,
+ openDocument:id=>{nakulaFilesPath='pbk';openApp('files');nakulaOpenFilesDocument(id)}
+});
+
 initializeStorySave();
 })();
