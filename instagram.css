@@ -1,0 +1,242 @@
+/* NAKULA PHONE · Instagram-style template.
+   Reference screenshots only inform geometry. Media and bio are not invented. */
+
+#apps-grid .icon-instagram{
+ background:linear-gradient(40deg,#feda75 0%,#fa7e1e 24%,#d62976 54%,#962fbf 78%,#4f5bd5 100%);
+ border:1px solid #ffffff30;
+}
+#apps-grid .icon-instagram svg{width:69%;height:69%;stroke:#fff;stroke-width:3.1;fill:none}
+
+#phone.nakula-instagram-mode #app-screen.page,
+#phone.in-app.nakula-instagram-mode #app-screen,
+#phone.in-app.nakula-instagram-mode #app-content{
+ background:#0d0d0e!important;
+ color:#f9f9fa!important;
+}
+#phone.nakula-instagram-mode #app-screen.page{padding-top:55px}
+#phone.nakula-instagram-mode .statusbar{color:#f8f8f8}
+#phone.nakula-instagram-mode .home-bar{background:#f7f7f7}
+#phone.nakula-instagram-mode .dynamic-island{background:#000}
+#phone.nakula-instagram-mode #app-header{
+ display:flex;align-items:center;justify-content:stretch;
+ height:59px;min-height:59px;padding:0;
+ color:#fafafa;background:#111112;
+ border-bottom:1px solid #29292b;
+}
+#phone.nakula-instagram-mode #app-content{
+ flex:1;display:flex;flex-direction:column;
+ min-height:0;min-width:0;padding:0!important;
+ overflow:hidden!important;
+}
+#phone.nakula-instagram-mode .ig-head-inner{
+ width:100%;display:flex;align-items:center;justify-content:space-between;
+ min-height:58px;padding:0 15px;
+}
+#phone.nakula-instagram-mode .ig-head-inner strong{
+ font-size:18px;font-weight:650;letter-spacing:-.025em;
+ color:#f8f8f8;
+}
+#phone.nakula-instagram-mode .ig-wordmark{
+ font-family:"Brush Script MT","Snell Roundhand","URW Chancery L","Segoe Script",cursive;
+ font-weight:700;font-size:29px!important;letter-spacing:-.075em!important;
+ line-height:1.1;
+}
+#phone.nakula-instagram-mode .ig-head-icon{
+ flex:0 0 32px;width:32px;height:38px;
+ background:transparent;border:0;color:#f7f7f8;
+ display:grid;place-items:center;
+ padding:5px;cursor:pointer;
+}
+#phone.nakula-instagram-mode .ig-svg{
+ display:block;flex:none;width:24px;height:24px;
+ stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+#phone.nakula-instagram-mode .ig-head-icon .ig-svg{width:25px;height:25px}
+#phone.nakula-instagram-mode .ig-shell{
+ display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;
+ background:#0d0d0e;color:#f8f8fa;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+ font-size:14px;
+}
+#phone.nakula-instagram-mode .ig-main-scroll{
+ flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;
+ scrollbar-width:none;
+}
+#phone.nakula-instagram-mode .ig-main-scroll::-webkit-scrollbar{display:none}
+#phone.nakula-instagram-mode .ig-nav{
+ width:100%;flex:none;display:flex;align-items:center;justify-content:space-around;
+ min-height:55px;padding:0 6px 9px;
+ border-top:1px solid #2b2b2d;background:#101011;
+}
+#phone.nakula-instagram-mode .ig-nav-item{
+ width:20%;height:49px;display:flex;align-items:center;justify-content:center;
+ padding:7px;border:0;background:transparent;color:#f0f0f2;cursor:pointer;
+}
+#phone.nakula-instagram-mode .ig-nav-item .ig-svg{width:26px;height:26px}
+#phone.nakula-instagram-mode .ig-nav-item.is-active .ig-svg{stroke-width:2.5}
+#phone.nakula-instagram-mode .ig-avatar{
+ display:inline-flex;align-items:center;justify-content:center;
+ flex:none;width:43px;height:43px;overflow:hidden;border-radius:50%;
+ color:#86868b;background:#292b30;border:1px solid #53545a;
+}
+#phone.nakula-instagram-mode .ig-avatar svg{width:54%;height:54%;stroke-width:1.5}
+#phone.nakula-instagram-mode .ig-avatar img{width:100%;height:100%;object-fit:cover}
+#phone.nakula-instagram-mode .ig-avatar-large{width:87px;height:87px}
+#phone.nakula-instagram-mode .ig-avatar-small{width:35px;height:35px}
+#phone.nakula-instagram-mode .ig-avatar-tiny{width:26px;height:26px}
+#phone.nakula-instagram-mode .ig-nav-item.is-active .ig-avatar-tiny{border:1.8px solid #fff}
+#phone.nakula-instagram-mode .ig-profile{padding:0;min-height:100%}
+#phone.nakula-instagram-mode .ig-summary{
+ padding:24px 18px 13px;display:flex;align-items:center;gap:18px;
+}
+#phone.nakula-instagram-mode .ig-main-avatar{flex:0 0 auto}
+#phone.nakula-instagram-mode .ig-stats{
+ flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ align-items:center;gap:4px;text-align:center;
+}
+#phone.nakula-instagram-mode .ig-stat{display:flex;flex-direction:column;gap:3px}
+#phone.nakula-instagram-mode .ig-stat strong{font-size:19px;font-weight:650;color:#f5f5f6}
+#phone.nakula-instagram-mode .ig-stat span{font-size:12px;color:#f0f0f0}
+#phone.nakula-instagram-mode .ig-bio{
+ display:flex;flex-direction:column;gap:4px;padding:0 18px 13px;
+ font-size:13px;line-height:1.48;
+}
+#phone.nakula-instagram-mode .ig-bio>strong{font-size:15px;font-weight:650}
+#phone.nakula-instagram-mode .ig-bio p{margin:0;white-space:pre-line}
+#phone.nakula-instagram-mode .ig-pending-copy{color:#85858a;font-style:italic}
+#phone.nakula-instagram-mode .ig-edit-profile{
+ display:block;width:calc(100% - 36px);margin:0 18px 19px;
+ background:#171718;color:#f8f8f9;border:1px solid #363638;
+ min-height:36px;border-radius:5px;font-size:14px;font-weight:650;cursor:pointer;
+}
+#phone.nakula-instagram-mode .ig-profile-tabs{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ align-items:center;height:53px;border-top:1px solid #262628;
+ border-bottom:1px solid #242426;
+}
+#phone.nakula-instagram-mode .ig-profile-tabs button{
+ height:100%;border:0;border-bottom:2px solid transparent;
+ background:transparent;display:flex;align-items:center;justify-content:center;
+ color:#858589;cursor:pointer;
+}
+#phone.nakula-instagram-mode .ig-profile-tabs button.selected{
+ color:#f8f8f8;border-bottom-color:#f8f8f8;
+}
+#phone.nakula-instagram-mode .ig-profile-tabs svg{width:26px;height:26px}
+#phone.nakula-instagram-mode .ig-profile-grid{min-height:240px}
+#phone.nakula-instagram-mode .ig-post-grid,
+#phone.nakula-instagram-mode .ig-placeholder-grid{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:100%;
+}
+#phone.nakula-instagram-mode .ig-post-tile{
+ aspect-ratio:1;border:0;padding:0;background:#242426;cursor:pointer;overflow:hidden;
+}
+#phone.nakula-instagram-mode .ig-post-tile img{
+ display:block;width:100%;height:100%;object-fit:cover;
+}
+#phone.nakula-instagram-mode .ig-grid-pending{padding:0}
+#phone.nakula-instagram-mode .ig-placeholder-tile{
+ aspect-ratio:1;background:#1b1b1d;color:#393a3f;
+ display:grid;place-items:center;
+}
+#phone.nakula-instagram-mode .ig-placeholder-tile svg{width:28px;height:28px}
+#phone.nakula-instagram-mode .ig-grid-pending p{
+ margin:23px 24px 0;text-align:center;
+ color:#8b8b8f;font-size:12px;line-height:1.5;
+}
+#phone.nakula-instagram-mode .ig-blank-view,
+#phone.nakula-instagram-mode .ig-centered-empty{
+ display:flex;flex-direction:column;gap:11px;align-items:center;justify-content:center;
+ min-height:290px;padding:25px 28px;text-align:center;
+ color:#b9b9bd;
+}
+#phone.nakula-instagram-mode .ig-blank-view>.ig-svg,
+#phone.nakula-instagram-mode .ig-centered-empty>.ig-svg{width:49px;height:49px;color:#cacace;stroke-width:1.2}
+#phone.nakula-instagram-mode .ig-blank-view strong,
+#phone.nakula-instagram-mode .ig-centered-empty strong{
+ font-size:20px;color:#eeeef0;font-weight:700;
+}
+#phone.nakula-instagram-mode .ig-blank-view p,
+#phone.nakula-instagram-mode .ig-centered-empty p{
+ color:#8b8b90;font-size:13px;line-height:1.5;margin:0;
+}
+#phone.nakula-instagram-mode .ig-empty-action{
+ border:1px solid #454548;background:#202022;
+ padding:10px 17px;color:white;border-radius:8px;
+}
+#phone.nakula-instagram-mode .ig-feed{width:100%;padding:0 0 18px}
+#phone.nakula-instagram-mode .ig-feed-placeholder-head{
+ min-height:59px;display:flex;align-items:center;gap:10px;
+ padding:9px 15px;min-width:0;
+}
+#phone.nakula-instagram-mode .ig-feed-placeholder-head>div{
+ flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;
+}
+#phone.nakula-instagram-mode .ig-feed-placeholder-head strong{font-size:14px;font-weight:650}
+#phone.nakula-instagram-mode .ig-feed-placeholder-head span:not(.ig-avatar){font-size:10px;color:#97979d}
+#phone.nakula-instagram-mode .ig-feed-placeholder-head>.ig-svg{width:22px;height:22px;color:#d6d6d9}
+#phone.nakula-instagram-mode .ig-feed-image-placeholder{
+ width:100%;aspect-ratio:1/1;max-height:490px;
+ background:#1c1c1e;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;
+ gap:14px;color:#717178;
+}
+#phone.nakula-instagram-mode .ig-feed-image-placeholder .ig-svg{width:52px;height:52px;stroke-width:1.25}
+#phone.nakula-instagram-mode .ig-feed-image-placeholder span{font-size:12px}
+#phone.nakula-instagram-mode .ig-post-image{display:block;width:100%;height:auto;max-height:490px;object-fit:cover}
+#phone.nakula-instagram-mode .ig-post-actions{
+ padding:12px 15px 8px;display:flex;justify-content:space-between;
+ align-items:center;color:#f7f7f7;
+}
+#phone.nakula-instagram-mode .ig-post-actions span{
+ display:flex;align-items:center;gap:13px;
+}
+#phone.nakula-instagram-mode .ig-post-actions button{
+ border:0;background:transparent;padding:0;display:grid;place-items:center;
+ color:inherit;cursor:pointer;
+}
+#phone.nakula-instagram-mode .ig-post-actions button.is-liked{color:#ff3048}
+#phone.nakula-instagram-mode .ig-pending-caption,
+#phone.nakula-instagram-mode .ig-post-caption{
+ display:flex;gap:6px;margin:1px 15px 8px;
+ font-size:13px;line-height:1.5;
+}
+#phone.nakula-instagram-mode .ig-post-caption{display:block}
+#phone.nakula-instagram-mode .ig-pending-caption strong,
+#phone.nakula-instagram-mode .ig-post-caption strong{font-weight:670}
+#phone.nakula-instagram-mode .ig-pending-caption span{color:#96969a}
+#phone.nakula-instagram-mode .ig-feed-status{
+ margin:15px;text-align:center;color:#737379;
+ font-size:12px;
+}
+#phone.nakula-instagram-mode .ig-modal-backdrop{
+ position:absolute;inset:0;z-index:20;
+ background:#000b;display:grid;place-items:center;padding:22px;
+}
+#phone.nakula-instagram-mode .ig-modal{
+ position:relative;width:100%;max-width:330px;
+ padding:26px 22px 18px;
+ background:#242427;color:#f6f6f7;border:1px solid #3b3b40;
+ border-radius:14px;display:flex;flex-direction:column;gap:13px;
+}
+#phone.nakula-instagram-mode .ig-modal strong{font-size:18px}
+#phone.nakula-instagram-mode .ig-modal p{font-size:13px;line-height:1.55;color:#b4b4b9;margin:0}
+#phone.nakula-instagram-mode .ig-modal-close{
+ position:absolute;right:10px;top:8px;border:0;background:transparent;color:#ddd;
+}
+#phone.nakula-instagram-mode .ig-modal-done{
+ background:#343438;color:#f8f8f8;
+ border:1px solid #505056;border-radius:8px;padding:10px;
+}
+#phone.nakula-instagram-mode button:focus-visible{
+ outline:2px solid #e0e0e4;outline-offset:2px;
+}
+@media(max-width:375px){
+ #phone.nakula-instagram-mode .ig-summary{gap:10px;padding:18px 13px 12px}
+ #phone.nakula-instagram-mode .ig-avatar-large{width:76px;height:76px}
+ #phone.nakula-instagram-mode .ig-stat strong{font-size:17px}
+ #phone.nakula-instagram-mode .ig-stat span{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #phone.nakula-instagram-mode *{animation:none!important;transition:none!important}
+}
