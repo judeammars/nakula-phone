@@ -8,10 +8,10 @@
 const IG_PROFILE = Object.freeze({
   username: 'nakula.shankara', // provisional handle, replace when supplied
   name: 'Nakula Shankara Bumi',
-  avatar: null,               // user will supply
+  avatar: './gallery/nakula-instagram-avatar.webp', // selected profile photo
   bio: '',                    // user will supply
-  followers: null,            // no invented statistics
-  following: null
+  followers: 4500,
+  following: 560
 });
 const IG_POSTS = Object.freeze([]); // fill only with approved Nakula photos & captions
 const iconPaths = {
