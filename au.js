@@ -1590,6 +1590,7 @@ function finishDay3Meeting(){
  window.nakulaNarrativeClock.set(10,45,2);
  ensureDay3MeetingNotes();
  saveStoryState('CP03-05-meeting-complete');
+ scheduleDay3Jenoah();
  render();
 }
 function openDay3MeetingNotes(){
@@ -2477,8 +2478,8 @@ function makeStorySnapshot(reason='progress'){
  const incident=notes.find(n=>Number(n.id)===9901);
  return {
   version:STORY_SLOT_VERSION,reason,savedAt:Date.now(),
-  checkpoint:day2Stage!=='none'?'CP02':aftermathTriggered?'CP01':'CP00',
-  chapter:currentStoryEnding?'ENDING':day2Stage!=='none'?'CH02':aftermathTriggered?'CH01_COMPLETE':'CH01',
+  checkpoint:day3Stage!=='none'?'CP03':day2Stage!=='none'?'CP02':aftermathTriggered?'CP01':'CP00',
+  chapter:currentStoryEnding?'ENDING':day3Stage!=='none'?'CH03':day2Stage!=='none'?'CH02':aftermathTriggered?'CH01_COMPLETE':'CH01',
   endingId:currentStoryEnding,
   storyMinutes:window.nakulaNarrativeClock.minutes(),
   progress:{
@@ -2498,6 +2499,8 @@ function makeStorySnapshot(reason='progress'){
    day3LeakDueAt,day3LeakIntroDelivered,day3LeakChoice,day3LeakCursor,day3LeakActive,
    day3PrepDueAt,day3AdnanDelivered,day3PrepChecks:[...day3PrepChecks],day3PrepReady,
    day3MeetingStarted,day3MeetingCursor,day3MeetingChoice,day3MeetingFinished,day3MeetingNotesOpened,
+   day3JenoahDueAt,day3JenoahIntroDelivered,day3JenoahChoice,day3JenoahCursor,day3JenoahAutoplay,jenoahUnread,
+   day3OtherSignatureDueAt,day3OtherSignatureDelivered,day3OtherSignatureOpened,day3ChapterComplete,
    harleyAutoplayStarted,adnanAutoplayStarted,harleyUnread,adnanUnread,unknownUnread,nirmalaUnread,
    day2BriefPrepared,day2BriefChoice,day2NirmalaDelivered,
    unknownQueued,unknownStage,unknownAttempt,unknownInterrupted,unknownResumeSameCall:storyResumeSameCall,aftermathTriggered,
@@ -2691,6 +2694,17 @@ function loadStoryState(){
  day3MeetingFinished=!!p.day3MeetingFinished&&!!day3MeetingChoice&&day3MeetingCursor===DAY3_MEETING_INTRO.length+2+DAY3_MEETING_OUTCOME.length;
  day3MeetingNotesOpened=!!p.day3MeetingNotesOpened;
  if(day3MeetingFinished)ensureDay3MeetingNotes();
+ day3JenoahDueAt=Number.isFinite(p.day3JenoahDueAt)?p.day3JenoahDueAt:0;
+ day3JenoahIntroDelivered=!!p.day3JenoahIntroDelivered||saved.threads.some(t=>t.id==='jenoah'&&t.messages.some(m=>m.day3JenoahIntro));
+ day3JenoahCursor=Number.isInteger(p.day3JenoahCursor)?Math.max(0,Math.min(day3JenoahTimeline.length,p.day3JenoahCursor)):0;
+ day3JenoahAutoplay=!!p.day3JenoahAutoplay;
+ if(['counsel','procedure'].includes(p.day3JenoahChoice))applyDay3JenoahChoice(p.day3JenoahChoice);
+ if(day3JenoahIntroDelivered)ensureDay3JenoahThread();
+ day3OtherSignatureDueAt=Number.isFinite(p.day3OtherSignatureDueAt)?p.day3OtherSignatureDueAt:0;
+ day3OtherSignatureDelivered=!!p.day3OtherSignatureDelivered||saved.threads.some(t=>t.id==='nirmala'&&t.messages.some(m=>m.day3OtherSignature));
+ day3OtherSignatureOpened=!!p.day3OtherSignatureOpened||day2ReadFileIds.has(DAY3_OTHER_SIGNATURE_ID);
+ day3ChapterComplete=!!p.day3ChapterComplete&&day3OtherSignatureOpened&&day3MeetingFinished;
+ if(day3OtherSignatureOpened)ensureDay3OtherSignatureNote();
  if(day3Stage==='harley'&&day3ChecklistChecks.every(Boolean))day3ChecklistPresented=true;
  if(day3Stage!=='none'&&day3Stage!=='transition')ensureDay3ChecklistNote();
  if(day2Chapter2Completed)day2Page312Stage='complete';
@@ -2714,6 +2728,7 @@ function loadStoryState(){
  adnanAutoplayStarted=!!p.adnanAutoplayStarted||!!p.day2BriefChoice
   ||(p.day2Stage&&p.day2Stage!=='none');
  harleyUnread=!!p.harleyUnread;adnanUnread=!!p.adnanUnread;unknownUnread=!!p.unknownUnread;
+ jenoahUnread=!!p.jenoahUnread;
  nirmalaUnread=!!p.nirmalaUnread;
  day2BriefPrepared=!!p.day2BriefPrepared||saved.adnanTimeline.some(m=>m.day2Brief);
  day2BriefChoice=['evidence','safety'].includes(p.day2BriefChoice)?p.day2BriefChoice:null;
@@ -2879,6 +2894,8 @@ function initializeStorySave(){
  if(day3Stage==='harley')scheduleDay3Harley();
  if(day3ArticleOpened&&!day3LeakIntroDelivered)scheduleDay3Leak();
  if(day3LeakActive&&day3LeakCursor>=day3LeakTimeline.length&&!day3AdnanDelivered)scheduleDay3Prep();
+ if(day3MeetingFinished&&!day3JenoahIntroDelivered)scheduleDay3Jenoah();
+ if(day3JenoahIntroDelivered&&day3JenoahCursor>=day3JenoahTimeline.length&&!day3OtherSignatureDelivered)scheduleDay3OtherSignature();
  if(day3Stage==='transition')scheduleDay3Transition();
 }
 window.nakulaStorySave=Object.freeze({
@@ -3486,7 +3503,7 @@ function nakulaRenderChatBubbles(messages){
 const oldRender=render;
 render=function(){
  $au('phone').classList.toggle('harley-au-mode',state.screen==='app'&&state.app==='messages');
- if(state.screen==='app'&&state.app==='files'){renderNakulaFilesApp();return}
+ if(state.screen==='app'&&state.app==='files'){renderNakulaFilesApp();renderDay3EvidenceAction();return}
  if(!inHarley()){
    clearTimeout(harleyNextTimer);harleyNextTimer=null;
    clearTimeout(harleyAutoSendTimer);harleyAutoSendTimer=null;
@@ -3516,7 +3533,7 @@ render=function(){
     decorateDailyCaseNotesUI();
     renderDay3Checklist();
     renderDay3Prep();
-    if(state.view==='note'&&Number(state.note)===DAY3_MEETING_NOTE_ID)
+    if(state.view==='note'&&[DAY3_MEETING_NOTE_ID,DAY3_OTHER_SIGNATURE_NOTE].includes(Number(state.note)))
      $au('app-content')?.querySelector('[data-action="edit-note"]')?.remove();
    }
    if(state.screen==='app'&&state.app==='safari')decorateDay3Safari();
@@ -3943,7 +3960,7 @@ function nakulaAdditionalDocs(){
  });
  return files;
 }
-function nakulaFilesAvailableDocs(){return [...nakulaFilesDocs,...nakulaAdditionalDocs()]}
+function nakulaFilesAvailableDocs(){const routing=day3OtherSignatureDocument();return [...nakulaFilesDocs,...nakulaAdditionalDocs(),...(routing?[routing]:[])]}
 
 let nakulaFilesPath='root',nakulaFilesTab='browse',nakulaFilesDocId=null,nakulaFilesInfo=false;
 let day2ReadFileIds=new Set();
@@ -4083,6 +4100,7 @@ function nakulaOpenFilesDocument(id){
  if(id==='settlement')day2OfferDocRead=true;
  if(id==='family_statements')day2FamilyDocsRead.statements=true;
  if(id==='family_intake')day2FamilyDocsRead.client=true;
+ if(id===DAY3_OTHER_SIGNATURE_ID)markDay3OtherSignatureRead();
  saveStoryState(id==='operational_addendum'?'CP02-07-addendum-opened':
   id==='casebrief'?'CP02-03-case-brief-read':
   id.startsWith('family_')?'CP02-04-family-document-read':'CP02-files-investigation');
