@@ -4,7 +4,9 @@
 #phone.in-app .harley-au-head-avatar.mentari{background:linear-gradient(145deg,#a39283,#716b68);color:#fff}
 .nm-head-space{width:88px}
 #phone.in-app .nm-archive .bubble-row{position:relative}
-#phone.in-app .nm-archive .bubble-row:has(.nm-chat-photo){display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+#phone.in-app .nm-archive .bubble-row:has(.nm-chat-photo){display:flex;flex-direction:column;gap:5px}
+#phone.in-app .nm-archive .bubble-row.them:has(.nm-chat-photo){align-items:flex-start;text-align:left}
+#phone.in-app .nm-archive .bubble-row.me:has(.nm-chat-photo){align-items:flex-end;text-align:right}
 .nm-chat-photo{display:block;flex:none;width:180px;max-width:72%;border:0;padding:0;border-radius:17px;overflow:hidden;background:#39342e}
 .nm-chat-photo img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
 .nm-archive-footer{flex:none;padding:13px 16px max(30px,env(safe-area-inset-bottom));text-align:center;font-size:11px;color:#8d8d93;border-top:1px solid #8882;background:inherit}
