@@ -4303,6 +4303,7 @@ window.nakulaChapter04Bridge=Object.freeze({
  },
  stopAlarm:()=>{stopDay2AlarmAudio();day2Alarm.hidden=true;day2MorningNotice.hidden=true},
  markIncoming:id=>{if(id==='harley')harleyUnread=true;else if(id==='nirmala')nirmalaUnread=true;syncHarleyBadge()},
+ markRead:id=>{if(id==='harley'&&harleyUnread)markHarleyRead();else if(id==='nirmala'&&nirmalaUnread)markNirmalaRead()},
  notify:id=>{if(state.screen!=='lock'){setNotification(id);notif.classList.add('show');sound()}},
  syncBadge:syncHarleyBadge,
  currentFile:()=>nakulaFilesDocId,
