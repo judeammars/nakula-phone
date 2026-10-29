@@ -1675,6 +1675,221 @@ document.addEventListener('click',e=>{
  }else if(target.hasAttribute('data-day3-meeting-minutes'))openDay3MeetingNotes();
 },true);
 
+
+/* CHAPTER 03.6 / 03.7 — OFF THE RECORD / THE OTHER SIGNATURE */
+const DAY3_OTHER_SIGNATURE_ID='authorization_route';
+const DAY3_OTHER_SIGNATURE_NOTE=99306;
+const DAY3_JENOAH_CHOICES=Object.freeze({
+ counsel:{
+  label:'Minta Jenoah menghubungi Damar',
+  text:'Mr. Pangestu, kalau informasi itu relevan dengan perkara ini, sampaikan melalui Damar. I cannot discuss the substance privately while your company is represented.',
+  reply:"That's fair. I'll ask Damar to put the request on record. I only wanted to make sure you knew there was a separate approval trail."
+ },
+ procedure:{
+  label:'Minta permintaan dokumen secara resmi',
+  text:'Saya tidak dapat membahas substansi perkara ini secara pribadi, Pak Jenoah. Silakan minta kuasa hukum Anda menanggapi permintaan catatan otorisasi kami secara tertulis.',
+  reply:'Understood, Mr. Bumi. I will leave it to our counsel. Look closely at the approval routing, not just the name printed on that page.'
+ }
+});
+const DAY3_JENOAH_BRANCH=Object.freeze({
+ original:'You asked about original authorization records. I think there is a separate routing sheet that should be compared with the PDF.',
+ authority:'About your question on my authority: appearing on the matrix does not tell you who cleared the final approval gate.',
+ chronology:'You asked for the chronology. The timestamps on a signature and the internal approval sequence are not necessarily the same thing.'
+});
+let day3JenoahDueAt=0,day3JenoahTimer=null,day3JenoahIntroDelivered=false;
+let day3JenoahChoice=null,day3JenoahCursor=0,day3JenoahAutoplay=false,day3JenoahNextTimer=null,day3JenoahAutoSendTimer=null,jenoahUnread=false;
+let day3OtherSignatureDueAt=0,day3OtherSignatureTimer=null,day3OtherSignatureDelivered=false;
+let day3OtherSignatureOpened=false,day3ChapterComplete=false;
+let day3ClosingOverlay=null;
+const day3JenoahTimeline=[
+ {me:true,time:'11.07',dayOffset:2,day3PrivateReply:true,choicePending:true,text:''},
+ {me:false,time:'11.08',dayOffset:2,day3JenoahFinal:true,text:''}
+];
+function applyDay3JenoahChoice(choice){
+ if(!DAY3_JENOAH_CHOICES[choice])return;
+ day3JenoahChoice=choice;
+ day3JenoahTimeline[0].text=DAY3_JENOAH_CHOICES[choice].text;
+ day3JenoahTimeline[0].choicePending=false;
+ day3JenoahTimeline[1].text=DAY3_JENOAH_CHOICES[choice].reply;
+}
+function ensureDay3JenoahThread(){
+ let t=threadById('jenoah');
+ if(!t){
+  t={id:'jenoah',name:'+62 8••• •••• 0312',role:'Nomor belum disimpan',initials:'?',date:'11.05',messages:[]};
+  threads.unshift(t);
+ }
+ return t;
+}
+function scheduleDay3Jenoah(){
+ if(!day3MeetingFinished||day3JenoahIntroDelivered||day3JenoahTimer||currentStoryEnding)return;
+ if(!day3JenoahDueAt)day3JenoahDueAt=Date.now()+5000;
+ day3JenoahTimer=setTimeout(()=>{
+  day3JenoahTimer=null;
+  if(day3MeetingFinished&&!day3JenoahIntroDelivered)deliverDay3Jenoah();
+ },Math.max(0,day3JenoahDueAt-Date.now()));
+}
+function deliverDay3Jenoah(){
+ if(!day3MeetingFinished||day3JenoahIntroDelivered)return;
+ const t=ensureDay3JenoahThread();
+ day3JenoahIntroDelivered=true;day3JenoahDueAt=0;
+ if(!t.messages.some(m=>m.day3JenoahIntro)){
+  t.messages.push({me:false,time:'11.05',dayOffset:2,day3JenoahIntro:true,
+   text:"Mr. Bumi, this is Jenoah Pangestu. I hope you don't mind me reaching out."});
+  t.messages.push({me:false,time:'11.06',dayOffset:2,day3JenoahIntro:true,
+   text:DAY3_JENOAH_BRANCH[day3MeetingChoice]||DAY3_JENOAH_BRANCH.original});
+  t.messages.push({me:false,time:'11.06',dayOffset:2,day3JenoahIntro:true,
+   text:'I understand this may need to go through counsel. You do not have to reply here.'});
+ }
+ t.date='11.06';
+ window.nakulaNarrativeClock.set(11,6,2);
+ jenoahUnread=true;
+ saveStoryState('CP03-06-Jenoah-first-contact');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen!=='lock'&&!(state.app==='messages'&&state.view==='convo'&&state.thread==='jenoah')){
+  setNotification('jenoah');notif.classList.add('show');sound();
+ }
+}
+function chooseDay3JenoahReply(choice){
+ if(!day3JenoahIntroDelivered||day3JenoahChoice||day3JenoahCursor!==0||!DAY3_JENOAH_CHOICES[choice])return;
+ applyDay3JenoahChoice(choice);
+ day3JenoahAutoplay=true;
+ saveStoryState('CP03-06-private-reply-'+choice);
+ if(state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='jenoah'){
+  render();scheduleDay3JenoahAutoReply(550);
+ }
+}
+function scheduleDay3JenoahAutoReply(delay=550){
+ if(!day3JenoahAutoplay||!day3JenoahChoice||day3JenoahCursor>=day3JenoahTimeline.length||
+  !inScripted()||state.thread!=='jenoah'||incomingThread||typing||ready||keyboardVisible||day3JenoahNextTimer)return;
+ if(!day3JenoahTimeline[day3JenoahCursor]?.me)return;
+ day3JenoahNextTimer=setTimeout(()=>{
+  day3JenoahNextTimer=null;
+  if(inScripted()&&state.thread==='jenoah'&&!incomingThread&&!typing&&!ready)
+   beginAutoType();
+ },delay);
+}
+function scheduleDay3OtherSignature(){
+ if(!day3JenoahIntroDelivered||day3JenoahCursor<day3JenoahTimeline.length||
+  day3OtherSignatureDelivered||day3OtherSignatureTimer||currentStoryEnding)return;
+ if(!day3OtherSignatureDueAt)day3OtherSignatureDueAt=Date.now()+5000;
+ day3OtherSignatureTimer=setTimeout(()=>{
+  day3OtherSignatureTimer=null;
+  if(!day3OtherSignatureDelivered)deliverDay3OtherSignature();
+ },Math.max(0,day3OtherSignatureDueAt-Date.now()));
+}
+function deliverDay3OtherSignature(){
+ if(day3OtherSignatureDelivered||day3JenoahCursor<day3JenoahTimeline.length)return;
+ const t=threadById('nirmala');if(!t)return;
+ day3OtherSignatureDelivered=true;day3OtherSignatureDueAt=0;
+ if(!t.messages.some(m=>m.day3OtherSignature)){
+  t.messages.push({me:false,time:'11.30',dayOffset:2,day3OtherSignature:true,
+   text:'Mas, saya menemukan lembar alur otorisasi di lampiran email vendor yang kita simpan kemarin. Ini bukan akses baru ke server internal PBK. Saya sudah pisahkan salinannya di Files.'});
+  t.messages.push({me:false,time:'11.31',dayOffset:2,day3OtherSignature:true,day3OtherSignatureFile:true,
+   text:'Pada halaman 312, Jenoah tercantum dalam matriks. Tapi di lembar alur, ada tahap persetujuan lanjutan di tingkat direksi. Salah satu akun peninjau tercatat dengan keterangan A. Pangestu. Identitas dan tindakan akun itu belum diverifikasi.'});
+  t.messages.push({me:false,time:'11.31',dayOffset:2,day3OtherSignature:true,
+   text:'Kita perlu membandingkan catatan asli, hak akses, dan siapa yang benar-benar mengambil keputusan sebelum menarik kesimpulan, Mas.'});
+ }
+ t.date='11.31';
+ const i=threads.findIndex(x=>x.id==='nirmala');if(i>0)threads.unshift(...threads.splice(i,1));
+ window.nakulaNarrativeClock.set(11,31,2);
+ nirmalaUnread=true;
+ saveStoryState('CP03-07-Nirmala-routing-evidence');
+ syncHarleyBadge();
+ if(state.screen==='app'&&state.app==='messages')render();
+ if(state.screen!=='lock'&&!(state.app==='messages'&&state.view==='convo'&&state.thread==='nirmala')){
+  setNotification('nirmala');notif.classList.add('show');sound();
+ }
+}
+function day3OtherSignatureDocument(){
+ if(!day3OtherSignatureDelivered)return null;
+ return {id:DAY3_OTHER_SIGNATURE_ID,name:'Authorization_Routing_Extract.pdf',
+  kind:'PDF Document',size:'226 KB',folder:'PBK Group',icon:'pdf',
+  title:'PBK GROUP · ALUR OTORISASI',badge:'SALINAN LAMPIRAN VENDOR · BELUM DIVERIFIKASI',
+  metadata:[['Asal','Lampiran email vendor ke asuransi (salinan)'],
+   ['Disalin oleh','Nirmala · 27 Oktober 2026'],
+   ['Dokumen terkait','PBK_Operational_Addendum.pdf · hal. 312'],
+   ['Status pembuktian','Perlu verifikasi sumber primer dan jejak audit']],
+  body:[
+   ['RUJUKAN','Matriks wewenang pada adendum operasional Zona B, halaman 312.'],
+   ['NAMA DALAM MATRIKS','Jenoah Arthur Pangestu. Nama ini tidak membuktikan bahwa yang bersangkutan mengesahkan seluruh tahapan.'],
+   ['TAHAP OTORISASI LANJUTAN','Persetujuan pada tingkat direksi tercantum sebagai tahap terpisah dari penandatanganan teknis.'],
+   ['KETERANGAN AKUN PENINJAU','A. Pangestu · label akun dari salinan lembar alur. Belum ada konfirmasi identitas, waktu penggunaan akun, ataupun keputusan final.'],
+   ['STATUS','Kecocokan dengan dokumen primer, log persetujuan, dan pemegang hak akses masih harus diuji.'],
+   ['PRIORITAS BERIKUTNYA','Mintakan catatan otorisasi asli melalui prosedur yang sah. Hubungan dengan Abian Pangestu merupakan hipotesis penyelidikan, bukan temuan kesalahan.']
+  ]};
+}
+function openDay3OtherSignatureFile(){
+ if(!day3OtherSignatureDelivered)return;
+ nakulaFilesPath='pbk';nakulaFilesDocId=null;nakulaFilesInfo=false;
+ openApp('files');nakulaOpenFilesDocument(DAY3_OTHER_SIGNATURE_ID);
+}
+function ensureDay3OtherSignatureNote(){
+ if(!day3OtherSignatureOpened)return null;
+ let note=notes.find(n=>Number(n.id)===DAY3_OTHER_SIGNATURE_NOTE);
+ if(note)return note;
+ const chosen=DAY3_MEETING_OPTIONS[day3MeetingChoice];
+ note={id:DAY3_OTHER_SIGNATURE_NOTE,title:'27 OKT · THE OTHER SIGNATURE',date:'27 Oktober 2026 · 11.35',day3OtherSignatureNote:true,
+  body:'ZONA B · CATATAN PERKARA\n\nFokus pertemuan: '+(chosen?.focus||'verifikasi bukti')+
+   '.\nRespons pribadi Jenoah: '+(day3JenoahChoice==='counsel'?'diminta berkomunikasi melalui Damar.':'diarahkan ke jawaban tertulis melalui kuasa hukum.')+
+   '\n\nDokumen pembanding dari lampiran vendor menunjukkan adanya tahap persetujuan lanjutan di tingkat direksi. '+
+   'Label akun A. Pangestu muncul dalam salinan, tetapi tidak cukup untuk mengidentifikasi pengguna, menjelaskan kewenangannya, atau membuktikan tindakan tertentu.\n\n'+
+   'TINDAK LANJUT:\n1. Verifikasi keaslian sumber dan jejak audit.\n2. Konfirmasi lingkup otorisasi dan pemegang hak akses.\n3. Pisahkan dugaan terhadap Abian Pangestu dari fakta yang sudah terkonfirmasi.\n4. Dokumentasikan komunikasi resmi dengan HHP.\n\n'+
+   'Belum ada penetapan kesalahan atau kesepakatan settlement.'};
+ notes.unshift(note);return note;
+}
+function markDay3OtherSignatureRead(){
+ if(!day3OtherSignatureDelivered)return;
+ day3OtherSignatureOpened=true;day2ReadFileIds.add(DAY3_OTHER_SIGNATURE_ID);
+ ensureDay3OtherSignatureNote();
+ saveStoryState('CP03-07-routing-evidence-read');
+}
+function showDay3ChapterComplete(){
+ if(!day3ChapterComplete)return;
+ if(!day3ClosingOverlay){
+  day3ClosingOverlay=document.createElement('div');
+  day3ClosingOverlay.className='nakula-ch03-finale';
+  day3ClosingOverlay.innerHTML='<div class="nakula-ch03-finale-inner"><small>CHAPTER 03 COMPLETE</small>'+
+   '<h2>THE OTHER SIGNATURE</h2><div class="nakula-ch03-finale-rule"></div>'+
+   '<p>A name on a page is not the whole chain of command.</p>'+
+   '<span>Progres tersimpan · Chapter 04 belum dibuka</span>'+
+   '<button type="button" data-day3-chapter-close>Kembali ke Home</button></div>';
+  $au('phone').appendChild(day3ClosingOverlay);
+ }
+ day3ClosingOverlay.hidden=false;
+ requestAnimationFrame(()=>day3ClosingOverlay?.classList.add('visible'));
+}
+function completeDay3Chapter(){
+ if(!day3MeetingFinished||!day3OtherSignatureDelivered||!day3OtherSignatureOpened||day3ChapterComplete)return;
+ day3ChapterComplete=true;window.nakulaNarrativeClock.set(11,35,2);
+ ensureDay3OtherSignatureNote();saveStoryState('CP03-CHAPTER-COMPLETE');
+ showDay3ChapterComplete();
+}
+function renderDay3EvidenceAction(){
+ if(!day3OtherSignatureOpened||!day3OtherSignatureDelivered||day3ChapterComplete||
+  state.screen!=='app'||state.app!=='files'||nakulaFilesDocId!==DAY3_OTHER_SIGNATURE_ID)return;
+ const root=$au('app-content');if(!root||root.querySelector('[data-day3-chapter-finish]'))return;
+ const action=document.createElement('section');
+ action.className='nakula-ch03-evidence-action';
+ action.innerHTML='<small>11.35 · TEMUAN BARU</small><p>Salinan ini perlu pemeriksaan lanjutan. Simpan catatan dan selesaikan Chapter 03.</p>'+
+  '<button type="button" data-day3-chapter-finish>Simpan Temuan &amp; Selesaikan Chapter 03</button>';
+ root.querySelector('.nakula-files-preview')?.appendChild(action);
+}
+document.addEventListener('click',e=>{
+ const choose=e.target.closest('[data-day3-jenoah-choice]');
+ if(choose){e.preventDefault();e.stopImmediatePropagation();chooseDay3JenoahReply(choose.dataset.day3JenoahChoice);return}
+ const file=e.target.closest('[data-day3-other-signature-file]');
+ if(file){e.preventDefault();e.stopImmediatePropagation();openDay3OtherSignatureFile();return}
+ const finish=e.target.closest('[data-day3-chapter-finish]');
+ if(finish){e.preventDefault();e.stopImmediatePropagation();completeDay3Chapter();return}
+ const close=e.target.closest('[data-day3-chapter-close]');
+ if(close){
+  e.preventDefault();e.stopImmediatePropagation();
+  if(day3ClosingOverlay){day3ClosingOverlay.classList.remove('visible');day3ClosingOverlay.hidden=true}
+  state.view=null;state.thread=null;goHome();return;
+ }
+},true);
+
 /* FASE A.2: one local story slot. This stores storyline data separately from
    the user's ordinary Notes, Photos and appearance. Browser time never drives
    the in-story timestamps. The Lock Screen's Continue/New Game UI is A.3. */
