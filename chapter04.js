@@ -22,10 +22,13 @@ const replies={
  index:{label:'Minta indeks tanpa identitas sumber',out:'Ibu Marjorie, terima kasih. Jangan kirim dokumen internal atau data identitas melalui nomor ini. Jika ada daftar berkas yang boleh disebutkan, cukup judul dan tanggal tanpa penanda sumber.',reply:'Saya mengerti, Pak. Ada dua nama berkas yang perlu dibandingkan: daftar distribusi dan memo pengalihan audit. Sebaiknya Anda cek terhadap lampiran vendor yang sudah tersedia. Saya tidak meminta dokumen diterima atas nama saya.'},
  protocol:{label:'Arahkan ke verifikasi melalui jalur resmi',out:'Ibu Marjorie, saya belum dapat membahas atau menerima materi rahasia melalui pesan pribadi. Asal informasi dan prosedur yang sah harus diperiksa terlebih dahulu. Tolong jangan mengirim apa pun yang bisa mengidentifikasi Anda.',reply:'Understood. Saya hanya ingin menyebut ada dua jenis catatan: distribution list dan audit-routing memorandum. Tolong verifikasi secara independen. Saya tidak meminta Anda memercayai dugaan saya.'}
 };
-const nirmala=[
- {time:'08.17',text:'Mas, saya memeriksa lagi lampiran vendor yang kita simpan kemarin. Ada satu lembar indeks distribusi yang belum masuk bundel kerja. Ini bukan hasil akses baru ke server PBK.'},
- {time:'08.18',text:'Ada rujukan pemindahan jalur audit keselamatan ke entitas perantara. Nomor revisi dan alamat distribusinya belum lengkap. Saya samarkan seluruh nama penerima di salinan telaah.'},
- {time:'08.19',text:'Extract tersensornya sudah saya taruh di Files, folder PBK Group. Ini belum membuktikan siapa pengambil keputusan, apalagi identitas orang yang menghubungi Mas.'}
+const nirmalaDialogue=[
+ {me:false,time:'08.17',day4Nirmala:true,text:'Mas, saya memeriksa lagi lampiran vendor yang kita simpan kemarin. Ada satu lembar indeks distribusi yang belum masuk bundel kerja. Ini bukan hasil akses baru ke server PBK.'},
+ {me:true,time:'08.18',day4Nakula:true,text:'Ini dari lampiran yang sudah kita pegang, benar? Pastikan asal berkas dan riwayat penerimaannya masih bisa ditelusuri.'},
+ {me:false,time:'08.19',day4Nirmala:true,text:'Betul, Mas. Di indeks itu ada rujukan pengalihan audit keselamatan ke entitas perantara. Tapi nomor revisi dan daftar distribusinya belum lengkap.'},
+ {me:true,time:'08.20',day4Nakula:true,text:'Pisahkan yang tertulis dari interpretasi kita. Redact nama penerima, dan keep the original intact.'},
+ {me:false,time:'08.21',day4Nirmala:true,text:'Sudah, Mas. Saya simpan extract tersensornya di Files, folder PBK Group. Belum ada dasar menyimpulkan siapa yang mengesahkan pengalihan itu.'},
+ {me:true,time:'08.22',day4Nakula:true,text:'Baik. Saya periksa sekarang. Minta tim forensik cocokkan dengan catatan otorisasi dan metadata sebelumnya. Jangan bagikan ke pihak luar dulu.'}
 ];
 const allowed=['none','transition','alarm','harley','contact','evidence','reviewed'];
 const raw=window.__nakulaChapter04Cached;
@@ -38,6 +41,7 @@ const s={
  choice:Object.prototype.hasOwnProperty.call(replies,raw?.choice)?raw.choice:null,
  replyDone:!!raw?.replyDone,
  nirmalaCount:Math.max(0,Math.min(3,Number(raw?.nirmalaCount)||0)),
+ nirmalaDone:!!raw?.nirmalaDone,
  fileOpened:!!raw?.fileOpened,complete:!!raw?.complete,
  transitionAt:Number(raw?.transitionAt)||0,harleyAt:Number(raw?.harleyAt)||0,
  contactAt:Number(raw?.contactAt)||0,replyAt:Number(raw?.replyAt)||0,nirmalaAt:Number(raw?.nirmalaAt)||0
@@ -148,15 +152,61 @@ function deliverReply(){
  save('CP04-02-followup');notify('marjorie');resume();
 }
 function nextNirmala(){
- if(!s.replyDone||s.nirmalaCount>=3)return;
+ if(!s.replyDone||s.nirmalaCount!==0)return;
  const t=thread('nirmala');if(!t)return;
- const m=nirmala[s.nirmalaCount];
- deliver(t,m,'day4Nirmala');s.nirmalaCount++;api.markIncoming('nirmala');
- bumpTime(8,16+s.nirmalaCount);save('CP04-03-Nirmala-'+s.nirmalaCount);
- notify('nirmala');resume();
+ const {start}=api.installNirmalaDialogue(nirmalaDialogue);
+ const m=nirmalaDialogue[0];
+ deliver(t,m,'day4Nirmala');s.nirmalaCount=1;
+ api.advanceNirmalaCursor(start+1);
+ api.markIncoming('nirmala');
+ bumpTime(8,17);save('CP04-03-Nirmala-first-message');
+ notify('nirmala');
+}
+function onNirmalaEvent(kind,m){
+ if(!m?.day4Chapter04)return;
+ if(kind==='incoming'&&m.day4Nirmala){
+  if(m.time==='08.19')s.nirmalaCount=Math.max(s.nirmalaCount,2);
+  if(m.time==='08.21')s.nirmalaCount=3;
+ }else if(kind==='outgoing'&&m.day4Nakula&&m.time==='08.22'){
+  s.nirmalaDone=true;
+ }
+ const minute=Number(String(m.time).split('.')[1]);
+ if(Number.isInteger(minute))bumpTime(8,minute);
+ save('CP04-03-dialogue-'+kind+'-'+m.time);
+}
+function restoreNirmalaDialogue(){
+ if(!s.nirmalaCount)return;
+ const t=thread('nirmala');if(!t)return;
+ const {start,added}=api.installNirmalaDialogue(nirmalaDialogue);
+ if(!added)return;
+ // Legacy saves contain only Nirmala's three incoming bubbles.
+ // Insert Nakula's earlier replies in their original positions, then allow
+ // the final reply to use the native animated keyboard if still in progress.
+ const incoming=t.messages.filter(m=>m.day4Nirmala).slice(0,3);
+ if(!incoming.length)return;
+ s.nirmalaCount=Math.min(s.nirmalaCount,incoming.length);
+ for(let i=0;i<incoming.length;i++){
+  incoming[i].time=nirmalaDialogue[i*2].time;
+  incoming[i].text=nirmalaDialogue[i*2].text;
+  if(i<incoming.length-1){
+   const earlier=nirmalaDialogue[i*2+1],at=t.messages.indexOf(incoming[i]);
+   if(at>=0&&!t.messages.some(m=>m.day4Nakula&&m.time===earlier.time))
+    t.messages.splice(at+1,0,{...earlier,dayOffset:3,day4Chapter04:true});
+  }
+ }
+ let position=start+2*s.nirmalaCount-1;
+ if(s.nirmalaCount===3&&(s.fileOpened||s.complete)){
+  const finalReply=nirmalaDialogue[5];
+  if(!t.messages.some(m=>m.day4Nakula&&m.time===finalReply.time))
+   t.messages.splice(t.messages.indexOf(incoming[2])+1,0,{...finalReply,dayOffset:3,day4Chapter04:true});
+  s.nirmalaDone=true;position=start+6;
+ }
+ api.advanceNirmalaCursor(position);
+ t.date=t.messages.at(-1)?.time||t.date;
+ save('CP04-03-migrate-Nirmala-conversation');
 }
 function docs(){
- if(s.nirmalaCount!==3)return [];
+ if(!s.nirmalaDone)return [];
  return [{id:FILE_ID,name:'Vendor_Distribution_Index_Redacted.pdf',kind:'PDF Document',
  size:'188 KB',folder:'PBK Group',title:'ZONA B · DOCUMENT DISTRIBUTION INDEX',badge:'REDACTED REVIEW COPY · UNVERIFIED',
  metadata:[['Copy origin','Lampiran pertukaran vendor / asuransi yang sudah tersimpan'],['Prepared','28 Oktober 2026 · 08.19 WIB'],['Source identifiers','REDACTED'],['Completeness','Belum dikonfirmasi'],['Status','Working material · not an authenticated PBK record']],
@@ -169,7 +219,7 @@ function docs(){
  ]}];
 }
 function openFile(){
- if(s.nirmalaCount!==3)return;
+ if(!s.nirmalaDone)return;
  api.openDocument(FILE_ID);
 }
 function note(){
@@ -212,7 +262,7 @@ function decorate(){
    }
   }
   if(state.thread==='nirmala'&&s.nirmalaCount>0){api.markRead('nirmala')}
-  if(state.thread==='nirmala'&&s.nirmalaCount===3&&!document.querySelector('[data-day4-open-file]')){
+  if(state.thread==='nirmala'&&s.nirmalaDone&&!document.querySelector('[data-day4-open-file]')){
    const scroll=document.getElementById('chat-scroll');if(scroll){
     scroll.insertAdjacentHTML('beforeend','<button type="button" class="nakula-file-attachment nakula-ch04-attachment" data-day4-open-file><span class="nakula-file-attachment-icon">PDF</span><span><strong>Vendor_Distribution_Index_Redacted.pdf</strong><small>Salinan tersensor · Buka di Files</small></span><span aria-hidden="true">›</span></button>');
     scroll.scrollTop=scroll.scrollHeight;
@@ -240,7 +290,7 @@ function resume(){
  if(s.stage==='harley'&&s.harleyCount<3){delay('harleyAt',s.harleyCount===0?950:2900,nextHarley);return}
  if(s.harleySeen&&s.marjorieCount<3){delay('contactAt',s.marjorieCount===0?5300:3200,nextMarjorie);return}
  if(s.choice&&!s.replyDone){delay('replyAt',3500,deliverReply);return}
- if(s.replyDone&&s.nirmalaCount<3){delay('nirmalaAt',s.nirmalaCount===0?4400:2750,nextNirmala)}
+ if(s.replyDone&&s.nirmalaCount===0){delay('nirmalaAt',4400,nextNirmala)}
 }
 function onLayer(which){
  if(which==='home'||which==='app'){if(s.stage==='transition')resume()}
@@ -252,6 +302,8 @@ function onLayer(which){
 window.nakulaChapter04=Object.freeze({
  getState:()=>({...s}),unreadCount:()=>Number(s.marjorieUnread),
  docs, start:begin, decorate, onLayer, resume, isStarted:current,
+ nirmalaActive:()=>s.nirmalaCount>0&&!s.nirmalaDone,
+ onNirmalaEvent,
  markRead:id=>{if(id==='marjorie'){s.marjorieUnread=false;save('CP04-read-Marjorie');api.syncBadge()}},
  isMorningNotice:()=>s.stage==='harley'&&s.harleyCount>0
 });
@@ -276,6 +328,7 @@ document.querySelector('.nakula-day2-morning-notice')?.addEventListener('click',
 document.addEventListener('submit',e=>{
  if(e.target.id==='chat-form'&&state.thread==='marjorie'){e.preventDefault();e.stopImmediatePropagation()}
 },true);
+if(s.nirmalaCount)restoreNirmalaDialogue();
 if(s.fileOpened)note();
 if(api.day3Complete()&&s.stage==='none')begin();
 else resume();
