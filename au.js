@@ -3584,7 +3584,11 @@ render=function(){
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
- if(state.thread==='nirmala')scheduleNirmalaReply();
+ if(state.thread==='nirmala'){
+   scheduleNirmalaReply();
+   if(window.nakulaChapter04?.nirmalaActive?.()&&nirmalaTimeline[nirmalaCursor]?.me===false&&!incomingThread)
+    receive('nirmala');
+  }
  if(state.thread==='jenoah'&&day3JenoahChoice&&day3JenoahCursor<day3JenoahTimeline.length){
   if(day3JenoahTimeline[day3JenoahCursor].me)scheduleDay3JenoahAutoReply();
   else if(!incomingThread)receive('jenoah');
@@ -3732,6 +3736,7 @@ function receive(id=state.thread){
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
   if(id==='nirmala'&&next.unlockFiles)day2FilesReceived=true;
+   if(id==='nirmala'&&next.day4Chapter04)window.nakulaChapter04?.onNirmalaEvent?.('incoming',next);
   saveStoryState('incoming-message');
   if(id==='adnan'&&next.day2OfferAdvice)queueDay2Page312();
   if(id==='harley'&&next.day3LeakReply)scheduleDay3Prep();
@@ -3756,6 +3761,7 @@ function sendScripted(){
  if(id==='jenoah')window.nakulaNarrativeClock.set(11,Number(m.time.slice(-2)),2);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;
+  if(id==='nirmala'&&m.day4Nakula)window.nakulaChapter04?.onNirmalaEvent?.('outgoing',m);
  saveStoryState('outgoing-message');
  render();
  if(id==='adnan'&&adnanIncidentPending&&adnanCursor>=adnanTimeline.length){
@@ -4287,6 +4293,21 @@ document.addEventListener('keydown',e=>{
 /* Chapter 04 uses the existing native UI, story save, clock and Files reader. */
 window.nakulaChapter04Bridge=Object.freeze({
  day3Complete:()=>day3ChapterComplete,
+ installNirmalaDialogue:items=>{
+  let start=nirmalaTimeline.findIndex(m=>m.day4Chapter04);
+  const added=start<0;
+  if(added){
+   start=nirmalaTimeline.length;
+   nirmalaTimeline.push(...items.map(m=>({...m,dayOffset:3,day4Chapter04:true})));
+  }
+  return {start,added};
+ },
+ advanceNirmalaCursor:index=>{
+  if(Number.isInteger(index)&&index>=0&&index<=nirmalaTimeline.length)
+   nirmalaCursor=Math.max(nirmalaCursor,index);
+  nirmalaAutoplayStarted=true;
+ },
+ nirmalaScriptCursor:()=>nirmalaCursor,
  save:reason=>saveStoryState(reason),
  clock:(hour,minute,offset)=>window.nakulaNarrativeClock.set(hour,minute,offset),
  restoreClock:minute=>window.nakulaNarrativeClock.restore(minute),
