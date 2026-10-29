@@ -16,10 +16,10 @@ let harleyUnread=true,adnanUnread=false,unknownUnread=false,nirmalaUnread=false;
 let keyboardVisible=false,keyboardSoundEnabled=true,keyboardAudioContext=null,lastKeyFeedback=0,typingRun=0;
 let harleyAutoplayStarted=false,adnanAutoplayStarted=false,harleyNextTimer=null,harleyAutoSendTimer=null,adnanNextTimer=null,adnanAutoSendTimer=null;
 const inHarley=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='harley';
-const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered)||(state.thread==='damar'&&day2DamarDelivered));
-const activeTimeline=()=>state.thread==='harley'&&day3LeakActive?day3LeakTimeline:state.thread==='damar'?day2DamarTimeline:state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
-const activeIndex=()=>state.thread==='harley'&&day3LeakActive?day3LeakCursor:state.thread==='damar'?day2DamarCursor:state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
-const setIndex=(id,i)=>{if(id==='harley'&&day3LeakActive)day3LeakCursor=i;else if(id==='damar')day2DamarCursor=i;else if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
+const inScripted=()=>state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&(['harley','adnan','unknown'].includes(state.thread)||(state.thread==='nirmala'&&day2NirmalaDelivered)||(state.thread==='damar'&&day2DamarDelivered)||(state.thread==='jenoah'&&day3JenoahIntroDelivered));
+const activeTimeline=()=>state.thread==='jenoah'?day3JenoahTimeline:state.thread==='harley'&&day3LeakActive?day3LeakTimeline:state.thread==='damar'?day2DamarTimeline:state.thread==='unknown'?unknownTimeline:state.thread==='adnan'?adnanTimeline:state.thread==='nirmala'?nirmalaTimeline:timeline;
+const activeIndex=()=>state.thread==='jenoah'?day3JenoahCursor:state.thread==='harley'&&day3LeakActive?day3LeakCursor:state.thread==='damar'?day2DamarCursor:state.thread==='unknown'?unknownCursor:state.thread==='adnan'?adnanCursor:state.thread==='nirmala'?nirmalaCursor:cursor;
+const setIndex=(id,i)=>{if(id==='jenoah')day3JenoahCursor=i;else if(id==='harley'&&day3LeakActive)day3LeakCursor=i;else if(id==='damar')day2DamarCursor=i;else if(id==='unknown')unknownCursor=i;else if(id==='adnan')adnanCursor=i;else if(id==='nirmala')nirmalaCursor=i;else cursor=i};
 const threadById=id=>threads.find(t=>t.id===id);
 const isReceiving=()=>incomingThread===state.thread;
 const notif=document.createElement('div');notif.id='harley-au-notification';notif.className='harley-au-notification';
@@ -33,7 +33,7 @@ unreadBadge.textContent='1';
 unreadBadge.setAttribute('aria-label','1 unread message');
 messagesDockIcon?.querySelector('.app-icon')?.insertAdjacentElement('afterend',unreadBadge);
 function syncHarleyBadge(){
- const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread)+Number(damarUnread);
+ const count=Number(harleyUnread)+Number(adnanUnread)+Number(unknownUnread)+Number(nirmalaUnread)+Number(damarUnread)+Number(jenoahUnread);
  unreadBadge.textContent=String(count);
  unreadBadge.setAttribute('aria-label',count+' unread messages');
  unreadBadge.classList.toggle('is-hidden',!count||state.screen==='lock');
@@ -59,6 +59,9 @@ function markUnknownRead(){
 function markDamarRead(){
  damarUnread=false;saveStoryState('read-damar');hideNotif();syncHarleyBadge();
 }
+function markJenoahRead(){
+ jenoahUnread=false;saveStoryState('read-jenoah');hideNotif();syncHarleyBadge();
+}
 function markNirmalaRead(){
  nirmalaUnread=false;
  saveStoryState('read-nirmala');
@@ -70,7 +73,7 @@ function setNotification(id){
  if(!t)return;
  notif.dataset.thread=id;
  notif.querySelector('strong').textContent=t.name;
- notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
+ notif.querySelector('.harley-au-notif-body span:last-child > span').textContent=((id==='adnan'&&day2Stage!=='none')||id==='nirmala'||(id==='unknown'&&day2MentariPhotoDelivered)||(id==='harley'&&day3HarleyDelivered>0)||id==='jenoah'?t.messages[t.messages.length-1]?.text:t.messages[0]?.text)||'';
  notif.querySelector('.harley-au-notif-body small').textContent='PESAN · baru saja';
 }
 
@@ -99,7 +102,7 @@ function showNotif(play=false){
 }
 function openStoryThread(id){
  if(state.screen!=='home'&&state.screen!=='app')return;
- if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else if(id==='damar')markDamarRead();else markHarleyRead();
+ if(id==='adnan')markAdnanRead();else if(id==='unknown')markUnknownRead();else if(id==='nirmala')markNirmalaRead();else if(id==='damar')markDamarRead();else if(id==='jenoah')markJenoahRead();else markHarleyRead();
  openApp('messages');state.thread=id;state.view='convo';render();
 }
 notif.querySelector('.harley-au-notif-body').addEventListener('click',()=>openStoryThread(notif.dataset.thread||'harley'));
@@ -3317,12 +3320,13 @@ document.addEventListener('click',e=>{
  if(t.dataset.thread==='unknown')markUnknownRead();
  if(t.dataset.thread==='nirmala')markNirmalaRead();
  if(t.dataset.thread==='damar'){damarAutoplayStarted=true;markDamarRead();}
+ if(t.dataset.thread==='jenoah'){day3JenoahAutoplay=true;markJenoahRead();}
 },true);
 const oldOpenApp=openApp;
 openApp=function(id){hideNotif();oldOpenApp(id)};
 threadMarkup=function(arr){
  return arr.map(t=>{
-   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread)||(t.id==='nirmala'&&nirmalaUnread)||(t.id==='damar'&&damarUnread);
+   const unread=(t.id==='harley'&&harleyUnread)||(t.id==='adnan'&&adnanUnread)||(t.id==='unknown'&&unknownUnread)||(t.id==='nirmala'&&nirmalaUnread)||(t.id==='damar'&&damarUnread)||(t.id==='jenoah'&&jenoahUnread);
    const preview=t.messages[t.messages.length-1]?.text||t.role||'';
    return '<button class="thread'+(unread?' is-unread':'')+'" data-thread="'+esc(t.id)+'" aria-label="'+esc(t.name)+(unread?', unread message':'')+'">'+
      (unread?'<span class="thread-unread" aria-hidden="true"></span>':'')+
@@ -3464,7 +3468,7 @@ function nakulaRenderChatBubbles(messages){
   const classes='bubble-row '+(m.me?'me':'them')+
    (joinsPrevious?' chat-cluster-follow':'')+
    (joinsNext?' chat-cluster-has-next':'')+
-   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink||m.day3MeetingNote)?' chat-has-attachment':'');
+   ((m.unlockFiles||m.day2RedFolder||m.day2FamilyPacket||m.day2MentariPhoto||m.day2Page312Lead||m.day3NewsLink||m.day3MeetingNote||m.day3OtherSignatureFile)?' chat-has-attachment':'');
   const attachment=m.day2MentariPhoto?
    '<div class="nakula-mentari-photo-block nakula-mentari-photo-inline"><button type="button" class="nakula-mentari-image" data-day2-mentari-view aria-label="Lihat foto yang dikirim Unknown"><img src="'+MENTARI_PHOTO_SRC+'" alt="Foto yang dikirim Unknown" loading="lazy"></button>'+
     '<button type="button" class="nakula-mentari-download'+(day2MentariEvidenceSaved?' is-saved':'')+'" data-day2-mentari-save aria-label="'+(day2MentariEvidenceSaved?'Foto tersimpan ke album BUKTI':'Simpan foto ke album BUKTI')+'" title="Simpan ke album BUKTI">'+(day2MentariEvidenceSaved?'✓':'↓')+'</button></div>':
@@ -3473,6 +3477,7 @@ function nakulaRenderChatBubbles(messages){
    m.day2FamilyPacket?'<button type="button" class="nakula-file-attachment" data-nakula-family-files-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>Zona B · Family Records</strong><small>2 dokumen · Buka di Files</small></span><span aria-hidden="true">›</span></button>':
    m.day2Page312Lead?'<button type="button" class="nakula-file-attachment" data-day2-page-open><span class="nakula-file-attachment-icon">PDF</span><span><strong>'+DAY2_PAGE312_FILE+'</strong><small>487 halaman · Lihat halaman 312</small></span><span aria-hidden="true">›</span></button>':
    m.day3NewsLink?'<button type="button" class="nakula-file-attachment nakula-day3-news-link" data-day3-article><span class="nakula-file-attachment-icon">NEWS</span><span><strong>Kasus Zona B: Pertemuan Pengacara Jadi Sorotan</strong><small>The Civic Ledger · Buka di Safari</small></span><span aria-hidden="true">›</span></button>':
+   m.day3OtherSignatureFile?'<button type="button" class="nakula-file-attachment" data-day3-other-signature-file><span class="nakula-file-attachment-icon">PDF</span><span><strong>Authorization_Routing_Extract.pdf</strong><small>Salinan vendor · Buka di Files</small></span><span aria-hidden="true">›</span></button>':
    m.day3MeetingNote?'<button type="button" class="nakula-file-attachment" data-day3-prep-notes><span class="nakula-file-attachment-icon">NOTE</span><span><strong>Case Preparation · 10.00</strong><small>3 fokus · Buka Notes</small></span><span aria-hidden="true">›</span></button>':'';
   return divider+'<div class="'+classes+'"><div class="bubble" title="'+esc(m.time||'')+'">'+esc(m.text)+'</div>'+attachment+'</div>';
  }).join('');
@@ -3495,6 +3500,10 @@ render=function(){
   &&state.view==='convo'&&state.thread==='nirmala')){
    clearTimeout(nirmalaNextTimer);nirmalaNextTimer=null;
    clearTimeout(nirmalaAutoSendTimer);nirmalaAutoSendTimer=null;
+ }
+ if(!(state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='jenoah')){
+  clearTimeout(day3JenoahNextTimer);day3JenoahNextTimer=null;
+  clearTimeout(day3JenoahAutoSendTimer);day3JenoahAutoSendTimer=null;
  }
  if(!(state.screen==='app'&&state.app==='messages'&&state.view==='convo'&&state.thread==='damar')){
   clearTimeout(damarNextTimer);damarNextTimer=null;
@@ -3528,6 +3537,8 @@ render=function(){
  const thread=threadById(state.thread),script=activeTimeline(),index=activeIndex(),next=script[index],done=!next&&!isReceiving();
  const bubbles=nakulaRenderChatBubbles(thread.messages);
  const dots=isReceiving()?'<div class="bubble-row them"><div class="bubble harley-au-dots"><i></i><i></i><i></i></div></div>':'';
+ const day3JenoahChoiceUI=state.thread==='jenoah'&&day3JenoahIntroDelivered&&!day3JenoahChoice&&day3JenoahCursor===0?
+  '<div class="nakula-day2-brief-choice nakula-day3-jenoah-choice" role="group" aria-label="Balasan untuk Jenoah"><span>PILIH RESPONS NAKULA</span>'+Object.entries(DAY3_JENOAH_CHOICES).map(([id,x])=>'<button type="button" data-day3-jenoah-choice="'+id+'">'+esc(x.label)+'</button>').join('')+'</div>':'';
  const day3LeakChoiceUI=state.thread==='harley'&&day3LeakActive&&day3LeakCursor===0&&!day3LeakChoice?'<div class="nakula-day2-brief-choice nakula-day3-leak-choice" role="group" aria-label="Respons terhadap kabar bocor"><span>PILIH LANGKAH NAKULA</span>'+Object.entries(DAY3_LEAK_CHOICES).map(([id,x])=>'<button type="button" data-day3-leak-choice="'+id+'">'+esc(x.label)+' <small>'+esc(x.detail)+'</small></button>').join('')+'</div>':'';
  const day2ChoiceUI=state.thread==='adnan'&&next?.choiceId==='day2-brief'&&!day2BriefChoice?
   '<div class="nakula-day2-brief-choice" role="group" aria-label="Choose Nakula’s reply">'+
@@ -3549,11 +3560,15 @@ render=function(){
  const phone='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 3 4 6c-1 2 3 8 6 11s8 5 10 3l1-3-5-3-3 3a18 18 0 0 1-6-6l3-3z"/></svg>';
  const sendArrow='<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
  $au('app-header').innerHTML='<button class="harley-au-back" data-action="back" aria-label="Back to Messages">'+back+'<span>Messages</span></button><div class="harley-au-head"><span class="harley-au-head-avatar '+esc(thread.id)+'">'+(thread.id==='damar'?'<img src="'+DAY2_DAMAR_PHOTO+'" alt="">':esc(thread.initials))+'</span><span class="harley-au-head-name">'+esc(thread.name)+'<span class="harley-au-chevron">›</span></span></div><div class="harley-au-head-actions"><span aria-label="Video call" role="img">'+video+'</span><span aria-label="Phone call" role="img">'+phone+'</span></div>';
- $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+day3LeakChoiceUI+filesCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
+ $au('app-content').innerHTML='<div class="conversation harley-au-conversation'+(keyboardVisible?' keyboard-visible':'')+'"><div class="convo-scroll" id="chat-scroll">'+bubbles+dots+delivered+aftermathCta+day2ChoiceUI+day3LeakChoiceUI+day3JenoahChoiceUI+filesCta+'</div><form class="convo-foot harley-au-composer'+(ready?' has-reply':'')+'" id="chat-form"><span class="harley-au-plus" aria-hidden="true">'+plus+'</span><div class="harley-au-textbox"><textarea class="chat-input" id="chat-input" rows="1" readonly placeholder="iMessage" aria-label="iMessage"></textarea><span class="harley-au-camera" aria-hidden="true">'+camera+'</span></div><button class="send-btn" type="submit" aria-label="Send message" '+(ready?'':'disabled')+'>'+sendArrow+'</button><span class="harley-au-mic" aria-hidden="true">'+mic+'</span></form>'+auKeyboardMarkup()+'</div>';
  $au('app-screen').classList.add('in-conversation');
  $au('app-content').style.padding='0';$au('app-content').style.overflow='hidden';
  const sc=$au('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
  if(state.thread==='nirmala')scheduleNirmalaReply();
+ if(state.thread==='jenoah'&&day3JenoahChoice&&day3JenoahCursor<day3JenoahTimeline.length){
+  if(day3JenoahTimeline[day3JenoahCursor].me)scheduleDay3JenoahAutoReply();
+  else if(!incomingThread)receive('jenoah');
+ }
  if(state.thread==='damar'){
   if(day2DamarCursor<day2DamarTimeline.length){
    if(day2DamarTimeline[day2DamarCursor].me)scheduleDamarReply();
@@ -3599,6 +3614,7 @@ function beginAutoType(){
  if(!inScripted()||isReceiving())return;
  // The Day 3 response must be chosen explicitly before typing starts.
  if(state.thread==='harley'&&day3LeakActive&&day3LeakCursor===0&&!day3LeakChoice)return;
+ if(state.thread==='jenoah'&&!day3JenoahChoice)return;
  if(state.thread==='adnan'&&activeTimeline()[activeIndex()]?.choicePending)return;
  if(state.thread==='nirmala'&&activeTimeline()[activeIndex()]?.requiresFilesReview&&!day2FilesReviewed())return;
  const message=activeTimeline()[activeIndex()];if(!message?.me)return;
@@ -3643,6 +3659,12 @@ function beginAutoType(){
           nirmalaAutoSendTimer=null;
           if(inScripted()&&state.thread==='nirmala'&&!typing&&ready&&nirmalaTimeline[nirmalaCursor]===message)sendScripted();
         },620);
+      }else if(state.thread==='jenoah'&&day3JenoahAutoplay){
+        clearTimeout(day3JenoahAutoSendTimer);
+        day3JenoahAutoSendTimer=setTimeout(()=>{
+         day3JenoahAutoSendTimer=null;
+         if(inScripted()&&state.thread==='jenoah'&&!typing&&ready&&day3JenoahTimeline[day3JenoahCursor]===message)sendScripted();
+        },720);
       }else if(state.thread==='damar'&&damarAutoplayStarted){
         clearTimeout(damarAutoSendTimer);
         damarAutoSendTimer=setTimeout(()=>{
@@ -3667,14 +3689,15 @@ function receive(id=state.thread){
  incomingThread=id;
  if(inScripted()&&state.thread===id)render();
  function one(){
-  const script=id==='harley'&&day3LeakActive?day3LeakTimeline:id==='damar'?day2DamarTimeline:id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
-  const current=id==='harley'&&day3LeakActive?day3LeakCursor:id==='damar'?day2DamarCursor:id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
+  const script=id==='jenoah'?day3JenoahTimeline:id==='harley'&&day3LeakActive?day3LeakTimeline:id==='damar'?day2DamarTimeline:id==='unknown'?unknownTimeline:id==='adnan'?adnanTimeline:id==='nirmala'?nirmalaTimeline:timeline;
+  const current=id==='jenoah'?day3JenoahCursor:id==='harley'&&day3LeakActive?day3LeakCursor:id==='damar'?day2DamarCursor:id==='unknown'?unknownCursor:id==='adnan'?adnanCursor:id==='nirmala'?nirmalaCursor:cursor;
   const next=script[current];
   if(!next||next.me){
    incomingThread=null;
    if(inScripted()&&state.thread===id)render();
    if(id==='harley'&&!day3LeakActive&&current>=script.length)queueUnknownCall();
    if(id==='harley'&&day3LeakActive&&current>=script.length)scheduleDay3Prep();
+   if(id==='jenoah'&&current>=script.length)scheduleDay3OtherSignature();
    if(id==='damar'&&current>=script.length)scheduleDay2DamarFinale();
    if(id==='adnan'&&day2BriefPrepared&&day2Stage==='complete'&&current>=script.length)finishDay2MorningBrief();
    if(id==='nirmala'&&current>=script.length)scheduleDay2RedFolder();
@@ -3684,6 +3707,7 @@ function receive(id=state.thread){
   if(id==='harley'&&day3LeakActive)window.nakulaNarrativeClock.set(5,Number(next.time.split('.')[1])||12,2);
   else if(id==='harley')window.nakulaNarrativeClock.syncMessage(next.time);
   if(id==='damar')setDay2DamarClock(next);
+  if(id==='jenoah')window.nakulaNarrativeClock.set(11,Number(next.time.slice(-2)),2);
   syncDay2BriefClock(next);
   const thread=threadById(id);
   thread.messages.push({...next});thread.date=next.time;setIndex(id,current+1);
@@ -3691,6 +3715,7 @@ function receive(id=state.thread){
   saveStoryState('incoming-message');
   if(id==='adnan'&&next.day2OfferAdvice)queueDay2Page312();
   if(id==='harley'&&next.day3LeakReply)scheduleDay3Prep();
+  if(id==='jenoah'&&next.day3JenoahFinal)scheduleDay3OtherSignature();
   if(inScripted()&&state.thread===id){render();sound()}
   else if(state.screen==='app'&&state.app==='messages'&&state.view!=='convo')render();
   setTimeout(one,next.text.length>160?1800:1250);
@@ -3708,6 +3733,7 @@ function sendScripted(){
  if(id==='harley'&&day3LeakActive)window.nakulaNarrativeClock.set(5,Number(m.time.split('.')[1])||12,2);
  else if(id==='harley')window.nakulaNarrativeClock.syncMessage(m.time);
  if(id==='damar')setDay2DamarClock(m);
+ if(id==='jenoah')window.nakulaNarrativeClock.set(11,Number(m.time.slice(-2)),2);
  const thread=threadById(id);thread.messages.push({...m});thread.date=m.time;
  setIndex(id,current+1);ready=false;
  saveStoryState('outgoing-message');
