@@ -30,7 +30,7 @@ const nirmalaDialogue=[
  {me:false,time:'08.21',day4Nirmala:true,text:'Sudah, Mas. Saya simpan extract tersensornya di Files, folder PBK Group. Belum ada dasar menyimpulkan siapa yang mengesahkan pengalihan itu.'},
  {me:true,time:'08.22',day4Nakula:true,text:'Baik. Saya periksa sekarang. Minta tim forensik cocokkan dengan catatan otorisasi dan metadata sebelumnya. Jangan bagikan ke pihak luar dulu.'}
 ];
-const allowed=['none','transition','alarm','harley','contact','evidence','reviewed'];
+const allowed=['none','transition','alarm','harley','contact','evidence','reviewed','briefing','choice-a','choice-a-reply','choice-b','choice-b-reply','fallout','finished'];
 const raw=window.__nakulaChapter04Cached;
 const s={
  stage:allowed.includes(raw?.stage)&&api.day3Complete()?raw.stage:'none',
@@ -43,6 +43,7 @@ const s={
  nirmalaCount:Math.max(0,Math.min(3,Number(raw?.nirmalaCount)||0)),
  nirmalaDone:!!raw?.nirmalaDone,
  fileOpened:!!raw?.fileOpened,complete:!!raw?.complete,
+ final:raw?.final&&typeof raw.final==='object'?{...raw.final}:null,
  transitionAt:Number(raw?.transitionAt)||0,harleyAt:Number(raw?.harleyAt)||0,
  contactAt:Number(raw?.contactAt)||0,replyAt:Number(raw?.replyAt)||0,nirmalaAt:Number(raw?.nirmalaAt)||0
 };
@@ -79,6 +80,9 @@ function fade(){
  transitioning=true;
  const screen=document.querySelector('.nakula-day2-curtain');
  if(!screen)return;
+ const chapter3Overlay=document.querySelector('.nakula-ch03-finale');
+ chapter3Overlay?.classList.remove('visible');
+ setTimeout(()=>{if(chapter3Overlay)chapter3Overlay.hidden=true},650);
  screen.querySelector('.nakula-day2-title').textContent='DAY 4';
  screen.hidden=false;screen.setAttribute('aria-hidden','false');
  requestAnimationFrame(()=>screen.classList.add('is-dark'));
@@ -229,17 +233,9 @@ function note(){
 }
 function finish(){
  if(!s.fileOpened||s.complete)return;
- s.complete=true;s.stage='reviewed';bumpTime(8,22);save('CP04-03-COMPLETE');
- if(!overlay){
-  overlay=document.createElement('div');overlay.className='nakula-ch03-finale nakula-ch04-finale';
-  overlay.innerHTML='<div class="nakula-ch03-finale-inner"><small>CHAPTER 04 · PART 01–03 COMPLETE</small>'+
-  '<h2>CONFIDENTIAL INFORMATION</h2><div class="nakula-ch03-finale-rule"></div>'+
-  '<p>The document is here. The source is still at risk.</p>'+
-  '<span>CP04-03 tersimpan · Berikutnya: Publish or Protect</span>'+
-  '<button type="button" data-day4-close>Kembali ke Home</button></div>';
-  document.getElementById('phone').appendChild(overlay);
- }
- overlay.hidden=false;requestAnimationFrame(()=>overlay.classList.add('visible'));
+ s.complete=true;s.stage='briefing';bumpTime(8,22);
+ save('CP04-03-COMPLETE');
+ window.nakulaChapter04Finale?.start();
 }
 function decorate(){
  if(state.screen!=='app')return;
@@ -301,6 +297,7 @@ function onLayer(which){
 }
 window.nakulaChapter04=Object.freeze({
  getState:()=>({...s}),unreadCount:()=>Number(s.marjorieUnread),
+ updateFinal:(data,stage,reason)=>{s.final={...data};if(stage&&allowed.includes(stage))s.stage=stage;save(reason||'CP04-update')},
  docs, start:begin, decorate, onLayer, resume, isStarted:current,
  nirmalaActive:()=>s.nirmalaCount>0&&!s.nirmalaDone,
  onNirmalaEvent,
