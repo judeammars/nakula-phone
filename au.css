@@ -3639,3 +3639,20 @@
 @media(prefers-reduced-motion:reduce){
  #phone .nakula-ch04-whole-finale{transition:none!important}
 }
+
+#phone.in-app .nakula-ch04-navigate{
+ margin:16px 13px 23px;padding:14px;
+ border-radius:13px;background:#29343e;color:#d8e3eb;
+ border:1px solid #536775;
+}
+#phone.in-app .nakula-ch04-navigate p{
+ margin:0 0 9px;font-size:12px;line-height:1.5;
+}
+#phone.in-app .nakula-ch04-navigate button{
+ min-height:43px;padding:10px 14px;width:100%;text-align:center;
+ background:#afc3d2;color:#1c2d37;border:0;border-radius:9px;
+ font-size:12px;font-weight:700;cursor:pointer;
+}
+#phone.in-app .nakula-ch04-navigate button:focus-visible{
+ outline:2px solid #d6e9f8;outline-offset:3px;
+}
