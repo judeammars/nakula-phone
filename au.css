@@ -3507,3 +3507,135 @@
  outline:2px solid #bfd6e8;outline-offset:3px;
 }
 .nakula-ch04-finale h2{font-size:22px;letter-spacing:.015em}
+
+
+/* CHAPTER 04.4–04.5 · PUBLISH OR PROTECT / SOURCES IN THE DARK */
+#phone.in-app .nakula-ch04-choice{
+ display:flex;flex-direction:column;gap:10px;
+ padding:16px 14px;margin:19px 12px 22px;
+ background:linear-gradient(160deg,#29343e,#232b34);
+ border:1px solid #627181;border-radius:15px;color:#edf0f3;
+ box-shadow:0 8px 24px #00000015;
+}
+#phone.in-app .nakula-ch04-choice>small,
+#phone.in-app .nakula-ch04-fallout-actions>small,
+#phone.in-app .nakula-ch04-mail-card>small,
+#phone.in-app .nakula-ch04-safari-card>small{
+ font:750 10px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+ letter-spacing:.085em;color:#b0c3d0;
+}
+#phone.in-app .nakula-ch04-choice p{
+ font-size:12px;line-height:1.62;margin:0 0 5px;color:#d2d9e0;
+}
+#phone.in-app .nakula-ch04-choice>button{
+ padding:11px 13px;min-height:52px;
+ display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+ text-align:left;background:#3b4854;color:#f2f5f7;
+ border:1px solid #637483;border-radius:10px;
+ cursor:pointer;white-space:normal;
+}
+#phone.in-app .nakula-ch04-choice>button:active{background:#536577}
+#phone.in-app .nakula-ch04-choice>button strong{
+ font-size:12px;font-weight:730;line-height:1.42;
+}
+#phone.in-app .nakula-ch04-choice>button span{
+ font-size:11px;line-height:1.5;color:#c0ccd5;
+}
+#phone.in-app .nakula-ch04-choice>button.secondary{
+ background:transparent;border-color:#566978;
+}
+#phone.in-app .nakula-ch04-choice .nakula-ch04-warning{
+ background:#43353b;border:1px solid #94747a;
+ border-radius:9px;padding:12px;color:#f2dfe2;
+}
+#phone.in-app .nakula-ch04-fallout-actions{
+ display:flex;flex-direction:column;gap:9px;
+ margin:18px 12px 24px;padding:15px 13px;
+ border-radius:14px;border:1px solid #556e7c;
+ background:#26333e;color:#eaf0f3;
+}
+#phone.in-app .nakula-ch04-fallout-actions h3{
+ margin:0;font-size:15px;line-height:1.3;color:#fff;
+}
+#phone.in-app .nakula-ch04-fallout-actions p{
+ margin:0;font-size:12px;line-height:1.6;color:#cbd5dd;
+}
+#phone.in-app .nakula-ch04-review-buttons{
+ display:flex;flex-direction:column;gap:7px;
+}
+#phone.in-app .nakula-ch04-review-buttons button,
+#phone.in-app .nakula-ch04-finish-button,
+#phone.in-app .nakula-ch04-file-to-chat{
+ min-height:43px;padding:10px 12px;border-radius:9px;
+ border:1px solid #728898;background:#43596b;
+ color:#f5f8fa;font-size:12px;font-weight:690;
+ cursor:pointer;white-space:normal;text-align:center;
+}
+#phone.in-app .nakula-ch04-finish-button{
+ background:#bfccd4;border-color:#bfccd4;color:#1c2b37;
+}
+#phone.in-app .nakula-ch04-file-to-chat{
+ display:block;margin:13px 16px 22px;width:calc(100% - 32px);
+}
+#phone.in-app .nakula-ch04-mail-card,
+#phone.in-app .nakula-ch04-safari-card{
+ display:flex;flex-direction:column;gap:12px;
+ margin:12px 14px 18px;padding:16px 13px;
+ border:1px solid #a8b8c8;border-radius:15px;
+ background:#eff3f6;color:#1b2730;
+}
+#phone.in-app .nakula-ch04-mail-card>small,
+#phone.in-app .nakula-ch04-safari-card>small{color:#657785}
+#phone.in-app .nakula-ch04-mail-card>button,
+#phone.in-app .nakula-ch04-safari-card>button{
+ display:flex;flex-direction:column;align-items:flex-start;
+ gap:6px;width:100%;padding:13px 12px;text-align:left;
+ background:#fff;color:#1b2a37;border:1px solid #d5dee5;
+ border-radius:11px;cursor:pointer;
+}
+#phone.in-app .nakula-ch04-mail-card button strong,
+#phone.in-app .nakula-ch04-safari-card button strong{
+ font-size:13px;font-weight:750;line-height:1.45;
+}
+#phone.in-app .nakula-ch04-mail-card button span,
+#phone.in-app .nakula-ch04-safari-card button span{
+ font-size:11px;color:#60717f;line-height:1.45;
+}
+#phone.in-app .nakula-ch04-mail-card button em,
+#phone.in-app .nakula-ch04-safari-card button em{
+ font-style:normal;font-size:10px;font-weight:700;
+ color:#4d6a80;
+}
+#phone.in-app .nakula-ch04-report-body{
+ background:#fff;padding:14px 12px;border-radius:9px;
+ border:1px solid #d5dee5;line-height:1.75;font-size:12px;
+ overflow-wrap:anywhere;color:#28353f;
+}
+#phone.in-app .nakula-ch04-report-body h3{
+ margin:0 0 8px;font-size:15px;color:#28353f;
+}
+#phone.in-app .nakula-ch04-report-body p{
+ margin:10px 0;font-size:12px;line-height:1.75;color:#28353f;
+}
+#phone.in-app .nakula-ch04-report-body small{
+ color:#657381;font-size:10px;
+}
+#phone.in-app .nakula-ch04-mail-card+.nakula-ch04-fallout-actions,
+#phone.in-app .nakula-ch04-safari-card+.nakula-ch04-fallout-actions{
+ margin-bottom:26px;
+}
+#phone .nakula-ch04-whole-finale .nakula-ch03-finale-inner{
+ max-width:325px;padding:0 12px;
+}
+#phone .nakula-ch04-whole-finale h2{
+ font-size:25px;letter-spacing:.015em;
+}
+#phone.in-app .nakula-ch04-choice button:focus-visible,
+#phone.in-app .nakula-ch04-fallout-actions button:focus-visible,
+#phone.in-app .nakula-ch04-mail-card button:focus-visible,
+#phone.in-app .nakula-ch04-safari-card button:focus-visible{
+ outline:2px solid #a7cade;outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce){
+ #phone .nakula-ch04-whole-finale{transition:none!important}
+}
