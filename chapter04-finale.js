@@ -222,7 +222,7 @@ function renderMail(){
  '<div>From: '+escText(m.from)+'</div><div>To: '+escText(m.to)+'</div>'+
  '<p>'+escText(m.body).replace(/\n/g,'<br>')+'</p><small>Salinan fiktif · bukan dokumen hukum asli</small></article>':'');
  root.prepend(card);
- if(f.mailOpened&&f.safariOpened)root.insertAdjacentHTML('beforeend',noticePanel());
+ root.insertAdjacentHTML('beforeend',noticePanel());
 }
 function renderSafari(){
  if(state.screen!=='app'||state.app!=='safari'||!f.falloutDone)return;
@@ -232,7 +232,7 @@ function renderSafari(){
  el.innerHTML='<small>THE CIVIC LEDGER · 28 OCT 2026</small><button type="button" data-ch04-read-safari><strong>'+escText(h.title)+'</strong><span>'+escText(h.summary)+'</span><em>'+(f.safariOpened?'Dibaca':'Baca liputan')+'</em></button>'+
  (f.safariOpened?'<article class="nakula-ch04-report-body"><p>'+escText(h.body)+'</p><small>Raka Pradipta · Investigasi Zona B · Simulasi berita</small></article>':'');
  root.prepend(el);
- if(f.mailOpened&&f.safariOpened)root.insertAdjacentHTML('beforeend',noticePanel());
+ root.insertAdjacentHTML('beforeend',noticePanel());
 }
 function decorate(){
  if(state.screen!=='app'||!chapter.getState().complete||f.phase==='idle')return;
@@ -243,6 +243,10 @@ function decorate(){
    panel.innerHTML='<small>CHAPTER 04.4 · PUBLISH OR PROTECT</small><p>Dokumen belum diautentikasi. Sikap Nakula akan memengaruhi bukti, sumber, dan liputan.</p>'+
    Object.entries(PUB).map(([id,o])=>'<button type="button" data-ch04-publish="'+id+'"><strong>'+escText(o.label)+'</strong><span>'+escText(o.detail)+'</span></button>').join('');
    scroll.appendChild(panel);scroll.scrollTop=scroll.scrollHeight;
+  }
+  if(state.thread==='harley'&&['choice-b','choice-b-reply'].includes(f.phase)){
+   scroll.insertAdjacentHTML('beforeend','<div class="nakula-ch04-navigate"><p>Marjorie membutuhkan respons mengenai keamanan sumber.</p><button type="button" data-ch04-open-marjorie>Buka Pesan Marjorie</button></div>');
+   scroll.scrollTop=scroll.scrollHeight;
   }
   if(state.thread==='marjorie'&&f.phase==='choice-b'){
    const panel=document.createElement('section');panel.className='nakula-ch04-choice';
@@ -257,7 +261,7 @@ function decorate(){
    scroll.insertAdjacentHTML('beforeend',noticePanel());scroll.scrollTop=scroll.scrollHeight;
   }
  }
- if(state.app==='files'&&f.phase==='briefing'&&!document.querySelector('[data-ch04-open-harley]')){
+ if(state.app==='files'&&['briefing','choice-a','choice-a-reply'].includes(f.phase)&&!document.querySelector('[data-ch04-open-harley]')){
   const root=document.getElementById('app-content');
   if(root)root.insertAdjacentHTML('beforeend','<button class="nakula-ch04-file-to-chat" data-ch04-open-harley>Buka pesan Harley · Pembaruan Investigasi</button>');
  }
@@ -299,6 +303,12 @@ document.addEventListener('click',event=>{
  if(event.target.closest('[data-ch04-open-harley]')){
   event.preventDefault();event.stopImmediatePropagation();
   openApp('messages');if(state.app==='messages'){state.view='convo';state.thread='harley';api.markRead('harley');render()}return;
+ }
+ if(event.target.closest('[data-ch04-open-marjorie]')){
+  event.preventDefault();event.stopImmediatePropagation();
+  openApp('messages');if(state.app==='messages'){
+   state.view='convo';state.thread='marjorie';chapter.markRead('marjorie');render()
+  }return;
  }
  if(event.target.closest('[data-ch04-open-mail]')){
   event.preventDefault();event.stopImmediatePropagation();openApp('mail');return;
