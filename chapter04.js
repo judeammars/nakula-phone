@@ -301,6 +301,7 @@ window.nakulaChapter04=Object.freeze({
  docs, start:begin, decorate, onLayer, resume, isStarted:current,
  nirmalaActive:()=>s.nirmalaCount>0&&!s.nirmalaDone,
  onNirmalaEvent,
+ markIncoming:id=>{if(id==='marjorie'){s.marjorieUnread=true;save('CP04-unread-Marjorie');api.syncBadge()}},
  markRead:id=>{if(id==='marjorie'){s.marjorieUnread=false;save('CP04-read-Marjorie');api.syncBadge()}},
  isMorningNotice:()=>s.stage==='harley'&&s.harleyCount>0
 });
