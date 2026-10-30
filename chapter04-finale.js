@@ -87,7 +87,7 @@ function append(id,marker,time,text,isMine=false){
  const t=thread(id);if(!t)return;
  if(!t.messages.some(m=>m[marker]))t.messages.push({me:isMine,time,dayOffset:3,[marker]:true,text});
  t.date=time;front(t);
- if(!isMine)api.markIncoming(id);
+ if(!isMine){if(id==='marjorie')chapter.markIncoming('marjorie');else api.markIncoming(id)};
 }
 function announce(id){
  api.syncBadge();
