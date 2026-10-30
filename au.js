@@ -1856,8 +1856,7 @@ function showDay3ChapterComplete(){
   day3ClosingOverlay.innerHTML='<div class="nakula-ch03-finale-inner"><small>CHAPTER 03 COMPLETE</small>'+
    '<h2>THE OTHER SIGNATURE</h2><div class="nakula-ch03-finale-rule"></div>'+
    '<p>A name on a page is not the whole chain of command.</p>'+
-   '<span>Progres tersimpan · Berikutnya: Chapter 04</span>'+
-   '<button type="button" data-day3-chapter-close>Kembali ke Home</button></div>';
+   '<span>Progres tersimpan · DAY 4 dimulai otomatis</span></div>';
   $au('phone').appendChild(day3ClosingOverlay);
  }
  day3ClosingOverlay.hidden=false;
@@ -1868,6 +1867,7 @@ function completeDay3Chapter(){
  day3ChapterComplete=true;window.nakulaNarrativeClock.set(11,35,2);
  ensureDay3OtherSignatureNote();saveStoryState('CP03-CHAPTER-COMPLETE');
  showDay3ChapterComplete();
+ setTimeout(()=>{if(day3ChapterComplete&&!window.nakulaChapter04?.isStarted?.())window.nakulaChapter04?.start()},2600);
 }
 function renderDay3EvidenceAction(){
  if(!day3OtherSignatureOpened||!day3OtherSignatureDelivered||day3ChapterComplete||
@@ -1890,7 +1890,7 @@ document.addEventListener('click',e=>{
  if(close){
   e.preventDefault();e.stopImmediatePropagation();
   if(day3ClosingOverlay){day3ClosingOverlay.classList.remove('visible');day3ClosingOverlay.hidden=true}
-  state.view=null;state.thread=null;goHome();window.nakulaChapter04?.start();return;
+  window.nakulaChapter04?.start();return;
  }
 },true);
 
