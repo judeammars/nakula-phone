@@ -1,0 +1,93 @@
+/* WHATSAPP TRIAL • isolated preview branch. No story logic or saved data changes. */
+#phone.wa-preview .dock .app-button[data-app="messages"] .app-icon{background:#1fac68!important}
+#phone.wa-preview .dock .harley-au-unread-badge{background:#22c55e!important}
+#phone.wa-preview.in-app.harley-au-mode{--wa-bg:#0b141a;--wa-panel:#111b21;--wa-head:#202c33;--wa-ink:#e9edef;--wa-muted:#8696a0;--wa-green:#005c4b}
+#phone.wa-preview.in-app.harley-au-mode .statusbar{color:#edf2f3!important}
+#phone.wa-preview.in-app.harley-au-mode .home-bar{background:#eff4f6!important}
+#phone.wa-preview.in-app.harley-au-mode .page,
+#phone.wa-preview.in-app.harley-au-mode .page-content{background:var(--wa-bg)!important;color:var(--wa-ink)!important}
+#phone.wa-preview.in-app.harley-au-mode .page-head{background:var(--wa-panel)!important;color:var(--wa-ink)!important;border-color:#24333c!important}
+#phone.wa-preview.in-app.harley-au-mode .page-head .plain-btn,
+#phone.wa-preview.in-app.harley-au-mode .page-head .round-action{color:#25d366!important}
+#phone.wa-preview.in-app.harley-au-mode .page-head .app-title{color:#f1f4f5!important}
+#phone.wa-preview.in-app.harley-au-mode .large-title{color:var(--wa-ink)!important;font-size:30px!important;letter-spacing:-.045em}
+#phone.wa-preview.in-app.harley-au-mode .ios-search{background:#202c33!important;border:0!important;border-radius:12px!important;color:#8696a0!important}
+#phone.wa-preview.in-app.harley-au-mode .ios-search input{background:transparent!important;color:#e9edef!important}
+#phone.wa-preview.in-app.harley-au-mode .ios-search input::placeholder{color:#8696a0!important}
+#phone.wa-preview.in-app.harley-au-mode .smallcaps{display:none!important}
+#phone.wa-preview.in-app.harley-au-mode .threads{margin:8px -21px 0!important;padding-bottom:14px}
+#phone.wa-preview.in-app.harley-au-mode .thread{background:var(--wa-bg)!important;color:var(--wa-ink)!important;min-height:84px!important;padding:12px 18px 12px 15px!important;gap:12px!important}
+#phone.wa-preview.in-app.harley-au-mode .thread:hover{background:#18252c!important}
+#phone.wa-preview.in-app.harley-au-mode .thread:after{background:#26343b!important;left:78px!important;right:14px!important}
+#phone.wa-preview.in-app.harley-au-mode .thread .avatar{height:49px!important;width:49px!important;min-width:49px!important;flex:none!important;font-size:17px!important;overflow:hidden}
+#phone.wa-preview.in-app.harley-au-mode .thread-name{font-size:15px!important;color:#eef2f3!important;font-weight:650!important}
+#phone.wa-preview.in-app.harley-au-mode .thread-preview{color:#8696a0!important;font-size:12px!important;margin-top:6px!important;font-weight:400!important;line-height:1.35;max-width:100%}
+#phone.wa-preview.in-app.harley-au-mode .thread-date{font-size:10px!important;color:#8696a0!important}
+#phone.wa-preview.in-app.harley-au-mode .thread.is-unread .thread-date{color:#25d366!important}
+#phone.wa-preview.in-app.harley-au-mode .thread.is-unread .thread-name{color:#fff!important}
+#phone.wa-preview.in-app.harley-au-mode .thread.is-unread .thread-preview{color:#b7c5c9!important;font-weight:500!important}
+#phone.wa-preview.in-app.harley-au-mode .thread .thread-unread{background:#25d366!important;width:10px!important;height:10px!important;left:auto!important;right:18px!important;top:auto!important;bottom:16px!important;box-shadow:none!important}
+#phone.wa-preview.in-app.harley-au-mode .thread .thread-arrow{display:none!important}
+#phone.wa-preview.in-app.harley-au-mode .wa-filters{display:flex;gap:7px;margin:12px 0 7px;overflow-x:auto;scrollbar-width:none}
+#phone.wa-preview.in-app.harley-au-mode .wa-filters button{border:0;border-radius:19px;background:#202c33;color:#aebdc3;padding:8px 13px;font:500 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap;cursor:pointer}
+#phone.wa-preview.in-app.harley-au-mode .wa-filters button.is-active{background:#103c30;color:#2fe1a0}
+#phone.wa-preview.in-app.harley-au-mode .wa-empty{padding:32px 14px;text-align:center;color:#8696a0;font-size:13px}
+#phone.wa-preview.in-app.harley-au-mode .thread[hidden]{display:none!important}
+
+/* Conversation: dark WhatsApp wallpaper, green sent bubbles, charcoal received bubbles. */
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .page-head{
+ min-height:111px!important;height:111px!important;padding:48px 11px 9px!important;
+ background:#202c33!important;box-shadow:none!important;border-bottom:1px solid #273740!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important
+}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::before,
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .page-head::after{display:none!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .page-content{background:#0b141a!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll{
+ padding:128px 12px 17px!important;scroll-padding-top:128px!important;
+ --nakula-reference-cutout:#0b141a!important;
+ background-color:#0b141a!important;
+ background-image:radial-gradient(circle at 12px 28px,#24313a50 1.2px,transparent 1.9px),radial-gradient(circle at 39px 65px,#24313a45 1px,transparent 1.6px),linear-gradient(45deg,transparent 47.8%,#26343d14 49%,#26343d14 51%,transparent 52.2%)!important;
+ background-size:78px 95px,89px 112px,120px 120px!important
+}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-back{color:#d9e3e8!important;gap:3px!important;font-size:12px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-back svg{width:19px!important;height:21px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;min-width:0!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-avatar{width:37px!important;height:37px!important;min-width:37px!important;overflow:hidden!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-name{color:#f4f6f7!important;font-size:14px!important;font-weight:650!important;max-width:145px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-actions{color:#8cbfff!important;gap:12px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-actions svg{width:20px!important;height:20px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-chevron{display:none!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row{margin:4px 0!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble{
+ position:relative!important;display:block!important;box-sizing:border-box!important;
+ max-width:85%!important;width:fit-content!important;border-radius:11px!important;
+ padding:8px 9px 6px!important;font:400 14px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important;
+ letter-spacing:0!important;box-shadow:0 1px 1px #0003!important;
+ overflow-wrap:break-word!important;color:#e9edef!important;background:#202c33!important
+}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .bubble{background:#005c4b!important;color:#f0fbf6!important;border-top-right-radius:3px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.them .bubble{background:#202c33!important;color:#e9edef!important;border-top-left-radius:3px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::before,
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .bubble::after{content:none!important;display:none!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.chat-cluster-follow .bubble{border-radius:11px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row .wa-bubble-meta{display:block;text-align:right;color:#aebcc1;font-size:10px;line-height:1.2;margin-top:3px;white-space:nowrap}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .convo-scroll .bubble-row.me .wa-bubble-meta{color:#a4c5ba}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .wa-ticks{color:#65b7f5;font-size:13px;font-weight:700;margin-left:4px;letter-spacing:-3px;padding-right:3px}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .date-divider{width:fit-content;margin:6px auto 12px!important;background:#202c33!important;color:#b8c6cb!important;padding:5px 10px!important;border-radius:8px!important;font-size:11px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .nakula-chat-time-divider span{color:#8e9fa7!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-composer{background:#111b21!important;border-top:1px solid #25343b!important;padding:9px 9px 13px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-textbox{background:#2a3942!important;border:0!important;border-radius:22px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .chat-input{color:#f0f3f4!important;background:transparent!important;font-size:13px!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .chat-input::placeholder{color:#98a8b0!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-plus{background:transparent!important;color:#8696a0!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-camera,
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-mic{color:#98a9b2!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-composer .send-btn{background:#25d366!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-dots{background:#202c33!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .au-visual-keyboard{background:#202c33!important}
+#phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .nakula-file-attachment{border-color:#3b555a!important}
+@media(max-width:350px){
+ #phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-actions{gap:7px!important}
+ #phone.wa-preview.in-app.harley-au-mode #app-screen.page.in-conversation .harley-au-head-name{max-width:94px!important}
+}
